@@ -1,0 +1,13 @@
+{
+  "collectionName": "components_message_types_user_message_types",
+  "info": {
+    "displayName": "UserMessageType",
+    "icon": "message"
+  },
+  "options": {},
+  "attributes": {
+    "content": {
+      "type": "text"
+    }
+  }
+}

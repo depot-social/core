@@ -1,0 +1,62 @@
+{
+  "collectionName": "components_resource_types_berlin_resource_types",
+  "info": {
+    "displayName": "BerlinResourceType",
+    "icon": "bulletList"
+  },
+  "options": {},
+  "attributes": {
+    "provider": {
+      "type": "string"
+    },
+    "roomName": {
+      "type": "string"
+    },
+    "initialRoomName": {
+      "type": "string"
+    },
+    "maxCapacity": {
+      "type": "string"
+    },
+    "facilities": {
+      "type": "text"
+    },
+    "facilitiesAdditionalInfo": {
+      "type": "text"
+    },
+    "roomSizeSqm": {
+      "type": "integer"
+    },
+    "accessibilityState": {
+      "type": "enumeration",
+      "required": true,
+      "enum": [
+        "accessible",
+        "not_accessible",
+        "partly_accessible"
+      ]
+    },
+    "accessibilityInfo": {
+      "type": "text"
+    },
+    "usageHours": {
+      "type": "text"
+    },
+    "usageFeeDetails": {
+      "type": "text"
+    },
+    "contactPerson": {
+      "type": "string"
+    },
+    "contactEmail": {
+      "type": "email"
+    },
+    "contactPhone": {
+      "type": "string"
+    },
+    "offerPublishedAt": {
+      "type": "date"
+    }
+  },
+  "config": {}
+}

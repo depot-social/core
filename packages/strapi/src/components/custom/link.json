@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_custom_links",
+  "info": {
+    "displayName": "Link",
+    "icon": "anchor",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "url": {
+      "type": "string",
+      "required": true,
+      "regex": "(http(s)?:\\/\\/.)?(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)"
+    },
+    "title": {
+      "type": "string"
+    }
+  }
+}

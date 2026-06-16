@@ -1,0 +1,29 @@
+{
+  "kind": "singleType",
+  "collectionName": "resources_search_pages",
+  "info": {
+    "singularName": "resources-search-page",
+    "pluralName": "resources-search-pages",
+    "displayName": "Resources Search Page",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "faqSectionHeadline": {
+      "type": "string"
+    },
+    "faqs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::faq.faq"
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    }
+  }
+}

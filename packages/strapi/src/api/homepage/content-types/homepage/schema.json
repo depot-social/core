@@ -1,0 +1,64 @@
+{
+  "kind": "singleType",
+  "collectionName": "homepages",
+  "info": {
+    "singularName": "homepage",
+    "pluralName": "homepages",
+    "displayName": "Homepage",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "headerHeadline": {
+      "type": "string"
+    },
+    "headerDescription": {
+      "type": "richtext"
+    },
+    "headerResources": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::resource.resource"
+    },
+    "accordionSectionIntroLine": {
+      "type": "string"
+    },
+    "accordionSectionHeadline": {
+      "type": "string"
+    },
+    "accordionSectionDescription": {
+      "type": "richtext"
+    },
+    "accordionAccordion": {
+      "type": "component",
+      "component": "single-type-blocks.accordion-block",
+      "repeatable": false
+    },
+    "resourcesSectionIntroLine": {
+      "type": "string"
+    },
+    "resourcesSectionHeadline": {
+      "type": "string"
+    },
+    "resourcesSectionDescription": {
+      "type": "richtext"
+    },
+    "blogSectionIntroLine": {
+      "type": "string"
+    },
+    "blogSectionHeadline": {
+      "type": "string"
+    },
+    "placesSectionDescription": {
+      "type": "richtext"
+    },
+    "seo": {
+      "type": "component",
+      "component": "shared.seo",
+      "repeatable": false
+    }
+  }
+}

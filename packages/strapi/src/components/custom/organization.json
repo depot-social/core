@@ -1,0 +1,38 @@
+{
+  "collectionName": "components_custom_organizations",
+  "info": {
+    "displayName": "Organization",
+    "icon": "address-card"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "isApproved": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "foundation",
+        "association",
+        "company",
+        "misc"
+      ]
+    },
+    "website": {
+      "type": "string"
+    },
+    "proofDocument": {
+      "allowedTypes": [
+        "files"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

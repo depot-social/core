@@ -1,0 +1,114 @@
+{
+  "kind": "collectionType",
+  "collectionName": "resources",
+  "info": {
+    "singularName": "resource",
+    "pluralName": "resources",
+    "displayName": "Resource",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::category.category",
+      "inversedBy": "resources"
+    },
+    "purposes": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::purpose.purpose",
+      "mappedBy": "resources"
+    },
+    "district": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::district.district"
+    },
+    "address": {
+      "type": "component",
+      "component": "custom.address",
+      "repeatable": false
+    },
+    "images": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "videos"
+      ]
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "title",
+      "required": true
+    },
+    "prices": {
+      "type": "component",
+      "component": "custom.price",
+      "repeatable": true,
+      "required": false
+    },
+    "links": {
+      "type": "component",
+      "component": "custom.link",
+      "repeatable": true
+    },
+    "uploads": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "files"
+      ]
+    },
+    "bookings": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::booking.booking",
+      "mappedBy": "resource"
+    },
+    "resourceTypes": {
+      "type": "dynamiczone",
+      "components": [
+        "resource-types.contingent-resource-type",
+        "resource-types.berlin-resource-type"
+      ]
+    },
+    "legacyId": {
+      "type": "integer"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "resources"
+    },
+    "availabilities": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::availability.availability",
+      "mappedBy": "resource"
+    },
+    "attributes": {
+      "type": "component",
+      "component": "custom.resource-attribute",
+      "repeatable": true
+    },
+    "isPinned": {
+      "type": "boolean"
+    }
+  }
+}

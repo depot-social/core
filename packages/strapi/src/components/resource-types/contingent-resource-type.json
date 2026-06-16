@@ -1,0 +1,37 @@
+{
+  "collectionName": "components_contingent_resource_type",
+  "info": {
+    "displayName": "ContingentResourceType",
+    "icon": "bezier-curve",
+    "description": "Provides fields for contingent-based availability check"
+  },
+  "options": {},
+  "attributes": {
+    "availableUnits": {
+      "type": "integer",
+      "required": true,
+      "default": 1
+    },
+    "minBookableUnits": {
+      "type": "integer"
+    },
+    "generateRentContract": {
+      "type": "boolean",
+      "default": true,
+      "required": false
+    },
+    "onlyNotForProfit": {
+      "type": "boolean",
+      "default": false
+    },
+    "extraTextRentContract": {
+      "type": "richtext"
+    },
+    "extraTextBookingConfirmation": {
+      "type": "richtext"
+    },
+    "openingTimes": {
+      "type": "richtext"
+    }
+  }
+}

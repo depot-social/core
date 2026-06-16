@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_single_type_blocks_accordions",
+  "info": {
+    "displayName": "Accordion",
+    "icon": "bulletList",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "linkPath": {
+      "type": "string"
+    },
+    "linkText": {
+      "type": "string"
+    },
+    "illustration": {
+      "allowedTypes": [
+        "images"
+      ],
+      "type": "media",
+      "multiple": false
+    }
+  }
+}

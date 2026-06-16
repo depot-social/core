@@ -1,0 +1,28 @@
+{
+  "name": "@depot/availabilities",
+  "version": "0.2.0",
+  "description": "Provides resource availability business logic & API",
+  "strapi": {
+    "name": "@depot/availabilities",
+    "description": "Provides resource availability business logic & API",
+    "kind": "plugin"
+  },
+  "devDependencies": {
+    "@depot/shared": "workspace:^",
+    "@strapi/typescript-utils": "^5.22.0",
+    "date-fns": "^3.6.0"
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "author": "Felix Sänger <felix@depot.social>",
+  "maintainers": [
+    "Felix Sänger <felix@depot.social>"
+  ],
+  "scripts": {
+    "develop": "tsc -p tsconfig.server.json -w",
+    "build": "tsc -p tsconfig.server.json"
+  },
+  "license": "MIT",
+  "main": "strapi-server.js"
+}

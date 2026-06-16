@@ -1,0 +1,10 @@
+.cache/
+.tmp/
+node_modules/
+packages/import-csv/data/
+dist/
+public/
+config/
+tmp/
+*.json
+*.md

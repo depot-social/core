@@ -1,0 +1,7 @@
+node_modules
+.env
+docs/*
+tsconfig.tsbuildinfo
+packages/strapi/src/extensions/documentation/documentation/*
+.cursor/*
+.codex

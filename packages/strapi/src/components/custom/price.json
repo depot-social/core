@@ -1,0 +1,59 @@
+{
+  "collectionName": "components_custom_prices",
+  "info": {
+    "displayName": "Price",
+    "icon": "money-bill-alt",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": false
+    },
+    "value": {
+      "type": "decimal",
+      "required": true,
+      "default": 0
+    },
+    "currency": {
+      "type": "enumeration",
+      "enum": [
+        "euro",
+        "usd"
+      ],
+      "default": "euro",
+      "required": true
+    },
+    "durationType": {
+      "type": "enumeration",
+      "enum": [
+        "daily",
+        "hourly"
+      ],
+      "default": "daily",
+      "required": true
+    },
+    "tariffType": {
+      "type": "enumeration",
+      "enum": [
+        "regular",
+        "notForProfit"
+      ],
+      "default": "regular",
+      "required": true
+    },
+    "depositValue": {
+      "type": "decimal"
+    },
+    "vatValue": {
+      "type": "decimal"
+    },
+    "duration": {
+      "type": "integer"
+    },
+    "resourceValue": {
+      "type": "decimal"
+    }
+  }
+}

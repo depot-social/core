@@ -1,0 +1,42 @@
+{
+  "name": "@depot/shared",
+  "version": "0.2.0",
+  "description": "Common utilities and TypeScript definitions",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "types": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "node build.js",
+    "develop": "tsc -w"
+  },
+  "dependencies": {
+    "@types/node": "^20.19.11",
+    "date-fns": "^3.6.0",
+    "lodash-es": "^4.17.21",
+    "random-location": "^1.1.3"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "*",
+    "node-fetch": "^3.3.2"
+  },
+  "peerDependencies": {
+    "@types/eslint": "*",
+    "typescript": "*"
+  },
+  "author": "Felix Sänger <felix@depot.social>",
+  "license": "MIT"
+}

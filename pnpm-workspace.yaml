@@ -1,0 +1,14 @@
+packages:
+  - packages/*
+  - packages/strapi/src/plugins/*
+
+ignoredBuiltDependencies:
+  - '@parcel/watcher'
+  - core-js
+  - sharp
+
+onlyBuiltDependencies:
+  - '@swc/core'
+  - better-sqlite3
+  - core-js-pure
+  - esbuild

@@ -1,0 +1,15 @@
+{
+  "collectionName": "components_booking_event_message_types",
+  "info": {
+    "displayName": "BookingEventMessageType",
+    "icon": "bell"
+  },
+  "options": {},
+  "attributes": {
+    "booking": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::booking.booking"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "kind": "collectionType",
+  "collectionName": "bookings",
+  "info": {
+    "singularName": "booking",
+    "pluralName": "bookings",
+    "displayName": "Booking",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "start": {
+      "type": "datetime",
+      "required": true
+    },
+    "end": {
+      "type": "datetime",
+      "required": true
+    },
+    "bookingStatus": {
+      "type": "enumeration",
+      "required": true,
+      "default": "requested",
+      "enum": [
+        "requested",
+        "cancelled",
+        "confirmed"
+      ]
+    },
+    "resource": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::resource.resource",
+      "inversedBy": "bookings"
+    },
+    "bookedUnits": {
+      "type": "integer",
+      "required": true,
+      "default": 1,
+      "min": 1
+    },
+    "title": {
+      "type": "string"
+    },
+    "resourceOwner": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "bookingsResourceOwner"
+    },
+    "customer": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "bookingsCustomer"
+    },
+    "price": {
+      "type": "component",
+      "component": "custom.price",
+      "repeatable": false
+    },
+    "customerAddress": {
+      "type": "component",
+      "component": "custom.address",
+      "repeatable": false
+    },
+    "commentCustomer": {
+      "type": "text"
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "kind": "singleType",
+  "collectionName": "email_templates",
+  "info": {
+    "singularName": "email-template",
+    "pluralName": "email-templates",
+    "displayName": "Email templates"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "content-manager": {
+      "visible": true
+    },
+    "content-type-builder": {
+      "visible": true
+    }
+  },
+  "attributes": {
+    "layout": {
+      "type": "text"
+    },
+    "bookingRequestTitle": {
+      "type": "string"
+    },
+    "bookingRequestBody": {
+      "type": "text"
+    },
+    "resourceAwaitsActivationTitle": {
+      "type": "string"
+    },
+    "resourceAwaitsActivationBody": {
+      "type": "text"
+    },
+    "organizationAwaitsActivationTitle": {
+      "type": "string"
+    },
+    "organizationAwaitsActivationBody": {
+      "type": "text"
+    },
+    "berlinBookingTitle": {
+      "type": "string"
+    },
+    "berlinBookingTitleCopy": {
+      "type": "string"
+    },
+    "berlinBookingBody": {
+      "type": "text"
+    },
+    "raffleEntryTitle": {
+      "type": "string"
+    },
+    "raffleEntryTitleCopy": {
+      "type": "string"
+    },
+    "raffleEntryBody": {
+      "type": "text"
+    }
+  }
+}

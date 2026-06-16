@@ -1,0 +1,30 @@
+{
+  "name": "@depot/prices",
+  "version": "0.2.0",
+  "description": "Provides resource price calculation",
+  "strapi": {
+    "name": "@depot/prices",
+    "description": "Provides resource price calculation",
+    "kind": "plugin"
+  },
+  "devDependencies": {
+    "@depot/shared": "workspace:^",
+    "@strapi/typescript-utils": "^5.22.0",
+    "date-fns": "^3.6.0"
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "author": "Felix Sänger <felix@depot.social>",
+  "maintainers": [
+    {
+      "name": "Felix Sänger <felix@depot.social>"
+    }
+  ],
+  "scripts": {
+    "develop": "tsc -p tsconfig.server.json -w",
+    "build": "tsc -p tsconfig.server.json"
+  },
+  "license": "MIT",
+  "main": "strapi-server.js"
+}

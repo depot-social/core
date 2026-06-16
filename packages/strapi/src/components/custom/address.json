@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_custom_addresses",
+  "info": {
+    "displayName": "Address",
+    "icon": "map-marked-alt",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "street": {
+      "type": "string"
+    },
+    "zip": {
+      "type": "string"
+    },
+    "place": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "float"
+    },
+    "longitude": {
+      "type": "float"
+    },
+    "obfuscatedLatitude": {
+      "type": "float"
+    },
+    "obfuscatedLongitude": {
+      "type": "float"
+    }
+  }
+}

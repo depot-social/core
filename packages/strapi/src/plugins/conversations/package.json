@@ -1,0 +1,32 @@
+{
+  "name": "@depot/conversations",
+  "version": "0.2.0",
+  "description": "Provides socket.io endpoints for real-time chats",
+  "strapi": {
+    "name": "@depot/conversations",
+    "description": "Provides socket.io endpoints for real-time chats",
+    "kind": "plugin"
+  },
+  "devDependencies": {
+    "@strapi/typescript-utils": "^5.22.0"
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "author": "Felix Sänger <felix@depot.social>",
+  "maintainers": [
+    {
+      "name": "Felix Sänger <felix@depot.social>"
+    }
+  ],
+  "scripts": {
+    "develop": "tsc -p tsconfig.server.json -w",
+    "build": "tsc -p tsconfig.server.json"
+  },
+  "license": "MIT",
+  "main": "strapi-server.js",
+  "dependencies": {
+    "@depot/shared": "workspace:^",
+    "socket.io": "^4.6.1"
+  }
+}

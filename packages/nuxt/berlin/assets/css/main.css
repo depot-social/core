@@ -1,0 +1,291 @@
+@import '../../../base/assets/css/main.css';
+@import '@nuxt/ui';
+
+/* Override DaisyUI theme variables */
+@plugin "daisyui" {
+  themes: depot-berlin --default;
+}
+
+@plugin "daisyui/theme" {
+  name: 'depot-berlin';
+  default: true;
+  color-scheme: light;
+  --color-base-100: white;
+  --color-secondary: var(--color-very-bright-gray);
+  --radius-selector: 2rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.3125rem;
+  --border: 1px;
+}
+
+/* Override Tailwind theme variables */
+@theme {
+  --font-sans: 'IBM Plex Sans Condensed', sans-serif;
+  --font-text: 'IBM Plex Sans Condensed', sans-serif;
+
+  --text-base: 18px;
+  --text-2lg: 24px;
+  --text-xl: 32px;
+
+  --color-primary: black;
+  --color-very-bright-gray: hsla(0, 0%, 92%, 1);
+  --color-violet-100: hsla(255, 34%, 77%, 1);
+  --color-background-100: hsla(36, 100%, 99.02%);
+  --color-background-300: hsla(30, 18%, 67%, 1);
+}
+
+:root {
+  --ui-text: black;
+}
+
+/* fonts including unicode arrows -> latin-ext_vietnamese */
+/* ibm-plex-sans-condensed-300 - latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: 'IBM Plex Sans Condensed';
+  font-style: normal;
+  font-weight: 300;
+  src: url('/fonts/ibm-plex-sans-condensed-v15-latin-ext_vietnamese-300.woff2')
+    format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* ibm-plex-sans-condensed-regular - latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: 'IBM Plex Sans Condensed';
+  font-style: normal;
+  font-weight: 400;
+  src: url('/fonts/ibm-plex-sans-condensed-v15-latin-ext_vietnamese-regular.woff2')
+    format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* ibm-plex-sans-condensed-500 - latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: 'IBM Plex Sans Condensed';
+  font-style: normal;
+  font-weight: 500;
+  src: url('/fonts/ibm-plex-sans-condensed-v15-latin-ext_vietnamese-500.woff2')
+    format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* ibm-plex-sans-condensed-600 - latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: 'IBM Plex Sans Condensed';
+  font-style: normal;
+  font-weight: 600;
+  src: url('/fonts/ibm-plex-sans-condensed-v15-latin-ext_vietnamese-600.woff2')
+    format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+/* ibm-plex-sans-condensed-700 - latin-ext_vietnamese */
+@font-face {
+  font-display: swap; /* Check https://developer.mozilla.org/en-US/docs/Web/CSS/@font-face/font-display for other options. */
+  font-family: 'IBM Plex Sans Condensed';
+  font-style: normal;
+  font-weight: 700;
+  src: url('/fonts/ibm-plex-sans-condensed-v15-latin-ext_vietnamese-700.woff2')
+    format('woff2'); /* Chrome 36+, Opera 23+, Firefox 39+, Safari 12+, iOS 10+ */
+}
+
+html {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: auto;
+}
+
+p {
+  @apply text-base font-light leading-normal tracking-[-1%];
+}
+
+h1 {
+  @apply text-2xl md:text-3xl font-semibold leading-tight;
+}
+
+h2 {
+  @apply text-2lg md:text-xl font-semibold tracking-[-1%] leading-tight mb-1;
+}
+
+h3 {
+  @apply text-xl md:text-2lg font-semibold tracking-[-1%] leading-tight mb-1;
+}
+
+* + h2 {
+  @apply mt-5;
+}
+
+* + h3 {
+  @apply mt-5;
+}
+
+b,
+strong {
+  @apply font-semibold;
+}
+
+.resources-search-input {
+  @apply rounded-lg transition-all w-full h-full lg:pr-10 text-left hover:placeholder:text-gray-800 font-medium text-lg md:text-2lg pl-14 outline-none border-1 border-transparent bg-white;
+}
+
+.resource-image-grid {
+  max-height: 540px;
+  display: grid;
+  grid-template-rows: calc(var(--containerWidth, 860px) / 2);
+
+  @media (min-width: 80rem) {
+    max-height: 100%;
+    height: calc(var(--containerWidth, 860px) / 2);
+  }
+
+  & div {
+    height: 100%;
+    width: 100%;
+  }
+
+  & img {
+    object-fit: cover;
+    object-position: bottom;
+    height: 100%;
+  }
+
+  &.has-1-images {
+    grid-template-columns: 1fr;
+  }
+
+  &.has-2-images {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  &.has-3-images {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: repeat(2, calc(var(--containerWidth, 860px) / 4));
+
+    & > :first-child {
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+  }
+
+  &.has-4-images {
+    grid-template-columns: 1fr 0.5fr 0.5fr;
+    grid-template-rows: repeat(2, calc(var(--containerWidth, 860px) / 4));
+
+    & > :first-child {
+      grid-column: 1 / span 1;
+      grid-row: 1 / span 2;
+    }
+
+    & > :nth-child(4) {
+      grid-column: 2 / span 2;
+    }
+  }
+
+  &.has-5-images {
+    grid-template-columns: 1fr 0.5fr 0.5fr;
+    grid-template-rows: repeat(2, calc(var(--containerWidth, 860px) / 4));
+
+    & > :nth-child(1) {
+      grid-row: span 2 / span 2;
+    }
+
+    & > :nth-child(3) {
+      grid-column-start: 2;
+      grid-row-start: 2;
+    }
+
+    & > :nth-child(4) {
+      grid-column-start: 3;
+      grid-row-start: 1;
+    }
+
+    & > :nth-child(5) {
+      grid-column-start: 3;
+    }
+  }
+}
+
+.collapse {
+  @apply border-0 bg-transparent border-b border-b-[#ADA4C9] rounded-none my-0 transition-none;
+}
+
+.collapse .collapse-content {
+  @apply border-none bg-transparent text-black px-6;
+}
+
+.collapse .collapse-content p {
+  @apply w-full text-base font-light leading-normal tracking-[-1%];
+}
+
+.collapse .collapse-content a {
+  @apply text-black hover:underline underline-offset-2 decoration-1 font-semibold;
+}
+
+.collapse-stacked > .collapse-title {
+  @apply border-none rounded-none bg-transparent font-bold text-2lg pl-0 pr-16;
+}
+
+.collapse-stacked > .collapse-title:after {
+  @apply content-['+'] w-6 h-6 flex-shrink-0 text-4xl top-[22px] leading-[0.5] font-light shadow-none transform-none;
+}
+
+.collapse-stacked > input:checked + .collapse-title:after {
+  @apply content-['−'];
+}
+
+.raum-form-control:is(input, textarea, button) {
+  @apply text-base md:text-lg leading-tight px-5 py-4 bg-[#F7F7F7] bg-white border-none! w-full focus-within:bg-white transition-colors rounded-md;
+
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.1) inset;
+
+  &[aria-invalid='true'] {
+    /* @apply focus-visible:outline-black focus-visible:outline-dashed outline-offset-2 ring-2 ring-red-300; */
+    @apply ring-2 ring-red-300 focus-visible:ring-red-600;
+  }
+
+  &[aria-invalid='false'] {
+    @apply ring-black;
+  }
+
+  &::placeholder {
+    @apply text-base md:text-lg leading-tight;
+  }
+}
+
+.raum-form-control label {
+  @apply text-base font-light;
+}
+
+[id] {
+  scroll-margin-top: 1.25rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.badge:focus {
+  @apply outline-none ring-2;
+}
+
+/* hot fix */
+.leaflet-container a:not(.btn-primary) {
+  color: var(--color-primary) !important;
+}
+
+/* external link icon (from engagiertes.berlin) */
+.external-link {
+  @apply relative;
+}
+
+.external-link::after {
+  content: '';
+  display: inline-block;
+  vertical-align: baseline;
+  background-color: currentColor;
+  width: 1em;
+  height: 0.8em;
+  margin: 0 0.5em -0.1em 0.2em;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: left;
+  mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"%3E%3Cpath d="M24 28H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10v2H4v20h20V16h2v10a2 2 0 0 1-2 2z"/%3E%3Cpath d="M18 2v2h6.6L16 12.6l1.4 1.4L26 5.4V12h2V2Z"/%3E%3C/svg%3E');
+}

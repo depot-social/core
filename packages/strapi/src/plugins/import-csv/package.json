@@ -1,0 +1,30 @@
+{
+  "name": "@depot/import-csv",
+  "version": "0.2.0",
+  "description": "Imports resources, bookings, units and user data from CSV files",
+  "strapi": {
+    "name": "@depot/import-csv",
+    "description": "Imports resources, bookings, units and user data from CSV files",
+    "kind": "plugin"
+  },
+  "devDependencies": {
+    "@strapi/typescript-utils": "^5.22.0",
+    "csvtojson": "^2.0.10",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "php-unserialize": "^0.0.1"
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "author": "Felix Sänger <felix@depot.social>",
+  "maintainers": [
+    "Felix Sänger <felix@depot.social>"
+  ],
+  "scripts": {
+    "do-no-use-develop": "tsc -p tsconfig.server.json -w",
+    "build": "tsc -p tsconfig.server.json"
+  },
+  "license": "MIT",
+  "main": "strapi-server.js"
+}
