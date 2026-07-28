@@ -10,6 +10,7 @@
   "devDependencies": {
     "@depot/shared": "workspace:^",
     "@strapi/typescript-utils": "^5.22.0",
+    "@types/koa": "^3.0.3",
     "date-fns": "^3.6.0"
   },
   "peerDependencies": {
