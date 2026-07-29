@@ -39,6 +39,9 @@ export const getImage: ProviderGetImage = (
 
   const operations = operationsGenerator(modifiers as any);
 
+  // Remove /uploads suffix as it'd break with strapi-plugin-image-sharp
+  src = src.startsWith('/uploads') ? src.replace('/uploads', '') : src;
+
   return {
     url: joinURL(baseURL, operations, src),
   };
