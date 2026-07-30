@@ -37,10 +37,5 @@
       "name": "pnpm",
       "onFail": "error"
     }
-  },
-  "pnpm": {
-    "overrides": {
-      "@strapi/strapi": "5.51.0"
-    }
   }
 }

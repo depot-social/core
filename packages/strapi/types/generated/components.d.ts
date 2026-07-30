@@ -261,7 +261,7 @@ export interface SingleTypeBlocksFaqs extends Struct.ComponentSchema {
 }
 
 declare module '@strapi/strapi' {
-  export module Public {
+  export namespace Public {
     export interface ComponentSchemas {
       'custom.address': CustomAddress;
       'custom.link': CustomLink;
