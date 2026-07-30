@@ -4,7 +4,9 @@
   "description": "Resource booking platform and API",
   "scripts": {
     "start": "pnpm dev",
-    "dev": "pnpm -r --parallel --filter @depot/strapi --filter @depot/nuxt run dev",
+    "dev": "concurrently -k -n strapi,nuxt -c blue,green \"pnpm run dev:strapi\" \"pnpm run dev:nuxt\"",
+    "dev:strapi": "pnpm --filter @depot/strapi run dev",
+    "dev:nuxt": "wait-on -t 120000 http-get://127.0.0.1:1337 && pnpm --filter @depot/nuxt run dev",
     "build": "pnpm --filter @depot/* build",
     "test": "pnpm run test.unit",
     "prettier": "prettier --write .",
@@ -14,15 +16,17 @@
   "license": "MIT",
   "devDependencies": {
     "@vitest/ui": "^0.34.7",
+    "concurrently": "^10.0.4",
     "prettier": "^2.8.8",
     "typescript": "^5.6.3",
     "vite-tsconfig-paths": "^4.3.2",
-    "vitest": "^0.34.6"
+    "vitest": "^0.34.6",
+    "wait-on": "^9.1.0"
   },
   "dependencies": {
+    "@depot/nuxt": "workspace:^",
     "@depot/shared": "workspace:^",
-    "@depot/strapi": "workspace:^",
-    "@depot/nuxt": "workspace:^"
+    "@depot/strapi": "workspace:^"
   },
   "engines": {
     "node": ">=20.0.0",
@@ -32,6 +36,11 @@
     "packageManager": {
       "name": "pnpm",
       "onFail": "error"
+    }
+  },
+  "pnpm": {
+    "overrides": {
+      "@strapi/strapi": "5.51.0"
     }
   }
 }
