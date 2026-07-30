@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 const NUXT_LAYERS = process.env.NUXT_LAYERS ?? '';
 const extendNuxtLayers = NUXT_LAYERS.split(',');
 
+const IS_PROD = process.env.NODE_ENV === 'production';
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -19,7 +21,7 @@ export default defineNuxtConfig({
     '@nuxtjs/strapi',
     '@nuxtjs/leaflet',
     '@nuxt/ui',
-    '@nuxtjs/plausible',
+    IS_PROD ? '@nuxtjs/plausible' : undefined,
   ],
   ui: {
     colorMode: false,
