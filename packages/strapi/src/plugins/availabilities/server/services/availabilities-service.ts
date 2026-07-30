@@ -378,7 +378,7 @@ export default ({
           },
         },
       },
-    }) as Resource;
+    }) as unknown as Resource;
 
     return resource ?? null;
   },
