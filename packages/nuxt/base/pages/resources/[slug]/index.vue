@@ -268,7 +268,7 @@ const { find } = useStrapi();
 let similarResources: Resource[] = [];
 
 // Fetch resource by slug
-const resourceResponse = await useAsyncData('resource', () =>
+const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
   find<Resource>('resources', {
     filters: {
       slug: {
