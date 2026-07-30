@@ -374,13 +374,17 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
       'prices',
       'categories',
       'attributes.attribute',
-      'resourceTypes.berlinResourceType',
-      'resourceTypes.contingentResourceType',
+      // 'resourceTypes.berlinResourceType',
+      // 'resourceTypes.contingentResourceType',
     ],
   })
 );
 
-if (!resourceResponse.data || resourceResponse.data.value?.data.length === 0) {
+if (
+  !resourceResponse.data ||
+  !resourceResponse.data.value ||
+  resourceResponse.data.value?.data.length === 0
+) {
   throw createError({
     statusCode: 404,
     statusMessage: PAGE_NOT_FOUND,
