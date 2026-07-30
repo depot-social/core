@@ -16,6 +16,7 @@
     "clear-cache": "rm -rf .cache && rm -rf dist",
     "generate-types": "npm run strapi ts:generate-types --verbose",
     "cli:import-csv": "ENV_PATH=./../../.env node ./cli/import-csv.js",
+    "cli:republish-resources": "ENV_PATH=./../../.env node ./cli/republish-resources.js",
     "ci:install": "npx -y pnpm@10.15.0 install --frozen-lockfile",
     "ci:build": "npx -y pnpm@10.15.0 -r --filter @depot/shared --filter @depot/availabilities --filter @depot/conversations --filter @depot/emails --filter @depot/prices --filter @depot/strapi build"
   },
@@ -29,6 +30,7 @@
     "@strapi/provider-email-sendmail": "^5.51.0",
     "@strapi/strapi": "^5.51.0",
     "@strapi/typescript-utils": "^5.51.0",
+    "@strapi/utils": "^5.51.0",
     "@symlab/strapi-plugin-local-image-format": "^2.1.0",
     "axios": "^1.18.1",
     "better-sqlite3": "11.3.0",
