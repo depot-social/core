@@ -1,14 +1,15 @@
 packages:
   - packages/*
   - packages/strapi/src/plugins/*
-
-ignoredBuiltDependencies:
-  - '@parcel/watcher'
-  - core-js
-  - sharp
-
-onlyBuiltDependencies:
-  - '@swc/core'
-  - better-sqlite3
-  - core-js-pure
-  - esbuild
+publicHoistPattern:
+  - '*@strapi*'
+  - lodash
+  - lodash/**
+allowBuilds:
+  '@swc/core': true
+  better-sqlite3: true
+  core-js-pure: true
+  esbuild: true
+  '@parcel/watcher': false
+  core-js: false
+  sharp: false
