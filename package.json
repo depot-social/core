@@ -38,5 +38,12 @@
       "version": "11.20.0",
       "onFail": "error"
     }
+  },
+   "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@swc/core",
+      "better-sqlite3"
+    ]
   }
 }
