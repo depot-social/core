@@ -1,5 +1,8 @@
 import type { Resource, SingleTypePage } from '@depot/shared';
 
+const NUXT_LAYERS = process.env.NUXT_LAYERS ?? '';
+const extendNuxtLayers = NUXT_LAYERS.split(',').map((layer) => layer.trim());
+
 const resourceBasePath = '/raeume';
 const resourceLocaleFile = 'de-raum.json';
 
@@ -58,16 +61,14 @@ export default defineNuxtConfig({
 
   hooks: {
     async 'prerender:routes'(ctx) {
-      const strapiUrl = process.env.PUBLIC_STRAPI_URL;
-
-      if (!strapiUrl) {
-        throw new Error('Missing PUBLIC_STRAPI_URL');
+      if (extendNuxtLayers.includes('./berlin-ausleihe')) {
+        return;
       }
 
       // Add content pages
-      const { data: pageData } = await fetch(`${strapiUrl}/api/pages`).then(
-        (res) => res.json()
-      );
+      const { data: pageData } = await fetch(
+        `${process.env.PUBLIC_STRAPI_URL}/api/pages`
+      ).then((res) => res.json());
 
       for (const page of pageData as SingleTypePage[]) {
         ctx.routes.add(`/${page.slug}`);
@@ -75,7 +76,7 @@ export default defineNuxtConfig({
 
       // Add resource pages
       const { data: resourceData } = await fetch(
-        `${strapiUrl}/api/resources`
+        `${process.env.PUBLIC_STRAPI_URL}/api/resources`
       ).then((res) => res.json());
 
       for (const resource of resourceData as Resource[]) {

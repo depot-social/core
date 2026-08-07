@@ -32,7 +32,7 @@ export default defineNuxtConfig({
       },
 
       'resources-add': {
-        de:  '/ressource-hinzufuegen',
+        de: '/ressource-hinzufuegen',
       },
 
       'bookings-add': {
@@ -58,16 +58,14 @@ export default defineNuxtConfig({
 
   hooks: {
     async 'prerender:routes'(ctx) {
-      const strapiUrl = process.env.PUBLIC_STRAPI_URL;
-
-      if (!strapiUrl) {
+      if (!process.env.PUBLIC_STRAPI_URL) {
         throw new Error('Missing PUBLIC_STRAPI_URL');
       }
 
       // Add content pages
-      const { data: pageData } = await fetch(`${strapiUrl}/api/pages`).then(
-        (res) => res.json()
-      );
+      const { data: pageData } = await fetch(
+        `${process.env.PUBLIC_STRAPI_URL}/api/pages`
+      ).then((res) => res.json());
 
       for (const page of pageData as SingleTypePage[]) {
         ctx.routes.add(`/${page.slug}`);
@@ -75,7 +73,7 @@ export default defineNuxtConfig({
 
       // Add resource pages
       const { data: resourceData } = await fetch(
-        `${strapiUrl}/api/resources`
+        `${process.env.PUBLIC_STRAPI_URL}/api/resources`
       ).then((res) => res.json());
 
       for (const resource of resourceData as Resource[]) {
