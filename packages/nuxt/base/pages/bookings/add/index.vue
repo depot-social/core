@@ -43,10 +43,7 @@
 import type { Resource, User, Booking } from '@depot/shared';
 import { fetchMaxAvailableUnits } from '~/base/utils/availabilities';
 import { getResourcePath, getBookingPath } from '~/base/utils/paths';
-import {
-  PAGE_NOT_FOUND,
-  MISSING_PARAMETERS_ERROR,
-} from '~/base/utils/errors';
+import { PAGE_NOT_FOUND, MISSING_PARAMETERS_ERROR } from '~/base/utils/errors';
 
 useHead({
   title: $t('bookingRequest_pageTitle'),
@@ -181,7 +178,7 @@ const onSubmit = async (formData: Partial<Booking>) => {
       end: formData.end,
       bookedUnits: formData.bookedUnits,
       resource: {
-        id: formData.resource?.id,
+        id: resourceId,
       },
     });
 
