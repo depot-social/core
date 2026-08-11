@@ -53,7 +53,7 @@
           </svg>
           <span>
             <span class="badge">
-              {{ $t('bookingStatus') }}: {{ booking?.status }}
+              {{ $t('bookingStatus') }}: {{ booking?.bookingStatus }}
             </span>
             <NuxtLink
               :to="`/api/rental-agreement/${booking.documentId}`"
@@ -229,8 +229,8 @@ const onConfirm = async () => {
       'bookings',
       booking.value.documentId,
       {
-        status: 'confirmed',
-      } as Partial<Booking>
+        bookingStatus: 'confirmed',
+      } satisfies BookingRequest
     );
     if (response?.data) {
       booking.value = response.data as Booking;
@@ -255,8 +255,8 @@ const onCancel = async () => {
       'bookings',
       booking.value.documentId,
       {
-        status: 'cancelled',
-      } as Partial<Booking>
+        bookingStatus: 'cancelled',
+      } satisfies BookingRequest
     );
     if (response?.data) {
       booking.value = response.data as Booking;

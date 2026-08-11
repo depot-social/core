@@ -148,7 +148,7 @@ const finalUnits = Math.min(units, maxAvailableUnits.value || 0);
 const bookingFormData = reactive<Partial<Booking>>({
   start,
   end,
-  status: 'requested',
+  bookingStatus: 'requested',
   bookedUnits: finalUnits,
   title: '',
   resource: resource.value,
