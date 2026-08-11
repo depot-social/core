@@ -79,20 +79,16 @@ const user = useStrapiUser() as Ref<User>;
 // Fetch resource data
 const { data: resource, pending } = await useAsyncData('resource', async () => {
   try {
-    const response = await findOne<Resource>(
-      'resources',
-      resourceDocumentId,
-      {
-        populate: [
-          'images',
-          'resourceTypes',
-          'address',
-          'prices',
-          'categories',
-          'user',
-        ],
-      }
-    );
+    const response = await findOne<Resource>('resources', resourceDocumentId, {
+      populate: [
+        'images',
+        'resourceTypes',
+        'address',
+        'prices',
+        'categories',
+        'user',
+      ],
+    });
 
     if (!response?.data) {
       throw createError({
@@ -195,6 +191,11 @@ const onSubmit = async (formData: BookingFormValues) => {
     if (!response || !response.data) {
       throw new Error('Failed to create booking');
     }
+
+    toast.add({
+      title: $t('bookingSuccessful'),
+      description: $t('bookingSuccessfulDescription'),
+    });
 
     await navigateTo(getBookingPath(response.data.documentId));
   } catch (error) {

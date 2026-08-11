@@ -107,28 +107,34 @@ export default {
       const { data, where } = params;
       const ctx = strapi.requestContext.get();
 
-      // @todo update of bookings should(!) only be allowed via Strapi UI,
-      // except for start, end and status fields. Once that logic is implemented,
-      // continue here:
+      let bookingData = data;
 
-      // if (isUpdate && where) {
-      //   const existingBooking = await strapi.db
-      //     .query('api::booking.booking')
-      //     .findOne({
-      //       where,
-      //       populate: ['resource'],
-      //     });
+      if (isUpdate) {
+        const existingBooking = await strapi.db
+          .query('api::booking.booking')
+          .findOne({
+            where,
+            populate: ['resource'],
+          });
 
-      //   if (existingBooking) {
-      //     bookingData = {
-      //       ...existingBooking,
-      //       ...data,
-      //       resource: data.resource !== undefined ? data.resource : existingBooking.resource,
-      //     };
-      //   }
-      // }
+        if (!existingBooking) {
+          ctx.throw(404, 'Booking not found.');
+        }
 
-      const { start, end, resource, bookedUnits } = data;
+        // Strapi update lifecycle payloads are patches. This also applies to our
+        // post-create price/title updates, so validate the resulting entity rather
+        // than requiring every update operation to repeat all mandatory fields.
+        bookingData = {
+          ...existingBooking,
+          ...data,
+          resource:
+            data.resource !== undefined
+              ? data.resource
+              : existingBooking.resource,
+        };
+      }
+
+      const { start, end, resource, bookedUnits } = bookingData;
 
       if (!start || !end || !resource || !bookedUnits || isNaN(bookedUnits) || bookedUnits <= 0) {
         ctx.throw(400, 'Fields start, end, resource, and bookedUnits must be set.');
@@ -301,8 +307,12 @@ export default {
       }
 
       bookingUpdateInProgress = true;
-      await setBookingPrice(ev);
-      bookingUpdateInProgress = false;
+      try {
+        await setBookingPrice(ev);
+      } finally {
+        // Do not leave all later booking updates disabled after a failed price update.
+        bookingUpdateInProgress = false;
+      }
     };
 
     /**
@@ -325,10 +335,14 @@ export default {
       }
 
       bookingUpdateInProgress = true;
-      await addBookingMessage(event);
-      await setBookingPrice(event);
-      await populateBookingTitleFromResourceAndDates(strapi, documentId);
-      bookingUpdateInProgress = false;
+      try {
+        await addBookingMessage(event);
+        await setBookingPrice(event);
+        await populateBookingTitleFromResourceAndDates(strapi, documentId);
+      } finally {
+        // Always release the recursion guard when a post-create operation fails.
+        bookingUpdateInProgress = false;
+      }
 
       const ctx = strapi.requestContext.get();
 
@@ -351,7 +365,9 @@ export default {
         'emailsService'
       );
 
-      emailsService.sendBookingRequestMail(documentId);
+      // The email service reads booking/template data from Strapi. Await it so those
+      // queries finish before the lifecycle's transaction context is committed.
+      await emailsService.sendBookingRequestMail(documentId);
     };
 
     strapi.db.lifecycles.subscribe({

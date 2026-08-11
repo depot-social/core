@@ -241,5 +241,9 @@
   "errorSavingAvailability": "Fehler beim Speichern der Verfügbarkeit",
   "clickToEditAvailability": "Klicken, um Verfügbarkeit zu bearbeiten",
   "openBookingNewTab": "Buchung öffnen (neuer Tab)",
-  "booking": "Buchung"
+  "booking": "Buchung",
+  "noUnitsAvailable": "Keine Einheiten verfügbar",
+  "noUnitsAvailableDescription": "Bitte gewünschten Zeitraum anpassen und erneut versuchen.",
+  "bookingSuccessful": "Buchung angefragt",
+  "bookingSuccessfulDescription": "Die Ausleiher:in wurde benachrichtigt."
 }
