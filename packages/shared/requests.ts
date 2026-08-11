@@ -6,6 +6,7 @@ import type {
   AvailabilitiesGetMaxAvailableResponse,
   Availability,
   Booking,
+  BookingRequest,
   Category,
   FAQ,
   FetchMaxAvailableUnitsRequest,
@@ -114,13 +115,17 @@ export const getUrlFromParameters = (params: Parameters): string =>
     : '';
 
 /**
- * Child references of an entity should only contain their ID,
+ * Child references of an entity should only contain their document ID,
  * not the full object.
  */
 const simplifyEntityReferences = (data: object): object => {
   Object.keys(data).forEach((key) => {
     if (typeof data[key] === 'object' && data[key] !== null) {
-      if (data[key].id) {
+      if (typeof data[key].documentId === 'string') {
+        data[key] = {
+          documentId: data[key].documentId,
+        };
+      } else if (data[key].id) {
         data[key] = {
           id: data[key].id,
         };
@@ -212,8 +217,8 @@ export const fetchBookingById = async ({
   jwt,
   body,
   parameters,
-}: APIProps<{ id: string | number }>): Promise<
-  StrapiResponse<Availability | undefined>
+}: APIProps<{ id: string }>): Promise<
+  StrapiResponse<Booking | undefined>
 > => {
   const { id } = body;
 
@@ -227,7 +232,7 @@ export const fetchBookingById = async ({
   );
 
   const bookingData = await response.json();
-  return bookingData as StrapiResponse<Availability | undefined>;
+  return bookingData as StrapiResponse<Booking | undefined>;
 };
 
 export const fetchResourceBySlug = async ({
@@ -299,7 +304,7 @@ export const fetchResourceById = async ({
   baseUrl,
   parameters,
   body,
-}: APIProps<{ id: string | number }>): Promise<Resource> => {
+}: APIProps<{ id: string }>): Promise<Resource> => {
   const { id } = body;
 
   const response = await fetch(
@@ -340,7 +345,7 @@ export const fetchCalendar = async ({
 }: APIProps<{
   start: Date;
   end: Date;
-  resource_id: number;
+  resource_id: string;
 }>): Promise<AvailabilitiesGetCalendarResponseData> => {
   const { start, end, resource_id } = body;
 
@@ -453,7 +458,7 @@ export const addBooking = async ({
   baseUrl,
   jwt,
   body,
-}: APIProps<Partial<Booking>>): Promise<any> => {
+}: APIProps<BookingRequest>): Promise<any> => {
   const response = await fetch(`${baseUrl}/api/bookings`, {
     method: 'POST',
     headers: {
@@ -512,11 +517,11 @@ export const deleteAvailability = async ({
   baseUrl,
   jwt,
   body,
-}: APIProps<number>): Promise<boolean> => {
-  const availability_id = body;
+}: APIProps<string>): Promise<boolean> => {
+  const availabilityDocumentId = body;
 
   const response = await fetch(
-    `${baseUrl}/api/availabilities/${availability_id}`,
+    `${baseUrl}/api/availabilities/${availabilityDocumentId}`,
     {
       method: 'DELETE',
       headers: {
@@ -538,10 +543,10 @@ export const updateAvailability = async ({
 }: APIProps<Availability>): Promise<
   StrapiResponse<Availability | undefined>
 > => {
-  const { id } = body;
+  const { documentId } = body;
 
   const response = await fetch(
-    `${baseUrl}/api/availabilities/${id}?populate[]=resource`,
+    `${baseUrl}/api/availabilities/${documentId}?populate[]=resource`,
     {
       method: 'PUT',
       headers: {

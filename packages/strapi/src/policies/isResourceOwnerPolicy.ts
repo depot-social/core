@@ -1,5 +1,6 @@
 const { ForbiddenError } = require('@strapi/utils').errors; // ^^ Error classes: https://docs.strapi.io/dev-docs/error-handling#default-error-classes
 import type { Core } from '@strapi/strapi';
+import { getRelationDocumentId } from '../utils';
 
 /**
  * Generic policy to check if the user is authenticated
@@ -27,32 +28,41 @@ export default async (
 
   if (route.method === 'POST') {
     const { data } = body;
-    const resourceId = Number(data.resource.id);
+    const resourceDocumentId = getRelationDocumentId(data.resource);
+    const userDocumentId = getRelationDocumentId(user.documentId);
 
-    if (isNaN(resourceId)) {
+    if (!resourceDocumentId) {
       throw new ForbiddenError('Invalid resource id.');
     }
+
+    if (!userDocumentId) {
+      throw new ForbiddenError('Invalid user document id.');
+    }
+
+    body.data.resource = { documentId: resourceDocumentId };
 
     const userWithResources = await strapi
       .documents('plugin::users-permissions.user')
       .findOne({
-        documentId: user.id.toString(),
+        documentId: userDocumentId,
         populate: {
           resources: {
-            fields: ['id'],
+            fields: ['documentId'],
           },
         },
       });
 
     const resources = (userWithResources as any)?.resources as
-      | Array<{ id: number | string }>
+      | Array<{ documentId: string }>
       | undefined;
 
     if (!resources || resources.length === 0) {
       throw new ForbiddenError('No resources found.');
     }
 
-    if (!resources.some((resource) => Number(resource.id) === resourceId)) {
+    if (
+      !resources.some((resource) => resource.documentId === resourceDocumentId)
+    ) {
       throw new ForbiddenError('Wrong resource owner.');
     }
 

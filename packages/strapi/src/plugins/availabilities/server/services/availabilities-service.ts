@@ -26,24 +26,24 @@ export interface AvailabilitiesService {
     ctx: ParameterizedContext,
     start: Date,
     end: Date,
-    resourceId: string | number
+    resourceDocumentId: string
   ): Promise<AvailabilitiesGetCalendarResponseData | undefined>;
   getMaxAvailable(
     ctx: ParameterizedContext,
     start: Date,
     end: Date,
-    resourceId: string | number,
+    resourceDocumentId: string,
     excludeBookingId?: undefined | number
   ): Promise<AvailabilitiesGetMaxAvailableResponseData>;
   searchResourceWithAvailabilities(
     start: Date,
     end: Date,
-    resourceId: string | number
+    resourceDocumentId: string
   ): Promise<Resource | null>;
   searchBookingsWithAvailabilities(
     start: Date,
     end: Date,
-    resourceId: string | number
+    resourceDocumentId: string
   ): Promise<Booking[]>;
   calcMaxAvailableWithinTimespan(
     start: Date,
@@ -127,7 +127,7 @@ export default ({
   }),
 
   async getDashboardByUserId(userId) {
-    const resourceFields = ['id', 'title'];
+    const resourceFields = ['documentId', 'title'];
 
     const user = await strapi.db
       .query('plugin::users-permissions.user')
@@ -174,7 +174,7 @@ export default ({
       resource.availabilities.map((availability) => ({
         ...availability,
         resource: {
-          id: resource.id,
+          documentId: resource.documentId,
           title: resource.title,
         },
       }))
@@ -192,10 +192,10 @@ export default ({
    * a total number on (non-)bookable units for easy display in calendar.
    * @todo Loads to optimise, as each day is requested individually
    */
-  async getCalendar(ctx, start, end, resourceId) {
+  async getCalendar(ctx, start, end, resourceDocumentId) {
     const resource = await (
       this as AvailabilitiesService
-    ).searchResourceWithAvailabilities(start, end, resourceId);
+    ).searchResourceWithAvailabilities(start, end, resourceDocumentId);
 
     if (!resource) {
       ctx.throw(404, 'Resource not found');
@@ -223,7 +223,7 @@ export default ({
               ctx,
               dateStart,
               dateEnd,
-              resourceId
+              resourceDocumentId
             )) || 0,
         };
       })
@@ -231,7 +231,7 @@ export default ({
 
     return {
       resource: {
-        id: resource.id,
+        documentId: resource.documentId,
       },
       dates,
     } as AvailabilitiesGetCalendarResponseData;
@@ -288,12 +288,12 @@ export default ({
     ctx,
     start,
     end,
-    resourceId,
+    resourceDocumentId,
     excludeBookingId = undefined
   ) {
     const resource = await (
       this as AvailabilitiesService
-    ).searchResourceWithAvailabilities(start, end, resourceId);
+    ).searchResourceWithAvailabilities(start, end, resourceDocumentId);
 
     if (!resource) {
       // @todo To make this more agnostic, we should return
@@ -340,7 +340,7 @@ export default ({
 
     let bookings = await (
       this as AvailabilitiesService
-    ).searchBookingsWithAvailabilities(start, end, resourceId);
+    ).searchBookingsWithAvailabilities(start, end, resourceDocumentId);
 
     if (bookings) {
       if (excludeBookingId) {
@@ -359,10 +359,10 @@ export default ({
     return maxAvailableUnits;
   },
 
-  async searchResourceWithAvailabilities(start, end, resourceId) {
-    const resource = await strapi.documents('api::resource.resource').findOne({
-      fields: ['id', 'title'],
-      documentId: resourceId.toString(),
+  async searchResourceWithAvailabilities(start, end, resourceDocumentId) {
+    const resource = (await strapi.documents('api::resource.resource').findOne({
+      fields: ['documentId', 'title'],
+      documentId: resourceDocumentId,
       populate: {
         availabilities: {
           filters: (this as AvailabilitiesService).populateTimespanFilter(
@@ -378,17 +378,17 @@ export default ({
           },
         },
       },
-    }) as unknown as Resource;
+    })) as unknown as Resource;
 
     return resource ?? null;
   },
 
-  async searchBookingsWithAvailabilities(start, end, resourceId) {
+  async searchBookingsWithAvailabilities(start, end, resourceDocumentId) {
     const bookings = (await strapi.documents('api::booking.booking').findMany({
       fields: ['id', 'bookingStatus', 'bookedUnits'],
       filters: {
         resource: {
-          id: resourceId,
+          documentId: resourceDocumentId,
         },
         bookingStatus: {
           $ne: 'cancelled',

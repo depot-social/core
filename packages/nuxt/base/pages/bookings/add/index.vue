@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 // Booking form for "ContingentResourceType"
-import type { Resource, User, Booking } from '@depot/shared';
+import type { Resource, User, Booking, BookingRequest } from '@depot/shared';
 import { fetchMaxAvailableUnits } from '~/base/utils/availabilities';
 import { getResourcePath, getBookingPath } from '~/base/utils/paths';
 import { PAGE_NOT_FOUND, MISSING_PARAMETERS_ERROR } from '~/base/utils/errors';
@@ -57,13 +57,13 @@ const route = useRoute();
 const { findOne, create } = useStrapi();
 
 // Get query parameters
-const resourceId = route.query.resource_id as string;
+const resourceDocumentId = route.query.resource_id as string;
 const start = route.query.start as string;
 const end = route.query.end as string;
 const unitsParam = route.query.units as string;
 
 // Validate required parameters
-if (!resourceId || !start || !end) {
+if (!resourceDocumentId || !start || !end) {
   throw createError({
     statusCode: 422,
     statusMessage: MISSING_PARAMETERS_ERROR,
@@ -80,7 +80,7 @@ const { data: resource, pending } = await useAsyncData('resource', async () => {
   try {
     const response = await findOne<Resource>(
       'resources',
-      resourceId.toString(),
+      resourceDocumentId,
       {
         populate: [
           'images',
@@ -111,13 +111,13 @@ const { data: resource, pending } = await useAsyncData('resource', async () => {
 });
 
 const { data: maxAvailableUnits } = await useAsyncData(
-  `maxAvailableUnits-${resourceId}-${start}-${end}`,
+  `maxAvailableUnits-${resourceDocumentId}-${start}-${end}`,
   async () => {
     try {
       return await fetchMaxAvailableUnits({
         start,
         end,
-        resourceId,
+        resourceId: resourceDocumentId,
       });
     } catch (e) {
       console.error('Error checking availability', e);
@@ -172,22 +172,23 @@ const errorMessage = ref('');
 
 const onSubmit = async (formData: Partial<Booking>) => {
   try {
-    const response = await create<Booking>('bookings', {
+    const bookingRequest: BookingRequest = {
       ...formData,
       start: formData.start,
       end: formData.end,
       bookedUnits: formData.bookedUnits,
       resource: {
-        id: resourceId,
+        documentId: resourceDocumentId,
       },
-    });
+    };
+
+    const response = await create<Booking>('bookings', bookingRequest);
 
     if (!response || !response.data) {
       throw new Error('Failed to create booking');
     }
 
-    const bookingId = response.data.id;
-    await navigateTo(getBookingPath(bookingId));
+    await navigateTo(getBookingPath(response.data.documentId));
   } catch (error) {
     console.error('Booking submission error:', error);
     errorMessage.value = $t('bookingSubmissionError');

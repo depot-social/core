@@ -8,7 +8,7 @@ export interface PricesService {
     start: Date,
     end: Date,
     units: number,
-    loggedInUserId?: number | null
+    loggedInUserDatabaseId?: number | null
   ): Promise<Price | undefined>;
 }
 
@@ -61,7 +61,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): PricesService => ({
    * - If no price exists, throw an error
    *
    */
-  async getPrice(resourceDocumentId, start, end, units, loggedInUserId) {
+  async getPrice(resourceDocumentId, start, end, units, loggedInUserDatabaseId) {
     const resource = await strapi
       .documents('api::resource.resource')
       .findOne({
@@ -70,12 +70,13 @@ export default ({ strapi }: { strapi: Core.Strapi }): PricesService => ({
         populate: ['prices'],
       }) as Resource;      
 
-    const loggedInUser: User = loggedInUserId
-      ? ((await strapi.documents('plugin::users-permissions.user').findOne({
-        documentId: loggedInUserId.toString(),
-        fields: ['id'],
-        populate: ['organization'],
-      })) as unknown as User)
+    const loggedInUser: User = loggedInUserDatabaseId
+      ? ((await strapi.db
+        .query('plugin::users-permissions.user')
+        .findOne({
+          where: { id: loggedInUserDatabaseId },
+          populate: ['organization'],
+        })) as unknown as User)
       : null;
     // console.log("Logged in user", loggedInUser)
     const loggedInUserIsNonProfit = loggedInUser

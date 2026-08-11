@@ -33,7 +33,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     // As config.auth is set to false for this route, ctx.state.user seems to be null by default
 
     const userToken: Token | null = await jwtService.getToken(ctx);
-    const loggedInUserId = userToken ? userToken.id : null;
+    const loggedInUserDatabaseId = userToken ? userToken.id : null;
 
     const pricesService: PricesService = await strapi
       .plugin('prices')
@@ -44,7 +44,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       start,
       end,
       units,
-      loggedInUserId
+      loggedInUserDatabaseId
     );
 
     ctx.body = price;

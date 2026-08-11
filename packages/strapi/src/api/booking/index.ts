@@ -3,7 +3,7 @@ import { Booking, Price } from '@depot/shared';
 import { ConversationsService } from '../../plugins/conversations/server/services/conversations-service';
 import { PricesService } from '../../plugins/prices/server/services/prices-service';
 import { EmailsService } from '../../plugins/emails/server/services/emails-service';
-import { isAdminOrBackofficeRequest } from '../../utils';
+import { getRelationDocumentId, isAdminOrBackofficeRequest } from '../../utils';
 import { AvailabilitiesService } from '../../plugins/availabilities/server/services/availabilities-service';
 
 const formatDateTime = (value: string | Date | null | undefined): string => {
@@ -146,15 +146,10 @@ export default {
       // @todo the rest of the validation doesn't work in context
       // of content-type api (resource id vs. documentid mismatch)
 
-      let resourceId = resource;
-      if (typeof resource === 'object' && resource !== null) {
-        if ('documentId' in resource || 'id' in resource) {
-          resourceId = resource.documentId || resource.id;
-        } else if ('connect' in resource && Array.isArray(resource.connect) && resource.connect.length > 0) {
-          // Strapi syntax for relations
-          const connectItem = resource.connect[0];
-          resourceId = typeof connectItem === 'object' ? connectItem.documentId || connectItem.id : connectItem;
-        }
+      const resourceDocumentId = getRelationDocumentId(resource);
+
+      if (!resourceDocumentId) {
+        ctx.throw(400, 'Invalid resource document ID.');
       }
 
       const availabilitiesService: AvailabilitiesService = await strapi
@@ -175,7 +170,7 @@ export default {
         ctx,
         startDate,
         endDate,
-        resourceId,
+        resourceDocumentId,
         excludeBookingId
       );
 
@@ -185,7 +180,7 @@ export default {
 
       // Automatically assign the resource owner
       const fullResource = await strapi.documents('api::resource.resource').findOne({
-        documentId: resourceId,
+        documentId: resourceDocumentId,
         populate: ['user'],
       });
 
@@ -241,7 +236,7 @@ export default {
           documentId,
           populate: {
             resource: {
-              fields: ['id'],
+              fields: ['documentId'],
             },
           },
         })) as any;
@@ -256,9 +251,9 @@ export default {
         return;
       }
 
-      const loggedInUserId = ctx.state?.user?.id;
+      const loggedInUserDatabaseId = ctx.state?.user?.id;
 
-      if (!loggedInUserId) {
+      if (!loggedInUserDatabaseId) {
         console.warn(
           'setBookingPrice: No logged in user. Probably called from within backend.'
         );
@@ -274,7 +269,7 @@ export default {
         new Date(start),
         new Date(end),
         bookedUnits,
-        loggedInUserId
+        loggedInUserDatabaseId
       );
 
       if (!price) {

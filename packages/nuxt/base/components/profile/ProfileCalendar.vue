@@ -99,7 +99,7 @@ const formatDate = (date: Date, formatStr: string) => {
 };
 
 const mapAvailabilityToCalendarEvent = (availability: Availability) => ({
-  id: availability.id.toString(),
+  id: availability.documentId,
   calendarId: CalendarType.AVAILABILITIES,
   title: availability.title,
   category: 'time',
@@ -233,7 +233,7 @@ const onSaveAvailability = async (
     calendar.value.createEvents([mapAvailabilityToCalendarEvent(availability)]);
   } else {
     calendar.value.updateEvent(
-      availability.id.toString(),
+      availability.documentId,
       CalendarType.AVAILABILITIES,
       mapAvailabilityToCalendarEvent(availability)
     );
@@ -246,7 +246,7 @@ const onDeleteAvailability = async (availability: Availability) => {
   if (!calendar.value) return;
 
   calendar.value.deleteEvent(
-    availability.id.toString(),
+    availability.documentId,
     CalendarType.AVAILABILITIES
   );
 };

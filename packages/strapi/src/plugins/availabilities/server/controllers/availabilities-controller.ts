@@ -1,9 +1,7 @@
 import type { Core } from '@strapi/strapi';
 import { isValid, isBefore, isAfter } from 'date-fns';
 import { AvailabilitiesService } from '../services/availabilities-service';
-import {
-  AvailabilitiesGetMaxAvailableResponse,
-} from '@depot/shared';
+import { AvailabilitiesGetMaxAvailableResponse } from '@depot/shared';
 import { ParameterizedContext } from 'koa';
 
 export default ({ strapi }: { strapi: Core.Strapi }) => ({
@@ -27,7 +25,11 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
   async getCalendar(ctx: ParameterizedContext) {
     const { request } = ctx;
     const { query } = request;
-    const { start, end, resource_id } = query as { start: string, end: string, resource_id: number };
+    const { start, end, resource_id } = query as {
+      start: string;
+      end: string;
+      resource_id: string;
+    };
 
     if (!start || !end || !resource_id) {
       ctx.throw(400, 'Missing parameters');
@@ -61,7 +63,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       ctx,
       startDate,
       endDate,
-      resource_id,
+      resource_id
     );
 
     ctx.body = {
@@ -72,7 +74,12 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
   async getMaxAvailable(ctx: ParameterizedContext) {
     const { request } = ctx;
     const { query } = request;
-    let { start, end, resource_id, exclude_booking_id } = query as { start: string, end: string, resource_id: number, exclude_booking_id: number | undefined };
+    let { start, end, resource_id, exclude_booking_id } = query as {
+      start: string;
+      end: string;
+      resource_id: string;
+      exclude_booking_id: number | undefined;
+    };
 
     if (!start || !end || !resource_id) {
       ctx.throw(400, 'Missing parameters');
@@ -113,7 +120,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       startDate,
       endDate,
       resource_id,
-      exclude_booking_id,
+      exclude_booking_id
     );
 
     ctx.body = {

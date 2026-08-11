@@ -56,7 +56,7 @@
               {{ $t('bookingStatus') }}: {{ booking?.status }}
             </span>
             <NuxtLink
-              :to="`/api/rental-agreement/${booking.id}`"
+              :to="`/api/rental-agreement/${booking.documentId}`"
               v-if="booking?.bookingStatus === 'confirmed'"
               >Verleihvertrag</NuxtLink
             >
@@ -93,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Booking, User } from '@depot/shared';
+import type { Booking, BookingRequest, User } from '@depot/shared';
 import { PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 useHead({
@@ -190,18 +190,23 @@ const toast = useToast();
 
 const onSubmit = async (formData: Partial<Booking>) => {
   try {
-    if (!booking.value?.id) {
+    if (!booking.value?.documentId || !formData.resource?.documentId) {
       throw new Error('Missing booking id');
     }
-    const response = await update<Booking>('bookings', booking.value.id, {
+    const bookingRequest: BookingRequest = {
       ...formData,
       start: formData.start,
       end: formData.end,
       bookedUnits: formData.bookedUnits,
       resource: {
-        id: formData.resource?.id,
+        documentId: formData.resource.documentId,
       },
-    });
+    };
+    const response = await update<Booking>(
+      'bookings',
+      booking.value.documentId,
+      bookingRequest
+    );
 
     if (!response || !response.data) {
       throw new Error('Failed to update booking');
@@ -219,10 +224,14 @@ const onSubmit = async (formData: Partial<Booking>) => {
 
 const onConfirm = async () => {
   try {
-    if (!booking.value?.id) return;
-    const response = await update<Booking>('bookings', booking.value.id, {
-      status: 'confirmed',
-    } as Partial<Booking>);
+    if (!booking.value?.documentId) return;
+    const response = await update<Booking>(
+      'bookings',
+      booking.value.documentId,
+      {
+        status: 'confirmed',
+      } as Partial<Booking>
+    );
     if (response?.data) {
       booking.value = response.data as Booking;
       toast.add({
@@ -241,10 +250,14 @@ const onConfirm = async () => {
 
 const onCancel = async () => {
   try {
-    if (!booking.value?.id) return;
-    const response = await update<Booking>('bookings', booking.value.id, {
-      status: 'cancelled',
-    } as Partial<Booking>);
+    if (!booking.value?.documentId) return;
+    const response = await update<Booking>(
+      'bookings',
+      booking.value.documentId,
+      {
+        status: 'cancelled',
+      } as Partial<Booking>
+    );
     if (response?.data) {
       booking.value = response.data as Booking;
       toast.add({

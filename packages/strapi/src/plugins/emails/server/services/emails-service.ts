@@ -129,7 +129,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
 
       const customerName = `${customer.firstName} ${customer.lastName}`;
       const commentCustomer = booking.commentCustomer;
-      const bookingUrl = `${depotBaseUrl}/bookings/${booking.id}`; // @todo Use getBookingPath(id) from @depot/nuxt
+      const bookingUrl = `${depotBaseUrl}/bookings/${booking.documentId}`; // @todo Use getBookingPath(documentId) from @depot/nuxt
       const start =
         format(new Date(booking.start), 'dd.MM.yyyy, HH:mm') + ` Uhr`;
       const ende =

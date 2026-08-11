@@ -25,7 +25,7 @@ export const getUserChatPath = (): string => `/user/chat`;
 
 export const getUserSettingsPath = (): string => `/user/settings`;
 
-export const getBookingPath = (id: number) => `/bookings/${id}`;
+export const getBookingPath = (documentId: string) => `/bookings/${documentId}`;
 
 export const getBookingsAddPath = (): string => `/bookings/add`;
 

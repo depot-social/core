@@ -3,6 +3,11 @@ import type { Core } from '@strapi/strapi';
 import { isAfter, isBefore, isValid } from 'date-fns';
 import { Booking, Resource } from '@depot/shared';
 import { AvailabilitiesService } from '../plugins/availabilities/server/services/availabilities-service'; // @todo not ideal
+import { getRelationDocumentId } from '../utils';
+
+type BookingRequestData = Omit<Partial<Booking>, 'resource'> & {
+  resource?: unknown;
+};
 
 /**
  * Called from either POST or PUT /bookings route
@@ -29,13 +34,19 @@ export default async (
   }
 
   const isAddAction = route.method === 'POST';
-  const booking: Booking = body.data;
+  const booking = body.data as BookingRequestData;
 
   if (!booking) {
     throw new ApplicationError('No data provided.');
   }
 
-  const id = !isAddAction ? Number(params.id) : undefined;
+  const bookingDocumentId = !isAddAction
+    ? getRelationDocumentId(params.id)
+    : undefined;
+
+  if (!isAddAction && !bookingDocumentId) {
+    throw new ApplicationError('Invalid booking document id.');
+  }
 
   if (typeof booking.resource === 'undefined' || !booking.resource) {
     throw new ApplicationError('Missing resource id.');
@@ -43,26 +54,27 @@ export default async (
 
   // @todo This is not ideal, as an already setted resource
   // (in case of PUT) is not required again in request body
-  const resourceId = Number(
-    typeof booking.resource === 'object'
-      ? booking.resource.id
-      : booking.resource
-  );
+  const resourceDocumentId = getRelationDocumentId(booking.resource);
 
-  if (isNaN(resourceId)) {
+  if (!resourceDocumentId) {
     throw new ApplicationError('Invalid resource id.');
   }
+
+  // The Document Service only resolves relation objects by `documentId`. Keep
+  // accepting the transitional `{ id: '<document-id>' }` request shape, but
+  // normalize it before the core controller receives the payload.
+  body.data.resource = { documentId: resourceDocumentId };
 
   let originalBooking: any; // Booking
 
   if (!isAddAction) {
     originalBooking = (await strapi.documents('api::booking.booking').findOne({
-      documentId: id.toString(),
+      documentId: bookingDocumentId,
       fields: ['id', 'bookingStatus'],
 
       populate: {
         resource: {
-          fields: ['id'],
+          fields: ['documentId'],
         },
         customer: {
           fields: ['id'],
@@ -72,6 +84,10 @@ export default async (
         },
       },
     })) as unknown as Booking;
+
+    if (!originalBooking) {
+      throw new ApplicationError('Booking not found.');
+    }
 
     if (originalBooking.bookingStatus === 'confirmed') {
       throw new ForbiddenError('Confirmed bookings can not be changed.');
@@ -84,7 +100,7 @@ export default async (
       throw new ForbiddenError('Only owner of a given booking can change it.');
     }
 
-    if (originalBooking.resource.id !== resourceId) {
+    if (originalBooking.resource.documentId !== resourceDocumentId) {
       throw new ForbiddenError(
         'Resource of a given booking can not be changed.'
       );
@@ -128,8 +144,8 @@ export default async (
     fakeCtx as any,
     start,
     end,
-    resourceId,
-    isAddAction ? undefined : id
+    resourceDocumentId,
+    isAddAction ? undefined : originalBooking.id
   );
 
   if (maxAvailable && maxAvailable >= requestedUnits) {
@@ -142,8 +158,8 @@ export default async (
     const resource: Resource = (await strapi
       .documents('api::resource.resource')
       .findOne({
-        documentId: resourceId.toString(),
-        fields: ['id'],
+        documentId: resourceDocumentId,
+        fields: ['documentId'],
 
         populate: {
           user: {
@@ -152,7 +168,9 @@ export default async (
         },
       })) as unknown as Resource;
 
-    console.log('RESOURCE XXX', resource);
+    if (!resource?.user?.id) {
+      throw new ApplicationError('Resource has no owner.');
+    }
 
     body.data.customer = user.id;
     body.data.resourceOwner = resource.user.id;
@@ -164,6 +182,4 @@ export default async (
       `Not enough available units (max. available: ${maxAvailable}).`
     );
   }
-
-  return false;
 };

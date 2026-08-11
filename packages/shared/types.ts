@@ -1,6 +1,16 @@
-export interface StrapiBaseEntity {
+export type DocumentId = string;
+
+export interface StrapiDocumentReference {
+  documentId: DocumentId;
+}
+
+/** @deprecated Use StrapiDocumentReference for new request payloads. */
+export interface TransitionalDocumentReference {
+  id: DocumentId;
+}
+
+export interface StrapiBaseEntity extends StrapiDocumentReference {
   id: number;
-  documentId: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +42,16 @@ export interface Booking extends StrapiBaseEntity {
   commentCustomer: string | null;
   checkTermsConditions: boolean;
 }
+
+export type ResourceRelationInput =
+  | DocumentId
+  | StrapiDocumentReference
+  | TransitionalDocumentReference
+  | Resource;
+
+export type BookingRequest = Omit<Partial<Booking>, 'resource'> & {
+  resource?: ResourceRelationInput;
+};
 
 export enum BerlinBookingIntend {
   LEARNING_TOGETHER = 'Zusammen lernen',
@@ -90,6 +110,7 @@ export interface FAQ extends StrapiBaseEntity {
 
 export interface Availability {
   id: number;
+  documentId: DocumentId;
   title: string;
   start: string | Date;
   end: string | Date;
@@ -383,7 +404,7 @@ export interface StrapiResponse<T> {
 
 // Prices API
 export interface FetchResourcePriceRequest {
-  resource_id: number;
+  resource_id: DocumentId;
   start: Date;
   end: Date;
   units: number;
@@ -423,7 +444,7 @@ export interface AvailabilitiesGetDashboardResponse {
 export interface FetchMaxAvailableUnitsRequest {
   start: Date;
   end: Date;
-  resource_id: number | string;
+  resource_id: DocumentId;
   exclude_booking_id?: number;
 }
 

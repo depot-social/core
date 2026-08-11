@@ -28,7 +28,7 @@
       >
         <h2 class="font-bold text-2xl mb-6 text-gray-800 border-b pb-2">
           {{ $t('availability') }}
-          {{ availability.id ? $t('edit') : $t('add') }}
+          {{ availability.documentId ? $t('edit') : $t('add') }}
         </h2>
 
         <p class="mb-4 text-gray-400 italic">
@@ -60,13 +60,13 @@
             {{ $t('resource') }}
           </label>
           <select
-            v-model="formData.resourceId"
+            v-model="formData.resourceDocumentId"
             class="bg-gray-200 appearance-none border-2 border-gray-200 rounded-lg w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-blue-500 grow"
           >
             <option
               v-for="resource in resources"
-              :key="resource.id"
-              :value="resource.id"
+              :key="resource.documentId"
+              :value="resource.documentId"
             >
               {{ resource.title }}
             </option>
@@ -149,7 +149,7 @@
 
         <div class="mt-8 text-right">
           <span
-            v-if="availability.id"
+            v-if="availability.documentId"
             tabindex="0"
             class="text-red-700 underline cursor-pointer mr-4"
             @click="onDelete"
@@ -200,9 +200,15 @@ const arbitraryDateAsDate = (date: Date | string | undefined): Date =>
 
 const formData = reactive({
   title: props.availability.title || '',
-  resourceId: props.availability.resource?.id || props.resources[0]?.id || null,
+  resourceDocumentId:
+    props.availability.resource?.documentId ||
+    props.resources[0]?.documentId ||
+    null,
   availableUnits: props.availability.availableUnits || 0,
-  startDate: format(arbitraryDateAsDate(props.availability.start), 'yyyy-MM-dd'),
+  startDate: format(
+    arbitraryDateAsDate(props.availability.start),
+    'yyyy-MM-dd'
+  ),
   startTime: format(arbitraryDateAsDate(props.availability.start), 'HH:mm'),
   endDate: format(arbitraryDateAsDate(props.availability.end), 'yyyy-MM-dd'),
   endTime: format(arbitraryDateAsDate(props.availability.end), 'HH:mm'),
@@ -218,7 +224,7 @@ const updateAvailability = () => {
   props.availability.title = formData.title;
   props.availability.availableUnits = formData.availableUnits;
   props.availability.resource = props.resources.find(
-    (r) => r.id === formData.resourceId
+    (resource) => resource.documentId === formData.resourceDocumentId
   );
   props.availability.start = new Date(
     format(startDate, 'yyyy-MM-dd') + 'T' + formData.startTime
@@ -249,7 +255,7 @@ const onClose = () => {
 };
 
 const onDelete = async () => {
-  if (!props.availability.id) {
+  if (!props.availability.documentId) {
     return;
   }
 
@@ -267,7 +273,7 @@ const onDelete = async () => {
     }
 
     await $fetch(
-      `${config.public.strapiUrl}/api/availabilities/${props.availability.id}`,
+      `${config.public.strapiUrl}/api/availabilities/${props.availability.documentId}`,
       {
         method: 'DELETE',
         headers: {
@@ -294,7 +300,7 @@ const onSubmit = async () => {
     return;
   }
 
-  const isNew = typeof props.availability.id === 'undefined';
+  const isNew = !props.availability.documentId;
 
   try {
     const cookies = useCookie('strapi_jwt');
@@ -310,7 +316,9 @@ const onSubmit = async () => {
       start: props.availability.start,
       end: props.availability.end,
       availableUnits: props.availability.availableUnits,
-      resource: props.availability.resource.id,
+      resource: {
+        documentId: props.availability.resource.documentId,
+      },
     };
 
     let response;
@@ -331,7 +339,7 @@ const onSubmit = async () => {
       );
     } else {
       response = await $fetch(
-        `${config.public.strapiUrl}/api/availabilities/${props.availability.id}?populate[]=resource`,
+        `${config.public.strapiUrl}/api/availabilities/${props.availability.documentId}?populate[]=resource`,
         {
           method: 'PUT',
           headers: {
