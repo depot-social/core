@@ -1,6 +1,6 @@
 import type { Core } from '@strapi/strapi';
 import { errors } from '@strapi/utils';
-import { Resource, User, Price } from '@depot/shared';
+import type { Resource, User, Price } from '@depot/shared';
 
 export interface PricesService {
   getPrice(
@@ -11,6 +11,20 @@ export interface PricesService {
     loggedInUserDatabaseId?: number | null
   ): Promise<Price | undefined>;
 }
+
+export const calculatePriceDuration = (
+  start: Date,
+  end: Date,
+  durationType: Price['durationType']
+): number => {
+  const durationInHours = Math.ceil(
+    (end.getTime() - start.getTime()) / 1000 / 60 / 60
+  );
+
+  return durationType === 'daily'
+    ? Math.ceil(durationInHours / 24)
+    : durationInHours;
+};
 
 export const calculatePrice = (
   priceTemplate: Price,
@@ -23,16 +37,11 @@ export const calculatePrice = (
     priceTemplate;
   const price = { ...priceTemplate };
 
-  price.duration = Math.ceil(
-    (end.getTime() - start.getTime()) / 1000 / 60 / 60
-  );
+  price.duration = calculatePriceDuration(start, end, durationType);
 
-  if (durationType === 'daily') {
-    price.duration = Math.ceil(price.duration / 24);
-  }
-
-  price.title = `${tariffType} price for ${units}x ${resource.title} (${price.duration
-    } ${durationType === 'daily' ? 'day/s' : 'hour/s'})`;
+  price.title = `${tariffType} price for ${units}x ${resource.title} (${
+    price.duration
+  } ${durationType === 'daily' ? 'day/s' : 'hour/s'})`;
 
   // Calculate pure booking price
   const total = value * units * price.duration;
@@ -61,19 +70,21 @@ export default ({ strapi }: { strapi: Core.Strapi }): PricesService => ({
    * - If no price exists, throw an error
    *
    */
-  async getPrice(resourceDocumentId, start, end, units, loggedInUserDatabaseId) {
-    const resource = await strapi
-      .documents('api::resource.resource')
-      .findOne({
-        documentId: resourceDocumentId,
-        fields: ['id', 'title'],
-        populate: ['prices'],
-      }) as Resource;      
+  async getPrice(
+    resourceDocumentId,
+    start,
+    end,
+    units,
+    loggedInUserDatabaseId
+  ) {
+    const resource = (await strapi.documents('api::resource.resource').findOne({
+      documentId: resourceDocumentId,
+      fields: ['id', 'title'],
+      populate: ['prices'],
+    })) as Resource;
 
     const loggedInUser: User = loggedInUserDatabaseId
-      ? ((await strapi.db
-        .query('plugin::users-permissions.user')
-        .findOne({
+      ? ((await strapi.db.query('plugin::users-permissions.user').findOne({
           where: { id: loggedInUserDatabaseId },
           populate: ['organization'],
         })) as unknown as User)
@@ -84,8 +95,8 @@ export default ({ strapi }: { strapi: Core.Strapi }): PricesService => ({
       : false;
     const useNonProfitPrice = loggedInUserIsNonProfit
       ? resource.prices?.find(
-        (price: Price) => price.tariffType === 'notForProfit'
-      )
+          (price: Price) => price.tariffType === 'notForProfit'
+        )
         ? true
         : false
       : false;

@@ -245,5 +245,7 @@
   "noUnitsAvailable": "Keine Einheiten verfügbar",
   "noUnitsAvailableDescription": "Bitte gewünschten Zeitraum anpassen und erneut versuchen.",
   "bookingSuccessful": "Buchung angefragt",
-  "bookingSuccessfulDescription": "Die Ausleiher:in wurde benachrichtigt."
+  "bookingSuccessfulDescription": "Die Ausleiher:in wurde benachrichtigt.",
+  "bookingStatus": "Buchungsstaus",
+  "cancelBooking": "Buchung stornieren"
 }

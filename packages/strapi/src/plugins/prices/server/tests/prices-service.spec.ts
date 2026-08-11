@@ -1,7 +1,18 @@
 /// <reference types="vitest" />
 import { test, assert, expect, vi } from 'vitest';
-import createPricesService, { calculatePrice } from '../services/prices-service';
+import createPricesService, {
+  calculatePrice,
+  calculatePriceDuration,
+} from '../services/prices-service';
 import { PriceTariffType } from '@depot/shared';
+
+test('calculatePriceDuration rounds a partial day up to the next billed day', () => {
+  const start = new Date('2026-08-21T06:00:00.000Z');
+  const end = new Date('2026-08-22T20:00:00.000Z');
+
+  expect(calculatePriceDuration(start, end, 'daily')).toBe(2);
+  expect(calculatePriceDuration(start, end, 'hourly')).toBe(38);
+});
 
 test('calculatePrice, daily price, 1 unit, 1 day', () => {
   const price = {
@@ -154,7 +165,7 @@ test('getPrice looks up an authenticated user by numeric database ID', async () 
     start,
     end,
     1,
-    42,
+    42
   );
 
   expect(query).toHaveBeenCalledWith('plugin::users-permissions.user');

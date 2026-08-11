@@ -41,10 +41,15 @@
         <p class="flex justify-between mt-3">
           <span>{{ $t('timeframe') }}</span>
           <span class="font-bold flex gap-3">
-            {{ diffInDays }} {{ diffInDays === 1 ? $t('day') : $t('days') }} ({{
-              formatDate(booking.start)
-            }}
-            - {{ formatDate(booking.end) }})
+            <span
+              v-if="pending"
+              class="loading loading-dots loading-xs"
+              :aria-label="$t('loading')"
+            />
+            <template v-else-if="priceDurationLabel">
+              {{ priceDurationLabel }}
+            </template>
+            ({{ formatDate(booking.start) }} - {{ formatDate(booking.end) }})
           </span>
         </p>
         <p class="flex justify-between mt-3">
@@ -98,9 +103,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Resource, Booking, Price } from '@depot/shared';
+import type { Resource, Booking } from '@depot/shared';
 import { priceToString } from '@depot/shared';
-import { differenceInDays, format, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { fetchResourcePrice } from '~/base/utils/prices';
 
 interface Props {
@@ -109,15 +114,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-// Calculate duration
-const diffInDays = computed(() => {
-  if (!props.booking.start || !props.booking.end) return 0;
-  return differenceInDays(
-    parseISO(props.booking.end),
-    parseISO(props.booking.start)
-  );
-});
 
 // Format date helper
 const formatDate = (dateString?: string) => {
@@ -165,4 +161,19 @@ const {
     server: true,
   }
 );
+
+const priceDurationLabel = computed(() => {
+  if (!price.value) return '';
+
+  const translationKey =
+    price.value.durationType === 'hourly'
+      ? price.value.duration === 1
+        ? 'hour'
+        : 'hours'
+      : price.value.duration === 1
+      ? 'day'
+      : 'days';
+
+  return `${price.value.duration} ${$t(translationKey)}`;
+});
 </script>
