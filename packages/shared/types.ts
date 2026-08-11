@@ -40,7 +40,6 @@ export interface Booking extends StrapiBaseEntity {
   customerAddress: Address;
   price: Price;
   commentCustomer: string | null;
-  checkTermsConditions: boolean;
 }
 
 export type ResourceRelationInput =
@@ -49,8 +48,32 @@ export type ResourceRelationInput =
   | TransitionalDocumentReference
   | Resource;
 
-export type BookingRequest = Omit<Partial<Booking>, 'resource'> & {
+type BookingWritableFields = Pick<
+  Booking,
+  | 'start'
+  | 'end'
+  | 'bookingStatus'
+  | 'bookedUnits'
+  | 'title'
+  | 'resource'
+  | 'resourceOwner'
+  | 'customer'
+  | 'customerAddress'
+  | 'commentCustomer'
+>;
+
+export type UpdateBookingRequest = Omit<
+  Partial<BookingWritableFields>,
+  'resource'
+> & {
   resource?: ResourceRelationInput;
+};
+
+export type CreateBookingRequest = UpdateBookingRequest & {
+  start: string;
+  end: string;
+  bookedUnits: number;
+  resource: ResourceRelationInput;
 };
 
 export enum BerlinBookingIntend {

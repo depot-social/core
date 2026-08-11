@@ -6,7 +6,7 @@ import type {
   AvailabilitiesGetMaxAvailableResponse,
   Availability,
   Booking,
-  BookingRequest,
+  CreateBookingRequest,
   Category,
   FAQ,
   FetchMaxAvailableUnitsRequest,
@@ -458,7 +458,7 @@ export const addBooking = async ({
   baseUrl,
   jwt,
   body,
-}: APIProps<BookingRequest>): Promise<any> => {
+}: APIProps<CreateBookingRequest>): Promise<any> => {
   const response = await fetch(`${baseUrl}/api/bookings`, {
     method: 'POST',
     headers: {

@@ -26,12 +26,7 @@
         <p>
           <strong>{{ $t('almostDone') }}</strong> {{ $t('addMoreInformation') }}
         </p>
-        <BaseBookingForm
-          :form-data="bookingFormData"
-          :resource="resource"
-          :user="user"
-          @submit="onSubmit"
-        />
+        <BaseBookingForm :form-data="bookingFormData" @submit="onSubmit" />
       </div>
       <BaseBookingFormSidebar :booking="bookingFormData" :resource="resource" />
     </div>
@@ -40,7 +35,13 @@
 
 <script setup lang="ts">
 // Booking form for "ContingentResourceType"
-import type { Resource, User, Booking, BookingRequest } from '@depot/shared';
+import type {
+  Booking,
+  CreateBookingRequest,
+  Resource,
+  User,
+} from '@depot/shared';
+import type { BookingFormValues } from '~/base/components/booking-form/schema';
 import { fetchMaxAvailableUnits } from '~/base/utils/availabilities';
 import { getResourcePath, getBookingPath } from '~/base/utils/paths';
 import { PAGE_NOT_FOUND, MISSING_PARAMETERS_ERROR } from '~/base/utils/errors';
@@ -165,22 +166,29 @@ const bookingFormData = reactive<Partial<Booking>>({
     zip: user.value.address?.zip || '',
   },
   commentCustomer: '',
-  checkTermsConditions: false,
 });
 
 const errorMessage = ref('');
 
-const onSubmit = async (formData: Partial<Booking>) => {
+const onSubmit = async (formData: BookingFormValues) => {
   try {
-    const bookingRequest: BookingRequest = {
-      ...formData,
-      start: formData.start,
-      end: formData.end,
-      bookedUnits: formData.bookedUnits,
+    const bookingRequest = {
+      start,
+      end,
+      bookingStatus: 'requested',
+      bookedUnits: finalUnits,
+      title: '',
       resource: {
         documentId: resourceDocumentId,
       },
-    };
+      resourceOwner: resource.value?.user as User,
+      customer: {
+        ...user.value,
+        ...formData.customer,
+      },
+      customerAddress: formData.customerAddress,
+      commentCustomer: formData.commentCustomer,
+    } satisfies CreateBookingRequest;
 
     const response = await create<Booking>('bookings', bookingRequest);
 

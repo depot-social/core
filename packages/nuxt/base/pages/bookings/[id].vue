@@ -63,12 +63,7 @@
           </span>
         </div>
 
-        <BaseBookingForm
-          :form-data="bookingFormData"
-          :resource="booking?.resource"
-          :user="user"
-          @submit="onSubmit"
-        />
+        <BaseBookingForm :form-data="bookingFormData" @submit="onSubmit" />
 
         <div class="flex justify-between mt-6 max-w-[66.6%] w-full">
           <button
@@ -93,7 +88,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Booking, BookingRequest, User } from '@depot/shared';
+import type { Booking, UpdateBookingRequest, User } from '@depot/shared';
+import type { BookingFormValues } from '~/base/components/booking-form/schema';
 import { PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 useHead({
@@ -181,27 +177,34 @@ watchEffect(() => {
       zip: booking.value.customerAddress?.zip || '',
     },
     commentCustomer: booking.value.commentCustomer ?? '',
-    checkTermsConditions: false,
-  } as Partial<Booking>);
+  } satisfies Partial<Booking>);
 });
 
 const errorMessage = ref('');
 const toast = useToast();
 
-const onSubmit = async (formData: Partial<Booking>) => {
+const onSubmit = async (formData: BookingFormValues) => {
   try {
-    if (!booking.value?.documentId || !formData.resource?.documentId) {
+    if (!booking.value?.documentId || !booking.value.resource?.documentId) {
       throw new Error('Missing booking id');
     }
-    const bookingRequest: BookingRequest = {
-      ...formData,
-      start: formData.start,
-      end: formData.end,
-      bookedUnits: formData.bookedUnits,
+    const bookingRequest = {
+      start: booking.value.start,
+      end: booking.value.end,
+      bookingStatus: booking.value.bookingStatus,
+      bookedUnits: booking.value.bookedUnits,
+      title: booking.value.title,
       resource: {
-        documentId: formData.resource.documentId,
+        documentId: booking.value.resource.documentId,
       },
-    };
+      resourceOwner: booking.value.resourceOwner ?? booking.value.resource.user,
+      customer: {
+        ...booking.value.customer,
+        ...formData.customer,
+      },
+      customerAddress: formData.customerAddress,
+      commentCustomer: formData.commentCustomer,
+    } satisfies UpdateBookingRequest;
     const response = await update<Booking>(
       'bookings',
       booking.value.documentId,
@@ -230,7 +233,7 @@ const onConfirm = async () => {
       booking.value.documentId,
       {
         bookingStatus: 'confirmed',
-      } satisfies BookingRequest
+      } satisfies UpdateBookingRequest
     );
     if (response?.data) {
       booking.value = response.data as Booking;
@@ -256,7 +259,7 @@ const onCancel = async () => {
       booking.value.documentId,
       {
         bookingStatus: 'cancelled',
-      } satisfies BookingRequest
+      } satisfies UpdateBookingRequest
     );
     if (response?.data) {
       booking.value = response.data as Booking;
