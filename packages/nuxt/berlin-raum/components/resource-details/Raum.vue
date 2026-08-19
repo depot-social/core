@@ -295,7 +295,7 @@ const formattedPublishedAt = computed(() => {
 
       <div class="flex mt-7 mb-8 md:mt-28">
         <UButton color="primary" variant="outline" :to="bookingPath">
-          {{ $t('berlin_booking_form_requestResource') }}
+          {{ $t('berlin_booking_form_requestRoom') }}
         </UButton>
       </div>
     </div>

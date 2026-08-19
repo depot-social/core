@@ -4,20 +4,13 @@ const NUXT_LAYERS = process.env.NUXT_LAYERS ?? '';
 const extendNuxtLayers = NUXT_LAYERS.split(',').map((layer) => layer.trim());
 
 const resourceBasePath = '/raeume';
-const resourceLocaleFile = 'de-raum.json';
 
 export default defineNuxtConfig({
   css: ['~/berlin-raum/assets/css/main.css'],
   components: [{ path: './components', prefix: 'Berlin' }],
   i18n: {
     defaultLocale: 'de',
-    locales: [
-      {
-        code: 'de',
-        name: 'de-DE',
-        files: ['de-shared.json', resourceLocaleFile],
-      },
-    ],
+    locales: [{ code: 'de', name: 'de-DE', file: 'de.json' }],
     // i18n routes
     // @see https://i18n.nuxtjs.org/docs/guide/custom-paths
     customRoutes: 'config',

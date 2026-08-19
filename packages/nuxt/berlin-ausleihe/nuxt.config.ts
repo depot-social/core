@@ -1,20 +1,13 @@
 import type { Resource, SingleTypePage } from '@depot/shared';
 
 const resourceBasePath = '/ressourcen';
-const resourceLocaleFile = 'de-ausleihe.json';
 
 export default defineNuxtConfig({
   css: ['~/berlin-raum/assets/css/main.css'],
   components: [{ path: './components', prefix: 'Berlin' }],
   i18n: {
     defaultLocale: 'de',
-    locales: [
-      {
-        code: 'de',
-        name: 'de-DE',
-        files: ['de-shared.json', resourceLocaleFile],
-      },
-    ],
+    locales: [{ code: 'de', name: 'de-DE', file: 'de.json' }],
     // i18n routes
     // @see https://i18n.nuxtjs.org/docs/guide/custom-paths
     customRoutes: 'config',
