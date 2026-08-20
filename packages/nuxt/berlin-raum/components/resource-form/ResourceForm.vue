@@ -419,11 +419,11 @@
 
 <script setup lang="ts">
 import type {
-    BerlinResourceType,
-    District,
-    GeoData,
-    Purpose,
-    Resource,
+  BerlinResourceType,
+  District,
+  GeoData,
+  Purpose,
+  Resource,
 } from '@depot/shared';
 import { getResourceType, ResourceTypeComponent } from '@depot/shared';
 import * as v from 'valibot';
@@ -714,7 +714,7 @@ const validate = async (): Promise<boolean> => {
 const getData = (): ResourceFormSubmitPayload => {
   return {
     title: state.title,
-    districtId: state.district,
+    districtId: state.district as number,
     purposesIds: state.purposes,
     address: {
       street: state.address.street,
