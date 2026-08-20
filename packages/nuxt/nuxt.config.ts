@@ -4,6 +4,17 @@ import tailwindcss from '@tailwindcss/vite';
 const NUXT_LAYERS = process.env.NUXT_LAYERS ?? '';
 const extendNuxtLayers = NUXT_LAYERS.split(',');
 
+// topmost layer, normalized (e.g. './berlin-raum/' -> 'berlin-raum') for runtime checks
+const activeLayer =
+  extendNuxtLayers
+    .map((layer) =>
+      layer
+        .trim()
+        .replace(/^\.?\/+/, '')
+        .replace(/\/+$/, '')
+    )
+    .filter(Boolean)[0] ?? '';
+
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -32,6 +43,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      activeLayer,
       strapiUrl: process.env.PUBLIC_STRAPI_URL,
       createResourceStrapiApiToken:
         process.env.PUBLIC_CREATE_RESOURCE_STRAPI_API_TOKEN,
