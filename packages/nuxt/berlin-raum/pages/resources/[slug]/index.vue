@@ -47,7 +47,7 @@
     >
       <BerlinResourceDetailsRaum
         :resource="resource"
-        :berlin-resource-type="berlinResourceType"
+        :resource-type="berlinResourceType"
         :accessibility-text="accessibilityText"
         :is-paid="isPaid"
       />
