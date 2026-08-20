@@ -42,13 +42,13 @@ export default defineAppConfig({
           color: 'primary',
           variant: 'solid',
           class:
-            'mt-0 ring-0 text-center border-black border-2 rounded-lg py-3.5 px-6 w-full text-2lg cursor-pointer font-semibold bg-black text-white hover:bg-gray-800 hover:text-white active:bg-gray-800 focus-visible:bg-black focus-visible:text-white transition-colors leading-none h-auto shadow-none',
+            'mt-0 ring-0 text-center border-black border-2 rounded-lg py-3.5 px-6 w-max text-2lg cursor-pointer font-semibold bg-black text-white hover:bg-gray-800 hover:text-white active:bg-gray-800 focus-visible:bg-black focus-visible:text-white transition-colors leading-none h-auto shadow-none',
         },
         {
           color: 'primary',
           variant: 'outline',
           class:
-            'mt-0 ring-0 text-center border-black border-2 rounded-lg py-3.5 px-6 w-full text-2lg cursor-pointer font-semibold bg-white text-black hover:bg-black hover:text-white active:bg-gray-800 focus-visible:bg-black focus-visible:text-white transition-colors leading-none h-auto shadow-none',
+            'mt-0 ring-0 text-center border-black border-2 rounded-lg py-3.5 px-6 w-max text-2lg cursor-pointer font-semibold bg-white text-black hover:bg-black hover:text-white active:bg-gray-800 focus-visible:bg-black focus-visible:text-white transition-colors leading-none h-auto shadow-none',
         },
       ],
       defaultVariants: {

@@ -29,6 +29,8 @@
     "berlin_resource_form_accessibilityInfoHelp": "Beschreibe die Barrierefreiheit genauer.",
     "berlin_resource_form_accessibilityTitle": "Barrierefreiheit",
     "berlin_resource_form_berlinDetailsTitle": "Details",
+    "berlin_resource_form_categories": "Kategorien",
+    "berlin_resource_form_categoriesPlaceholder": "Kategorie auswählen",
     "berlin_resource_form_contactEmail": "E-Mail-Adresse",
     "berlin_resource_form_contactEmailPlaceholder": "E-Mail-Adresse",
     "berlin_resource_form_contactPerson": "Ansprechperson",

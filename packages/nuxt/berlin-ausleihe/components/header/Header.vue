@@ -35,7 +35,7 @@
         :to="{ name: 'resources-add' }"
         class="text-[16px] font-semibold no-underline flex items-center gap-2"
       >
-        {{ $t('berlin_resources_addRoom') }}
+        {{ $t('berlin_resources_addResource') }}
 
         <svg
           class="flex-shrink-0 w-8 h-8"

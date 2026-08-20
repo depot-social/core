@@ -282,8 +282,8 @@ const districtsOptions = ref(
 const districtsValue = ref<string[]>([]);
 
 // Parse initial filter values from URL (using names/titles)
-const initialCategoryTitles = route.query.purposes
-  ? String(route.query.purposes).split(',')
+const initialCategoryTitles = route.query.categories
+  ? String(route.query.categories).split(',')
   : [];
 const initialDistrictNames = route.query.districts
   ? String(route.query.districts).split(',')
@@ -362,7 +362,7 @@ const resourcesResponse = await find<Resource>('resources', {
     'attributes.attribute',
   ],
   filters: {
-    purposes:
+    categories:
       initialCategories.length > 0
         ? { id: { $in: initialCategories.map((p) => p.id) } }
         : undefined,
@@ -436,7 +436,7 @@ const {
     initialPage.value,
   true, // Enable URL syncing
   {
-    purposes: initialCategories.length > 0 ? initialCategories : null,
+    categories: initialCategories.length > 0 ? initialCategories : null,
     districts: initialDistricts.length > 0 ? initialDistricts : null,
     accessibilityStates:
       initialAccessibilityStates.length > 0 ? initialAccessibilityStates : null,
@@ -503,7 +503,7 @@ watch(
 // Watch for URL filter changes (browser back/forward navigation)
 watch(
   () => [
-    route.query.purposes,
+    route.query.categories,
     route.query.districts,
     route.query.accessibility,
   ],
@@ -519,8 +519,8 @@ watch(
     }
 
     // Parse filter names/titles from URL
-    const purposeTitles = route.query.purposes
-      ? String(route.query.purposes).split(',')
+    const categoryTitles = route.query.categories
+      ? String(route.query.categories).split(',')
       : [];
 
     const districtNames = route.query.districts
@@ -532,23 +532,27 @@ watch(
       : [];
 
     // Find filter objects by name/title
-    const purposes =
-      categoriesResponse.data?.filter((p) => purposeTitles.includes(p.title)) ||
-      [];
+    const categories =
+      categoriesResponse.data?.filter((p) =>
+        categoryTitles.includes(p.title)
+      ) || [];
 
     const districts =
       districtsResponse.data?.filter((d) => districtNames.includes(d.name)) ||
       [];
 
     // Update UI filter values
-    categoryValue.value = purposes.map((p) => p.title);
+    categoryValue.value = categories.map((p) => p.title);
     districtsValue.value = districts.map((d) => d.name);
     accessibilityStateValue.value = accessibilityStateOptions.value.filter(
       (opt) => accessibilityStates.includes(opt.value)
     );
 
     // Update state without triggering URL update
-    await setSelectedCategories(purposes.length > 0 ? purposes : null, false);
+    await setSelectedCategories(
+      categories.length > 0 ? categories : null,
+      false
+    );
     await setSelectedDistricts(districts.length > 0 ? districts : null, false);
     await setSelectedAccessibilityStates(
       accessibilityStates.length > 0 ? accessibilityStates : null,
