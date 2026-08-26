@@ -1,4 +1,5 @@
 import type { Core } from '@strapi/strapi';
+import { errors } from '@strapi/utils';
 import { isValid, isBefore } from 'date-fns';
 import { StrapiContext, Token } from '@depot/shared';
 import { PricesService } from '../services/prices-service';
@@ -39,13 +40,23 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       .plugin('prices')
       .service('pricesService');
 
-    const price = await pricesService.getPrice(
-      id,
-      start,
-      end,
-      units,
-      loggedInUserDatabaseId
-    );
+    let price;
+
+    try {
+      price = await pricesService.getPrice(
+        id,
+        start,
+        end,
+        units,
+        loggedInUserDatabaseId
+      );
+    } catch (error) {
+      if (error instanceof errors.ApplicationError) {
+        ctx.throw(404, error.message);
+      }
+
+      throw error;
+    }
 
     ctx.body = price;
   },
