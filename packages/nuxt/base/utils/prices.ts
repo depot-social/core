@@ -12,11 +12,14 @@ export const fetchResourcePrice = async ({
   start,
   end,
   units,
-}: FetchResourcePriceParams): Promise<Price> =>
-  await $fetch<Price>(`/api/resources/${resourceId}/price`, {
-    query: {
+}: FetchResourcePriceParams): Promise<Price> => {
+  const strapiClient = useStrapiClient();
+
+  return await strapiClient<Price>(`/resources/${resourceId}/price`, {
+    params: {
       start,
       end,
       units: units.toString(),
     },
   });
+};
