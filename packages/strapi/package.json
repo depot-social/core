@@ -9,7 +9,7 @@
     "start": "ENV_PATH=./../../.env strapi start",
     "console": "ENV_PATH=./../../.env strapi console",
     "build": "ENV_PATH=./../../.env strapi build",
-    "build:complete": "pnpm -r --filter @depot/shared --filter @depot/availabilities --filter @depot/conversations --filter @depot/emails --filter @depot/prices --filter @depot/rental-agreement --filter @depot/strapi build",
+    "build:complete": "pnpm -r --filter @depot/shared --filter @depot/availabilities --filter @depot/conversations --filter @depot/emails --filter @depot/prices --filter @depot/strapi build",
     "strapi": "ENV_PATH=./../../.env strapi",
     "configuration:dump": "ENV_PATH=./../../.env strapi configuration:dump -f configuration.json -p",
     "configuration:restore": "ENV_PATH=./../../.env strapi configuration:restore -f configuration.json",
