@@ -33,7 +33,7 @@ describe('isResourceOwnerPolicy', () => {
         strapi: {
           documents: vi.fn().mockReturnValue({ findOne: findUser }),
         },
-      } as any,
+      } as any
     );
 
     expect(result).toBe(true);
@@ -47,4 +47,103 @@ describe('isResourceOwnerPolicy', () => {
       },
     });
   });
+
+  test.each(['PUT', 'DELETE'])(
+    'allows the resource owner to %s a resource',
+    async (method) => {
+      const findResource = vi.fn().mockResolvedValue({
+        user: { id: 23 },
+      });
+      const documents = vi.fn().mockReturnValue({ findOne: findResource });
+
+      const result = await isResourceOwnerPolicy(
+        {
+          state: {
+            user: { id: 23 },
+            route: {
+              method,
+              info: { apiName: 'resource' },
+            },
+            isAuthenticated: true,
+          },
+          request: { body: { data: {} } },
+          params: { id: 'resource-document-id' },
+        },
+        {},
+        { strapi: { documents } } as any
+      );
+
+      expect(result).toBe(true);
+      expect(documents).toHaveBeenCalledWith('api::resource.resource');
+      expect(findResource).toHaveBeenCalledWith({
+        documentId: 'resource-document-id',
+        fields: ['id'],
+        populate: {
+          user: {
+            fields: ['id'],
+          },
+        },
+      });
+    }
+  );
+
+  test.each(['PUT', 'DELETE'])(
+    'rejects a non-owner attempting to %s a resource',
+    async (method) => {
+      const findResource = vi.fn().mockResolvedValue({
+        user: { id: 99 },
+      });
+
+      await expect(
+        isResourceOwnerPolicy(
+          {
+            state: {
+              user: { id: 23 },
+              route: {
+                method,
+                info: { apiName: 'resource' },
+              },
+              isAuthenticated: true,
+            },
+            request: { body: { data: {} } },
+            params: { id: 'resource-document-id' },
+          },
+          {},
+          {
+            strapi: {
+              documents: vi.fn().mockReturnValue({ findOne: findResource }),
+            },
+          } as any
+        )
+      ).rejects.toMatchObject({ message: 'Wrong resource owner.' });
+    }
+  );
+
+  test.each(['PUT', 'DELETE'])(
+    'rejects an unauthenticated request to %s a resource',
+    async (method) => {
+      const documents = vi.fn();
+
+      await expect(
+        isResourceOwnerPolicy(
+          {
+            state: {
+              user: null,
+              route: {
+                method,
+                info: { apiName: 'resource' },
+              },
+              isAuthenticated: false,
+            },
+            request: { body: { data: {} } },
+            params: { id: 'resource-document-id' },
+          },
+          {},
+          { strapi: { documents } } as any
+        )
+      ).rejects.toMatchObject({ message: 'Wrong resource owner.' });
+
+      expect(documents).not.toHaveBeenCalled();
+    }
+  );
 });

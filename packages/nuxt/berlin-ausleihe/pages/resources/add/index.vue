@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Category, District, Resource, User } from '@depot/shared';
+import type { Category, District, Resource } from '@depot/shared';
 import { EmptyResource, PriceTariffType } from '@depot/shared';
 import { reactive, ref } from 'vue';
 import type { ResourceFormSubmitPayload } from '~/berlin-ausleihe/components/resource-form/types';
@@ -54,7 +54,6 @@ definePageMeta({
 });
 
 const { find, create } = useStrapi();
-const user = useStrapiUser() as Ref<User | null>;
 
 const districtsResponse = await find<District>('districts', {
   sort: ['name:asc'],
@@ -119,7 +118,6 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
         latitude: payload.geoData?.latitude ?? null,
         longitude: payload.geoData?.longitude ?? null,
       },
-      user: user.value?.id,
     };
 
     const _response = await create<Resource>('resources', requestBody);

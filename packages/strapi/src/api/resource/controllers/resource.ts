@@ -5,13 +5,23 @@ import type { ResourceLocationRedactionService } from '../services/resourceLocat
 const RESOURCE_LOCATION_REDACTION_SERVICE_UID =
   'api::resource.resource-location-redaction';
 
-type AuthenticatedUser = {
+type AuthUser = {
   id?: number | string | null;
+  documentId?: string | null;
 };
 
 type ResourceControllerContext = {
   state?: {
-    user?: AuthenticatedUser | null;
+    user?: AuthUser | null;
+  };
+  throw: (status: number, message: string) => never;
+};
+
+type ResourceRequest = {
+  request?: {
+    body?: {
+      data?: Record<string, unknown>;
+    };
   };
 };
 
@@ -30,6 +40,9 @@ const getAuthenticatedUserId = (
 
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0;
+
+const getResourceRequestData = (ctx: ResourceControllerContext) =>
+  (ctx as ResourceRequest).request?.body?.data;
 
 export default factories.createCoreController(
   'api::resource.resource',
@@ -124,6 +137,42 @@ export default factories.createCoreController(
         return canViewPreciseLocation
           ? response
           : resourceLocationRedaction.redactResourceLocation(response);
+      },
+
+      async create(ctx: ResourceControllerContext) {
+        // Assign the authenticated user as the resource owner.
+        const authUser = ctx.state?.user;
+        const resourceData = getResourceRequestData(ctx);
+
+        if (!authUser?.documentId) {
+          ctx.throw(401, 'Authentication required.');
+        }
+
+        if (
+          !resourceData ||
+          typeof resourceData !== 'object' ||
+          Array.isArray(resourceData)
+        ) {
+          ctx.throw(400, 'Resource data is required.');
+        }
+
+        resourceData.user = { documentId: authUser.documentId };
+
+        return await super.create(ctx);
+      },
+
+      async update(ctx: ResourceControllerContext) {
+        const resourceData = getResourceRequestData(ctx);
+
+        if (
+          resourceData &&
+          typeof resourceData === 'object' &&
+          !Array.isArray(resourceData)
+        ) {
+          delete resourceData.user;
+        }
+
+        return await super.update(ctx);
       },
     };
   }

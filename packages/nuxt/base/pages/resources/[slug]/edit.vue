@@ -169,7 +169,6 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
         latitude: payload.geoData?.latitude ?? null,
         longitude: payload.geoData?.longitude ?? null,
       },
-      user: user.value?.id,
     };
 
     const response = await update<Resource>(

@@ -1,33 +1,71 @@
-const { ForbiddenError } = require('@strapi/utils').errors; // ^^ Error classes: https://docs.strapi.io/dev-docs/error-handling#default-error-classes
 import type { Core } from '@strapi/strapi';
+import { errors } from '@strapi/utils';
 import { getRelationDocumentId } from '../utils';
 
+const { ForbiddenError } = errors;
+
+type ResourceOwner = {
+  id?: number | string | null;
+};
+
+type ResourceWithOwner = {
+  user?: ResourceOwner | null;
+};
+
+type ResourceOwnerPolicyContext = {
+  state: {
+    user?: {
+      id?: number | string | null;
+      documentId?: string | null;
+    } | null;
+    route?: {
+      method?: string;
+      info?: {
+        apiName?: string;
+      };
+    };
+    isAuthenticated?: boolean;
+  };
+  params: {
+    id?: string | number;
+  };
+  request: {
+    body?: {
+      data?: {
+        resource?: unknown;
+      };
+    };
+  };
+};
+
 /**
- * Generic policy to check if the user is authenticated
- * and owner of the resource_id passed in the body.
+ * Checks whether the authenticated user owns a Resource directly or through
+ * an Availability.
  *
- * Called from availability.availability findOne, create, update, delete
- *
- * Currently works for Availability.
+ * Called from Resource update/delete and Availability findOne/create/update/delete.
  */
 export default async (
-  policyContext,
-  config,
+  policyContext: ResourceOwnerPolicyContext,
+  _config: unknown,
   { strapi }: { strapi: Core.Strapi }
 ) => {
   const { state, params, request } = policyContext;
   const { user, route, isAuthenticated } = state;
   const { body } = request;
-  const { info } = route;
-  const { apiName } = info;
+  const apiName = route?.info?.apiName;
   const { id } = params;
 
   if (!isAuthenticated || !user || !apiName) {
     throw new ForbiddenError('Wrong resource owner.');
   }
 
-  if (route.method === 'POST') {
-    const { data } = body;
+  if (route?.method === 'POST') {
+    const { data } = body ?? {};
+
+    if (!data || apiName !== 'availability') {
+      throw new ForbiddenError('Invalid resource id.');
+    }
+
     const resourceDocumentId = getRelationDocumentId(data.resource);
     const userDocumentId = getRelationDocumentId(user.documentId);
 
@@ -69,8 +107,34 @@ export default async (
     return true;
   }
 
-  const targetEntity = await strapi
-    .documents(`api::${apiName}.${apiName}` as any)
+  if (!id) {
+    throw new ForbiddenError('Invalid resource id.');
+  }
+
+  if (apiName === 'resource') {
+    const resource = (await strapi.documents('api::resource.resource').findOne({
+      documentId: id.toString(),
+      fields: ['id'],
+      populate: {
+        user: {
+          fields: ['id'],
+        },
+      },
+    })) as ResourceWithOwner | null;
+
+    if (resource?.user?.id === user.id) {
+      return true;
+    }
+
+    throw new ForbiddenError('Wrong resource owner.');
+  }
+
+  if (apiName !== 'availability') {
+    throw new ForbiddenError('Wrong resource owner.');
+  }
+
+  const availability = await strapi
+    .documents('api::availability.availability')
     .findOne({
       documentId: id.toString(),
       fields: ['id'],
@@ -79,13 +143,14 @@ export default async (
           populate: ['user'],
         },
       },
-    } as any);
+    });
 
-  const entityResource = (targetEntity as any)?.resource;
+  const entityResource = (availability as { resource?: ResourceWithOwner })
+    ?.resource;
 
   if (entityResource?.user?.id === user.id) {
     return true;
-  } else {
-    throw new ForbiddenError('Wrong resource owner.');
   }
+
+  throw new ForbiddenError('Wrong resource owner.');
 };

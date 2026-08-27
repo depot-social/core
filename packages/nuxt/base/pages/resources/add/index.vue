@@ -4,7 +4,11 @@
       v-if="errorMessage"
       class="container pt-4 flex flex-col items-center text-center"
     >
-      <div class="alert alert-error mt-2 max-w-2xl" role="alert" aria-live="assertive">
+      <div
+        class="alert alert-error mt-2 max-w-2xl"
+        role="alert"
+        aria-live="assertive"
+      >
         {{ errorMessage }}
       </div>
     </div>
@@ -18,12 +22,11 @@
           class="link no-underline text-orange-800 hover:text-orange-700"
           @click="$router.back()"
         >
-          <i class="ph ph-arrow-left" aria-hidden="true" /> {{ $t('backToPreviousPage') }}
+          <i class="ph ph-arrow-left" aria-hidden="true" />
+          {{ $t('backToPreviousPage') }}
         </button>
 
-        <div
-          class="w-full rounded-2xl bg-orange-100 px-5 py-4 md:px-6 md:py-5"
-        >
+        <div class="w-full rounded-2xl bg-orange-100 px-5 py-4 md:px-6 md:py-5">
           <h1 class="text-2xl md:text-3xl font-semibold text-black mt-2">
             {{ $t('resourceAdd_title') }}
           </h1>
@@ -45,9 +48,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Category, Resource, User } from '@depot/shared';
+import type { Category, Resource } from '@depot/shared';
 import { EmptyResource, PriceTariffType } from '@depot/shared';
-import type { Ref } from 'vue';
 import { reactive, ref } from 'vue';
 import { getResourcePath, getResourcesPath } from '~/base/utils/paths';
 import type { ResourceFormSubmitPayload } from '~/base/components/resource-form/types';
@@ -61,7 +63,6 @@ definePageMeta({
 });
 
 const { find, create } = useStrapi();
-const user = useStrapiUser() as Ref<User | null>;
 
 const categoriesResponse = await find<Category>('categories', {
   sort: ['title:asc'],
@@ -120,7 +121,6 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
         latitude: payload.geoData?.latitude ?? null,
         longitude: payload.geoData?.longitude ?? null,
       },
-      user: user.value?.id,
     };
 
     const response = await create<Resource>('resources', requestBody);
@@ -146,4 +146,3 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
   }
 };
 </script>
-

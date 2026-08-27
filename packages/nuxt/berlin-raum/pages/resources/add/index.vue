@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import type { District, Purpose, Resource, User } from '@depot/shared';
+import type { District, Purpose, Resource } from '@depot/shared';
 import { EmptyResource } from '@depot/shared';
 import { reactive, ref } from 'vue';
 import type { ResourceFormSubmitPayload } from '~/berlin-raum/components/resource-form/types';
@@ -51,7 +51,6 @@ definePageMeta({
 });
 
 const { find, create } = useStrapi();
-const user = useStrapiUser() as Ref<User | null>;
 
 const districtsResponse = await find<District>('districts', {
   sort: ['name:asc'],
@@ -110,7 +109,6 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
           contactPhone: payload.contactPhone,
         },
       ],
-      user: user.value?.id,
     };
 
     const _response = await create<Resource>('resources', requestBody);
