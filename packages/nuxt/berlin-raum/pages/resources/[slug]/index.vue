@@ -45,12 +45,265 @@
     <main
       class="bg-white col-span-12 xl:col-span-10 xl:col-start-2 rounded-t-2xl pb-5 md:pb-8 lg:pb-16 mt-4 lg:mt-16"
     >
-      <BerlinResourceDetailsRaum
-        :resource="resource"
-        :resource-type="berlinResourceType"
-        :accessibility-text="accessibilityText"
-        :is-paid="isPaid"
-      />
+      <div class="grid grid-cols-12 gap-5">
+        <!-- Resource quick information and map -->
+        <div
+          class="col-span-12 md:col-span-6 lg:col-span-5 md:sticky md:top-[20px] self-start mb-8"
+        >
+          <h1
+            v-if="berlinResourceType?.roomName"
+            class="text-3xl xl:text-6xl mb-6 font-bold leading-tightest"
+          >
+            {{ berlinResourceType.roomName }}
+          </h1>
+
+          <div
+            class="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-y-5 mb-8"
+          >
+            <div v-if="berlinResourceType?.roomSizeSqm" class="flex flex-col">
+              <span class="text-base font-light leading-tight">
+                {{ $t('berlin_resource_roomSizeSqm') }}
+              </span>
+
+              <span class="text-xl font-semibold">
+                {{ berlinResourceType.roomSizeSqm }}
+              </span>
+            </div>
+
+            <div v-if="normalizedCapacity" class="flex flex-col">
+              <span class="text-base font-light leading-tight">
+                {{ $t('berlin_resource_maxCapacity') }}
+              </span>
+
+              <span class="text-xl font-semibold">
+                {{ normalizedCapacity }}
+              </span>
+            </div>
+
+            <div v-if="accessibilityText" class="flex flex-col">
+              <span class="text-base font-light leading-tight">
+                {{ $t('berlin_resource_accessibilityState') }}
+              </span>
+
+              <span class="text-xl font-semibold leading-none">
+                {{ accessibilityText }}
+              </span>
+            </div>
+          </div>
+
+          <BaseResourceMap
+            class="m-0!"
+            :resource="resource"
+            :with-link="false"
+          />
+        </div>
+
+        <!-- Resource information -->
+        <div class="col-span-12 md:col-span-6 md:col-start-7">
+          <h2 class="font-semibold text-xl mt-6 mb-5 sm:mb-7">
+            {{ $t('berlin_resource_title') }}
+          </h2>
+
+          <div
+            class="grid sm:grid-cols-[200px_1fr] md:grid-cols-[100px_1fr] lg:grid-cols-[155px_1fr] *:leading-snug *:even:mb-5 sm:*:even:mb-0 *:font-light sm:*:flex sm:*:items-start sm:*:py-[1.15rem] sm:*:border-b *:border-b-secondary gap-x-6"
+          >
+            <template v-if="berlinResourceType?.provider">
+              <span class="text-sm sm:border-t-2 sm:border-t-gray-700">
+                {{ $t('berlin_resource_provider') }}
+              </span>
+
+              <span class="text-lg sm:border-t-2 sm:border-t-gray-700">
+                {{ berlinResourceType.provider }}
+              </span>
+            </template>
+
+            <template v-if="resource.district">
+              <span class="text-sm">
+                {{ $t('berlin_resource_district') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ resource.district.name }}
+              </span>
+            </template>
+
+            <template v-if="resource.address?.street">
+              <span class="text-sm">
+                {{ $t('berlin_resource_address') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ resource.address.street }}
+              </span>
+            </template>
+
+            <template v-if="resource.address?.zip">
+              <span class="text-sm">
+                {{ $t('berlin_resource_zip') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ resource.address.zip }}
+              </span>
+            </template>
+
+            <template v-if="resource.links?.length">
+              <span class="text-sm">
+                {{ $t('berlin_resource_website') }}
+              </span>
+
+              <span>
+                <NuxtLink
+                  :href="resource.links[0]?.url"
+                  class="text-base font-light lg:text-lg break-all hover:underline underline-offset-2 decoration-1"
+                  external
+                >
+                  {{
+                    resource.links[0]?.url?.match(/^https?:\/\/[^/]+/)?.[0] ??
+                    resource.links[0]?.url
+                  }}
+                </NuxtLink>
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.initialRoomName">
+              <span class="text-sm">
+                {{ $t('berlin_resource_initialRoomName') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.initialRoomName }}
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.roomName">
+              <span class="text-sm">
+                {{ $t('berlin_resource_roomName') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.roomName }}
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.roomSizeSqm">
+              <span class="text-sm">
+                {{ $t('berlin_resource_roomSizeSqm') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.roomSizeSqm }}
+              </span>
+            </template>
+
+            <template v-if="normalizedCapacity">
+              <span class="text-sm">
+                {{ $t('berlin_resource_maxCapacity') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ normalizedCapacity }}
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.facilities">
+              <span class="text-sm">
+                {{ $t('berlin_resource_facilities') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.facilities }}
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.facilitiesAdditionalInfo">
+              <span class="text-sm">
+                {{ $t('berlin_resource_facilitiesAdditionalInfo') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.facilitiesAdditionalInfo }}
+              </span>
+            </template>
+
+            <template v-if="accessibilityText">
+              <span class="text-sm">
+                {{ $t('berlin_resource_accessibilityState') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ accessibilityText }}
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.accessibilityInfo">
+              <span class="text-sm">
+                {{ $t('berlin_resource_accessibilityInfo') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.accessibilityInfo }}
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.usageHours">
+              <span class="text-sm">
+                {{ $t('berlin_resource_usageHours') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.usageHours }}
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.usageFeeDetails">
+              <span class="text-sm">
+                {{ $t('berlin_resource_usageFeeDetails') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.usageFeeDetails }}
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.contactPerson">
+              <span class="text-sm">
+                {{ $t('berlin_resource_contactPerson') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.contactPerson }}
+              </span>
+            </template>
+
+            <template v-if="berlinResourceType?.contactPhone">
+              <span class="text-sm">
+                {{ $t('berlin_resource_contactPhone') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ berlinResourceType.contactPhone }}
+              </span>
+            </template>
+
+            <template v-if="formattedPublishedAt">
+              <span class="text-sm">
+                {{ $t('berlin_resource_offerPublishedAt') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ formattedPublishedAt }}
+              </span>
+            </template>
+          </div>
+
+          <div class="flex mt-7 mb-8 md:mt-28">
+            <UButton color="primary" variant="outline" :to="bookingPath">
+              {{ $t('berlin_booking_form_requestRoom') }}
+            </UButton>
+          </div>
+        </div>
+      </div>
     </main>
     <dialog
       ref="imageModal"
@@ -110,6 +363,29 @@ let resizeObserver: ResizeObserver | null = null;
 
 const localePath = useLocalePath();
 
+const bookingPath = computed(() => {
+  return localePath({
+    name: 'bookings-add',
+    query: {
+      resource_id: resource.documentId,
+    },
+  });
+});
+
+const normalizedCapacity = computed(() => {
+  return berlinResourceType?.maxCapacity?.replace(/\s*[-–—]\s*/g, '-');
+});
+
+const formattedPublishedAt = computed(() => {
+  const value = berlinResourceType?.offerPublishedAt;
+
+  if (!value) {
+    return '';
+  }
+
+  return new Intl.DateTimeFormat('de-DE').format(new Date(value));
+});
+
 // Get route params
 const route = useRoute();
 const slug = route.params.slug as string;
@@ -142,7 +418,6 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
       'address',
       'prices',
       'categories',
-      'attributes.attribute',
       // 'resourceTypes.berlinResourceType',
       // 'resourceTypes.contingentResourceType',
     ],
@@ -161,7 +436,7 @@ if (
 }
 
 const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
-const { documentId, title, images, resourceTypes, district } = resource;
+const { title, images, resourceTypes } = resource;
 
 console.log('resource', resource);
 
@@ -169,13 +444,6 @@ const berlinResourceType = getResourceType(
   resourceTypes ?? [],
   ResourceTypeComponent.BERLIN_RESOURCE_TYPE
 ) as BerlinResourceType | undefined;
-
-const isPaid = computed(() => {
-  return (
-    resource.attributes?.some((attr) => attr?.attribute?.slug === 'is-paid') ??
-    false
-  );
-});
 
 const accessibilityText = computed(() => {
   return getAccessibilityText(berlinResourceType?.accessibilityState);
