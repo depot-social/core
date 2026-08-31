@@ -7,14 +7,12 @@ const RESOURCE_LOCATION_REDACTION_SERVICE_UID =
 
 type AuthUser = {
   id?: number | string | null;
-  documentId?: string | null;
 };
 
 type ResourceControllerContext = {
   state?: {
     user?: AuthUser | null;
   };
-  throw: (status: number, message: string) => never;
 };
 
 type ResourceRequest = {
@@ -137,28 +135,6 @@ export default factories.createCoreController(
         return canViewPreciseLocation
           ? response
           : resourceLocationRedaction.redactResourceLocation(response);
-      },
-
-      async create(ctx: ResourceControllerContext) {
-        // Assign the authenticated user as the resource owner.
-        const authUser = ctx.state?.user;
-        const resourceData = getResourceRequestData(ctx);
-
-        if (!authUser?.documentId) {
-          ctx.throw(401, 'Authentication required.');
-        }
-
-        if (
-          !resourceData ||
-          typeof resourceData !== 'object' ||
-          Array.isArray(resourceData)
-        ) {
-          ctx.throw(400, 'Resource data is required.');
-        }
-
-        resourceData.user = { documentId: authUser.documentId };
-
-        return await super.create(ctx);
       },
 
       async update(ctx: ResourceControllerContext) {

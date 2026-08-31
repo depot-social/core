@@ -107,6 +107,16 @@ export default {
       }
 
       if (!isAdminOrBackofficeRequest(ctx)) {
+        const authUser = ctx.state?.user;
+
+        if (!authUser?.documentId) {
+          ctx.throw(401, 'Authentication required.');
+        }
+
+        // This runs after Content API input validation, so the caller does not
+        // need permission to query users in order to own the new resource.
+        event.params.data.user = { documentId: authUser.documentId };
+
         // Ensure resource has slug
         event.params.data.slug = await strapi
           .service('plugin::content-manager.uid')
