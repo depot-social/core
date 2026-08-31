@@ -38,9 +38,9 @@ export default defineNuxtConfig({
     colorMode: false,
     fonts: false,
   },
-  app: {
-    pageTransition: { name: 'page', mode: 'out-in' },
-  },
+  // app: {
+  //   pageTransition: { name: 'page', mode: 'out-in' },
+  // },
   runtimeConfig: {
     public: {
       activeLayer,
