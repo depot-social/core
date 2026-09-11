@@ -88,5 +88,10 @@ export default defineAppConfig({
         label: 'font-text',
       },
     },
+    tooltip: {
+      slots: {
+        content: 'text-sm py-2 px-1.5',
+      },
+    },
   },
 });

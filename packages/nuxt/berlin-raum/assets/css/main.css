@@ -26,11 +26,11 @@
   --font-text: 'IBM Plex Sans Condensed', sans-serif;
 
   --text-base: 18px;
-  --text-2lg: 24px;
+  --text-2lg: 23px;
   --text-xl: 32px;
 
   --color-primary: black;
-  --color-very-bright-gray: hsla(0, 0%, 92%, 1);
+  --color-very-bright-gray: #ebebeb;
   --color-violet-100: hsla(255, 34%, 77%, 1);
   --color-background-100: hsla(36, 100%, 99.02%);
   --color-background-300: hsla(30, 18%, 67%, 1);
@@ -103,7 +103,7 @@ h1 {
 }
 
 h2 {
-  @apply text-2lg md:text-xl font-semibold tracking-[-1%] leading-tight mb-1;
+  @apply text-xl font-semibold tracking-[-1%] leading-tight mb-1;
 }
 
 h3 {
@@ -121,6 +121,22 @@ h3 {
 b,
 strong {
   @apply font-semibold;
+}
+
+.resources-wrap {
+  @apply grid sm:grid-cols-[1fr_1fr] lg:grid-cols-[2fr_1fr] gap-8 px-6;
+}
+
+.resources-card-grid {
+  @apply basis-full sm:basis-2/3 grid gap-y-10 gap-x-6 gap-y-8 content-start justify-items-center lg:justify-items-stretch items-stretch grid-cols-[repeat(auto-fill,minmax(100%,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(295px,1fr))];
+}
+
+.resources-map {
+  @apply block basis-full sm:basis-auto order-2 rounded-[30px] sm:sticky! sm:top-[20px] w-full min-h-auto! h-128! sm:h-dvh! max-h-[calc(100dvh-40px)];
+}
+
+.no-resources-map {
+  @apply block sm:grid place-items-center self-center order-2 rounded-[30px] w-full h-160! max-h-[calc(100dvh-100px)] bg-neutral-50 border-2 border-dashed border-neutral-200;
 }
 
 .resources-search-input {
@@ -221,7 +237,7 @@ strong {
 }
 
 .collapse-stacked > .collapse-title {
-  @apply border-none rounded-none bg-transparent font-bold text-2lg pl-0 pr-16;
+  @apply border-none rounded-none bg-transparent font-bold text-2lg leading-tight pl-0 pr-16;
 }
 
 .collapse-stacked > .collapse-title:after {

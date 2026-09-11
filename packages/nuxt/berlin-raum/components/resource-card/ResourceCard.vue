@@ -1,11 +1,11 @@
 <template>
-  <article class="group rounded-[30px] shadow-lg duration-300 max-w-[370px]">
+  <article class="group rounded-[30px] shadow-lg duration-300 max-w-[350px]">
     <NuxtLinkLocale
       :to="{ name: 'resources-slug', params: { slug: resource.slug } }"
-      class="flex h-full flex-col gap-6"
+      class="flex h-full flex-col gap-5"
     >
       <div
-        class="relative w-full rounded-t-[28px] basis-[43%] shrink-0 overflow-hidden aspect-[436/294] bg-[#D9D9D9]"
+        class="relative w-full rounded-t-[28px] basis-[42%] shrink-0 overflow-hidden aspect-[425/294] bg-[#D9D9D9]"
       >
         <NuxtImg
           v-if="resourceImages && resourceImages[0]?.url"
@@ -13,7 +13,7 @@
           :width="imageSize"
           :height="imageSize"
           :alt="resourceImages[0].alternativeText ?? ''"
-          class="object-cover aspect-[436/294] object-center w-full h-full"
+          class="object-cover aspect-[425/294] object-center w-full h-full"
         />
 
         <figure class="relative grid place-content-center h-full" v-else>
@@ -23,7 +23,7 @@
           >
           <img
             src="/placeholder.jpg"
-            class="absolute inset-0 object-cover aspect-[464/294] object-center w-full h-full"
+            class="absolute inset-0 object-cover aspect-[425/294] object-center w-full h-full"
             :alt="$t('berlin_resource_exampleImage')"
           />
         </figure>
@@ -51,7 +51,7 @@
 
           <h2
             lang="de"
-            class="leading-[1.1]! text-xl hyphens-auto text-black font-semibold"
+            class="leading-[1.1]! text-xl mt-3! hyphens-auto text-black font-semibold"
           >
             <span v-if="isLayer('berlin-raum') && berlinResourceType?.roomName">
               {{ berlinResourceType.roomName }}
@@ -98,7 +98,7 @@
             >
               <p
                 ref="truncatedTextEl"
-                class="text-base leading-snug font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
+                class="text-base leading-tight font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
               >
                 {{ berlinResourceType.provider }}
               </p>
@@ -112,7 +112,7 @@
             >
               <p
                 ref="truncatedTextEl"
-                class="text-base leading-snug font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
+                class="text-base leading-tight font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
               >
                 {{ organizationName }}
               </p>

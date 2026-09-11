@@ -26,6 +26,9 @@ export interface ResourcesSearchState {
   };
 }
 
+// Strapi's `maxLimit`, see packages/strapi/config/api.ts
+const MAP_PAGE_SIZE = 1000;
+
 export const useResourcesSearch = async (
   initialResources: Resource[] = [],
   maxPageSize: number = 16,
@@ -63,7 +66,85 @@ export const useResourcesSearch = async (
 
   const activePage = ref(initialPage || 1);
 
+  // The map is not paginated: it shows every resource matching the current
+  // filters. Seeded with the resources rendered on the server so the map is
+  // populated before the full set has been loaded on the client.
+  const mapResources = ref<Resource[]>(initialResources);
+
   const { find } = useStrapi();
+
+  const buildFilters = () =>
+    ({
+      $or: state.value.searchQuery
+        ? [
+            {
+              title: {
+                $contains: state.value.searchQuery,
+              },
+            },
+            {
+              description: {
+                $contains: state.value.searchQuery,
+              },
+            },
+          ]
+        : undefined,
+      purposes: state.value.selectedPurposes?.length
+        ? {
+            id: {
+              $in: state.value.selectedPurposes.map((p) => p.id),
+            },
+          }
+        : undefined,
+      district: state.value.selectedDistricts?.length
+        ? {
+            id: {
+              $in: state.value.selectedDistricts.map((d) => d.id),
+            },
+          }
+        : undefined,
+    } as Record<string, unknown>);
+
+  const matchesAccessibilityFilter = (resource: Resource) => {
+    const berlinResourceType = resource.resourceTypes?.find(
+      (resourceType) =>
+        resourceType.__component === ResourceTypeComponent.BERLIN_RESOURCE_TYPE
+    ) as BerlinResourceType | undefined;
+
+    return (
+      !!berlinResourceType &&
+      !!state.value.selectedAccessibilityStates?.includes(
+        berlinResourceType.accessibilityState
+      )
+    );
+  };
+
+  // Fetches all resources matching the current filters for the map, ignoring
+  // the pagination of the result list.
+  const fetchMapResources = async () => {
+    try {
+      const response = await find<Resource>('resources', {
+        // Only what the map markers need
+        fields: ['title', 'slug'],
+        populate: ['address', 'resourceTypes'],
+        // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
+        sort: sortParams,
+        filters: buildFilters(),
+        pagination: {
+          pageSize: MAP_PAGE_SIZE,
+          page: 1,
+        },
+      });
+
+      if (!response?.data) return;
+
+      mapResources.value = state.value.selectedAccessibilityStates?.length
+        ? response.data.filter(matchesAccessibilityFilter)
+        : response.data;
+    } catch (error) {
+      console.error('Error fetching map resources:', error);
+    }
+  };
 
   const fetchResources = async (page: number = activePage.value) => {
     try {
@@ -87,40 +168,11 @@ export const useResourcesSearch = async (
         ],
         // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
         sort: sortParams,
-        filters: {
-          $or: state.value.searchQuery
-            ? [
-                {
-                  title: {
-                    $contains: state.value.searchQuery,
-                  },
-                },
-                {
-                  description: {
-                    $contains: state.value.searchQuery,
-                  },
-                },
-              ]
-            : undefined,
-          purposes: state.value.selectedPurposes?.length
-            ? {
-                id: {
-                  $in: state.value.selectedPurposes.map((p) => p.id),
-                },
-              }
-            : undefined,
-          district: state.value.selectedDistricts?.length
-            ? {
-                id: {
-                  $in: state.value.selectedDistricts.map((d) => d.id),
-                },
-              }
-            : undefined,
-        } as Record<string, unknown>,
+        filters: buildFilters(),
         pagination: needsClientSideFiltering
           ? {
               // Fetch all resources when we need to filter by accessibility client-side
-              pageSize: 1000,
+              pageSize: MAP_PAGE_SIZE,
               page: 1,
             }
           : {
@@ -134,20 +186,9 @@ export const useResourcesSearch = async (
 
         // Client-side filtering for accessibility states (since Strapi v5 dynamic zone filtering is complex)
         if (state.value.selectedAccessibilityStates?.length) {
-          filteredResources = filteredResources.filter((resource) => {
-            const berlinResourceType = resource.resourceTypes?.find(
-              (resourceType) =>
-                resourceType.__component ===
-                ResourceTypeComponent.BERLIN_RESOURCE_TYPE
-            ) as BerlinResourceType | undefined;
-
-            return (
-              berlinResourceType &&
-              state.value.selectedAccessibilityStates?.includes(
-                berlinResourceType.accessibilityState
-              )
-            );
-          });
+          filteredResources = filteredResources.filter(
+            matchesAccessibilityFilter
+          );
 
           // Client-side pagination for accessibility-filtered results
           const total = filteredResources.length;
@@ -207,6 +248,7 @@ export const useResourcesSearch = async (
       }
 
       fetchResources(1);
+      fetchMapResources();
     },
     { deep: true }
   );
@@ -319,9 +361,16 @@ export const useResourcesSearch = async (
     activePage.value = 1;
   };
 
+  // Load the unpaginated map data on the client, so the initial page render
+  // is not blocked by it.
+  if (import.meta.client) {
+    fetchMapResources();
+  }
+
   return {
     state: readonly(state),
     activePage: readonly(activePage),
+    mapResources: readonly(mapResources),
     setSearchQuery,
     setSelectedPurposes,
     setSelectedDistricts,
@@ -330,5 +379,6 @@ export const useResourcesSearch = async (
     clearFilters,
     // Expose the debounced function for manual triggering if needed
     refetch: fetchResources,
+    refetchMapResources: fetchMapResources,
   };
 };

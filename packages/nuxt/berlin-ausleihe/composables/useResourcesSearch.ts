@@ -1,11 +1,4 @@
-import type {
-  AccessibilityState,
-  BerlinResourceType,
-  Category,
-  District,
-  Resource,
-} from '@depot/shared';
-import { ResourceTypeComponent } from '@depot/shared';
+import type { Category, District, Resource } from '@depot/shared';
 import { readonly, ref, watch } from 'vue';
 
 export interface ResourcesSearchState {
@@ -14,7 +7,6 @@ export interface ResourcesSearchState {
   districts: District[];
   selectedCategories: Category[] | null;
   selectedDistricts: District[] | null;
-  selectedAccessibilityStates: AccessibilityState[] | null;
   searchQuery: string;
   loading: boolean;
   error: string | null;
@@ -25,6 +17,9 @@ export interface ResourcesSearchState {
     total: number;
   };
 }
+
+// Strapi's `maxLimit`, see packages/strapi/config/api.ts
+const MAP_PAGE_SIZE = 1000;
 
 export const useResourcesSearch = async (
   initialResources: Resource[] = [],
@@ -40,7 +35,6 @@ export const useResourcesSearch = async (
   initialFilters?: {
     categories?: Category[] | null;
     districts?: District[] | null;
-    accessibilityStates?: AccessibilityState[] | null;
   }
 ) => {
   const state = ref<ResourcesSearchState>({
@@ -49,7 +43,6 @@ export const useResourcesSearch = async (
     districts: [],
     selectedDistricts: initialFilters?.districts || null,
     selectedCategories: initialFilters?.categories || null,
-    selectedAccessibilityStates: initialFilters?.accessibilityStates || null,
     searchQuery: '',
     loading: false,
     error: null,
@@ -63,17 +56,70 @@ export const useResourcesSearch = async (
 
   const activePage = ref(initialPage || 1);
 
+  const mapResources = ref<Resource[]>(initialResources);
+
   const { find } = useStrapi();
+
+  const buildFilters = () =>
+    ({
+      $or: state.value.searchQuery
+        ? [
+            {
+              title: {
+                $contains: state.value.searchQuery,
+              },
+            },
+            {
+              description: {
+                $contains: state.value.searchQuery,
+              },
+            },
+          ]
+        : undefined,
+      categories: state.value.selectedCategories?.length
+        ? {
+            id: {
+              $in: state.value.selectedCategories.map((p) => p.id),
+            },
+          }
+        : undefined,
+      district: state.value.selectedDistricts?.length
+        ? {
+            id: {
+              $in: state.value.selectedDistricts.map((d) => d.id),
+            },
+          }
+        : undefined,
+    } as Record<string, unknown>);
+
+  // Fetches all resources matching the current filters for the map,
+  // ignoring the pagination of the result list
+  const fetchMapResources = async () => {
+    try {
+      const response = await find<Resource>('resources', {
+        fields: ['title', 'slug'],
+        populate: ['address'],
+        // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
+        sort: sortParams,
+        filters: buildFilters(),
+        pagination: {
+          pageSize: MAP_PAGE_SIZE,
+          page: 1,
+        },
+      });
+
+      if (response?.data) {
+        mapResources.value = response.data;
+      }
+    } catch (error) {
+      console.error('Error fetching map resources:', error);
+    }
+  };
 
   const fetchResources = async (page: number = activePage.value) => {
     try {
       state.value.loading = true;
       state.value.error = null;
-
-      // When accessibility filter is active, we need to fetch all resources
-      // and filter/paginate client-side (Strapi v5 doesn't support dynamic zone filtering)
-      const needsClientSideFiltering =
-        state.value.selectedAccessibilityStates?.length;
 
       const response = await find<Resource>('resources', {
         populate: [
@@ -87,99 +133,26 @@ export const useResourcesSearch = async (
         ],
         // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
         sort: sortParams,
-        filters: {
-          $or: state.value.searchQuery
-            ? [
-                {
-                  title: {
-                    $contains: state.value.searchQuery,
-                  },
-                },
-                {
-                  description: {
-                    $contains: state.value.searchQuery,
-                  },
-                },
-              ]
-            : undefined,
-          categories: state.value.selectedCategories?.length
-            ? {
-                id: {
-                  $in: state.value.selectedCategories.map((p) => p.id),
-                },
-              }
-            : undefined,
-          district: state.value.selectedDistricts?.length
-            ? {
-                id: {
-                  $in: state.value.selectedDistricts.map((d) => d.id),
-                },
-              }
-            : undefined,
-        } as Record<string, unknown>,
-        pagination: needsClientSideFiltering
-          ? {
-              // Fetch all resources when we need to filter by accessibility client-side
-              pageSize: 1000,
-              page: 1,
-            }
-          : {
-              pageSize: maxPageSize,
-              page: page,
-            },
+        filters: buildFilters(),
+        pagination: {
+          pageSize: maxPageSize,
+          page: page,
+        },
       });
 
       if (response?.data) {
-        let filteredResources = response.data;
+        state.value.resources = response.data;
 
-        // Client-side filtering for accessibility states (since Strapi v5 dynamic zone filtering is complex)
-        if (state.value.selectedAccessibilityStates?.length) {
-          filteredResources = filteredResources.filter((resource) => {
-            const berlinResourceType = resource.resourceTypes?.find(
-              (resourceType) =>
-                resourceType.__component ===
-                ResourceTypeComponent.BERLIN_RESOURCE_TYPE
-            ) as BerlinResourceType | undefined;
-
-            return (
-              berlinResourceType &&
-              state.value.selectedAccessibilityStates?.includes(
-                berlinResourceType.accessibilityState
-              )
-            );
-          });
-
-          // Client-side pagination for accessibility-filtered results
-          const total = filteredResources.length;
-          const pageCount = Math.ceil(total / maxPageSize) || 1;
-          const startIndex = (page - 1) * maxPageSize;
-          const endIndex = startIndex + maxPageSize;
-          const paginatedResources = filteredResources.slice(
-            startIndex,
-            endIndex
-          );
-
-          state.value.resources = paginatedResources;
+        // Update pagination state from response
+        if (response.meta?.pagination) {
+          const pagination = response.meta.pagination;
           state.value.pagination = {
-            page: page,
-            pageSize: maxPageSize,
-            pageCount: pageCount,
-            total: total,
+            page: 'page' in pagination ? pagination.page : 1,
+            pageSize:
+              'pageSize' in pagination ? pagination.pageSize : maxPageSize,
+            pageCount: 'pageCount' in pagination ? pagination.pageCount : 1,
+            total: pagination.total || 0,
           };
-        } else {
-          state.value.resources = filteredResources;
-
-          // Update pagination state from response
-          if (response.meta?.pagination) {
-            const pagination = response.meta.pagination;
-            state.value.pagination = {
-              page: 'page' in pagination ? pagination.page : 1,
-              pageSize:
-                'pageSize' in pagination ? pagination.pageSize : maxPageSize,
-              pageCount: 'pageCount' in pagination ? pagination.pageCount : 1,
-              total: pagination.total || 0,
-            };
-          }
         }
       }
     } catch (error) {
@@ -196,7 +169,6 @@ export const useResourcesSearch = async (
       () => state.value.searchQuery,
       () => state.value.selectedCategories,
       () => state.value.selectedDistricts,
-      () => state.value.selectedAccessibilityStates,
     ],
     async () => {
       activePage.value = 1; // Reset to first page when filters change
@@ -207,6 +179,7 @@ export const useResourcesSearch = async (
       }
 
       fetchResources(1);
+      fetchMapResources();
     },
     { deep: true }
   );
@@ -253,16 +226,6 @@ export const useResourcesSearch = async (
         delete query.districts;
       }
 
-      // Update accessibility states
-      if (
-        state.value.selectedAccessibilityStates &&
-        state.value.selectedAccessibilityStates.length > 0
-      ) {
-        query.accessibility = state.value.selectedAccessibilityStates.join(',');
-      } else {
-        delete query.accessibility;
-      }
-
       await router.push({ query });
     }
   };
@@ -287,16 +250,6 @@ export const useResourcesSearch = async (
     }
   };
 
-  const setSelectedAccessibilityStates = async (
-    accessibilityStates: AccessibilityState[] | null,
-    updateUrl: boolean = syncWithUrl
-  ) => {
-    state.value.selectedAccessibilityStates = accessibilityStates;
-    if (updateUrl) {
-      await updateFiltersInUrl();
-    }
-  };
-
   const setPage = async (page: number, updateUrl: boolean = syncWithUrl) => {
     activePage.value = page;
 
@@ -315,20 +268,26 @@ export const useResourcesSearch = async (
     state.value.searchQuery = '';
     state.value.selectedCategories = null;
     state.value.selectedDistricts = null;
-    state.value.selectedAccessibilityStates = null;
     activePage.value = 1;
   };
+
+  // Load the unpaginated map data on the client, so the initial page render
+  // is not blocked by it.
+  if (import.meta.client) {
+    fetchMapResources();
+  }
 
   return {
     state: readonly(state),
     activePage: readonly(activePage),
+    mapResources: readonly(mapResources),
     setSearchQuery,
     setSelectedCategories,
     setSelectedDistricts,
-    setSelectedAccessibilityStates,
     setPage,
     clearFilters,
     // Expose the debounced function for manual triggering if needed
     refetch: fetchResources,
+    refetchMapResources: fetchMapResources,
   };
 };
