@@ -358,6 +358,8 @@ const resourcesResponse = await find<Resource>('resources', {
     'images',
     'resourceTypes',
     'address',
+    'user',
+    'user.organization',
     // @ts-expect-errors – nested populate
     'attributes.attribute',
   ],
