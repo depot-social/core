@@ -90,17 +90,33 @@
           </div>
 
           <template v-if="isLayer('berlin-raum')">
-            <p
+            <UTooltip
               v-if="berlinResourceType?.provider"
-              class="text-base leading-snug font-light mt-auto"
+              :text="berlinResourceType.provider"
+              :disabled="!isTextTruncated"
+              :content="{ side: 'top' }"
             >
-              {{ berlinResourceType.provider }}
-            </p>
+              <p
+                ref="truncatedTextEl"
+                class="text-base leading-snug font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
+              >
+                {{ berlinResourceType.provider }}
+              </p>
+            </UTooltip>
           </template>
           <template v-else-if="isLayer('berlin-ausleihe') && isOrganization">
-            <p class="text-base leading-snug font-light mt-auto">
-              {{ organizationName }}
-            </p>
+            <UTooltip
+              :text="organizationName"
+              :disabled="!isTextTruncated"
+              :content="{ side: 'top' }"
+            >
+              <p
+                ref="truncatedTextEl"
+                class="text-base leading-snug font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
+              >
+                {{ organizationName }}
+              </p>
+            </UTooltip>
           </template>
         </footer>
       </div>
@@ -116,7 +132,7 @@ import {
   getUsernameFromUser,
   ResourceTypeComponent,
 } from '@depot/shared';
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 interface Props {
   resource: Resource;
@@ -159,4 +175,21 @@ const organizationName = computed(() => {
 const accessibilityText = computed(() => {
   return getAccessibilityText(berlinResourceType.value?.accessibilityState);
 });
+
+const truncatedTextEl = ref<HTMLElement | null>(null);
+const isTextTruncated = ref(false);
+
+let resizeObserver: ResizeObserver | undefined;
+
+onMounted(() => {
+  if (!truncatedTextEl.value) return;
+
+  resizeObserver = new ResizeObserver(() => {
+    const el = truncatedTextEl.value;
+    isTextTruncated.value = !!el && el.scrollWidth > el.clientWidth;
+  });
+  resizeObserver.observe(truncatedTextEl.value);
+});
+
+onBeforeUnmount(() => resizeObserver?.disconnect());
 </script>
