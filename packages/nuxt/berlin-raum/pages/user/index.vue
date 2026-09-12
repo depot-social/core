@@ -1,27 +1,55 @@
 <template>
-  <div class="xl:container px-8 pt-12 pb-18">
-    <div class="flex justify-between mt-10 items-center">
-      <span class="text-base font-medium text-primary">{{
-        $t('myProfile')
-      }}</span>
-      <div class="join hidden">
-        <button class="btn btn-primary join-item">
-          {{ $t('dashboard') }}
-        </button>
-        <button class="btn btn-info join-item">{{ $t('messages') }}</button>
-        <button class="btn btn-info join-item">{{ $t('settings') }}</button>
+  <div>
+    <div
+      v-if="errorMessage"
+      class="col-span-full flex flex-col items-center text-center"
+    >
+      <div class="alert alert-error mt-2" role="alert">
+        {{ errorMessage }}
       </div>
     </div>
 
-    <div class="bg-white mt-4 pt-8 flex flex-col">
-      <BerlinProfileResourceList :resources="resources || []" />
+    <div
+      v-else-if="pendingDashboard"
+      class="col-span-full flex flex-col items-center text-center"
+    >
+      <div class="loading loading-spinner loading-lg" />
+      <p class="mt-4">{{ $t('loading') }}</p>
+    </div>
+
+    <div class="xl:container px-8 pt-12 pb-18">
+      <div class="flex justify-center mt-10 items-center">
+        <span class="text-base font-medium text-primary mr-auto">{{
+          $t('myProfile')
+        }}</span>
+        <div class="join mr-auto">
+          <NuxtLink
+            :to="getUserProfilePath()"
+            class="btn btn-primary join-item"
+          >
+            Übersicht
+          </NuxtLink>
+          <!-- <button class="btn btn-info join-item">{{ $t('messages') }}</button> -->
+          <NuxtLink :to="getUserSettingsPath()" class="btn btn-info join-item">
+            {{ $t('settings') }}
+          </NuxtLink>
+        </div>
+      </div>
+
+      <div class="bg-white mt-4 pt-8 flex flex-col">
+        <BerlinProfileResourceList :resources="resources || []" />
+        <DashboardCalendar :dashboard="dashboard" />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { User } from '@depot/shared';
-import { getPopulates } from '@depot/shared';
+import type {
+  AvailabilitiesGetDashboardResponseData,
+  User,
+} from '@depot/shared';
+import DashboardCalendar from '~/base/components/profile/DashboardCalendar.vue';
 
 useHead({
   title: $t('myProfile'),
@@ -31,33 +59,38 @@ definePageMeta({
   middleware: 'auth',
 });
 
-const user = useStrapiUser() as Ref<User | null>;
+const { fetchUser } = useStrapiAuth();
+const strapiUrl = useStrapiUrl();
 
-const config = useRuntimeConfig();
-const token = useStrapiToken();
+const userData = (await fetchUser()) as Ref<User | null>;
+const resources = computed(() => userData.value?.resources || []);
 
-if (!token.value) {
-  const { redirectToLoginWithToast } = useAuthRedirect();
-  await redirectToLoginWithToast();
-}
+// Fetch dashboard data
+const { data: dashboard, pending: pendingDashboard } = await useAsyncData(
+  'dashboard',
+  async () => {
+    try {
+      // Get JWT token from cookies for authenticated request
+      const token = useStrapiToken();
 
-const userData = token.value
-  ? await $fetch<User>(
-      `${config.public.strapiUrl}/api/users/me?${getPopulates({
-        populate: [
-          'resources.user',
-          'resources.images',
-          'resources.user.organization',
-          'resources.resourceTypes',
-        ],
-      }).join('&')}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token.value}`,
-        },
-      }
-    )
-  : null;
+      const response = await $fetch<AvailabilitiesGetDashboardResponseData>(
+        `${strapiUrl}/plugin-availabilities/dashboard`,
+        {
+          headers: {
+            Authorization: `Bearer ${token.value}`,
+          },
+        }
+      );
 
-const resources = computed(() => userData?.resources || []);
+      return response;
+    } catch (e) {
+      console.error('Error loading dashboard', e);
+    }
+  }
+  // {
+  //   server: false, // Client-side only since we need cookies
+  // }
+);
+
+const errorMessage = ref('');
 </script>
