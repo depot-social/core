@@ -32,7 +32,7 @@
           <BerlinResourcesSearchFilterDropdown
             v-model="districtsValue"
             :items="districtsOptions"
-            :multiple="false"
+            :multiple="true"
             class="bg-[#ffffff]"
             bg-color="#ffffff"
             placeholder="Bezirk"
@@ -115,27 +115,28 @@
                 </span>
               </template>
             </template>
+          </p>
 
-            <template
-              v-if="
-                categoryValue.length > 0 ||
-                districtsValue.length > 0 ||
-                state.searchQuery
+          <template
+            v-if="
+              categoryValue.length > 0 ||
+              districtsValue.length > 0 ||
+              state.searchQuery
+            "
+          >
+            <UButton
+              class="w-max mt-4"
+              variant="outline"
+              @click="
+                categoryValue = [];
+                districtsValue = [];
+                setSearchQuery('');
+                $router.push({ query: {} });
               "
             >
-              <UButton
-                class="w-max md:ml-1.5"
-                @click="
-                  categoryValue = [];
-                  districtsValue = [];
-                  setSearchQuery('');
-                  $router.push({ query: {} });
-                "
-              >
-                {{ $t('berlin_resources_resetToInitialState') }}
-              </UButton>
-            </template>
-          </p>
+              {{ $t('berlin_resources_resetToInitialState') }}
+            </UButton>
+          </template>
         </div>
 
         <BerlinResourcesSearchPagination :state="state" :set-page="setPage" />

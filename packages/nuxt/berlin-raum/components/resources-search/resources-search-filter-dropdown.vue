@@ -45,7 +45,7 @@
       </label>
 
       <button
-        v-if="!multiple && hasSelection"
+        v-if="hasSelection"
         :class="`bg-[${props.bgColor}] reset-button sticky bottom-0 flex flex-col items-center w-full cursor-pointer`"
         type="button"
         :style="`--bg-color: ${props.bgColor};`"
@@ -102,11 +102,6 @@ const emit = defineEmits<{
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 const announcement = ref('');
-
-// Unique name for radio group (for single select mode)
-const radioGroupName = computed(
-  () => `radio-group-${Math.random().toString(36).substring(7)}`
-);
 
 // Check if there's any selection
 const hasSelection = computed(() => props.modelValue.length > 0);
@@ -327,7 +322,7 @@ onBeforeUnmount(() => {
 
 .form-control {
   --form-control-color: black;
-  @apply text-lg md:text-2lg gap-4 grid grid-cols-[1em_auto] py-2 pl-3 pr-4 font-medium;
+  @apply text-lg md:text-2lg gap-4 grid items-start grid-cols-[1em_auto] py-2 pl-3 pr-4 font-medium;
 }
 
 .form-control:last-of-type {
@@ -342,6 +337,32 @@ input[type='radio'] {
   background-color: inherit;
   /* Not removed via appearance */
   margin: 0;
+  display: grid;
+  place-content: center;
+  flex-shrink: 0;
+}
+
+input[type='checkbox'] {
+  margin-block-start: 0.25rem;
+  width: 0.65em;
+  height: 0.65em;
+  aspect-ratio: 1;
+  border: 0.12em solid currentColor;
+  color: currentColor;
+}
+
+input[type='checkbox']::before {
+  content: '';
+  transform: scale(0);
+  transition: 150ms transform ease-in-out;
+  background-color: CanvasText;
+}
+
+input[type='checkbox']::before {
+  width: 0.7em;
+  height: 0.7em;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  box-shadow: inset 1em 1em var(--form-control-color);
 }
 
 input[type='radio'] {
@@ -366,18 +387,8 @@ input[type='radio']::before {
   box-shadow: inset 1em 1em var(--form-control-color);
 }
 
+input[type='checkbox']:checked::before,
 input[type='radio']:checked::before {
   transform: scale(1);
-}
-
-input[type='radio']:focus {
-  outline: 2px dashed currentColor;
-  outline-offset: 1px;
-  outline: none;
-}
-
-input[type='radio']:focus-visible {
-  outline: 2px dashed currentColor;
-  outline-offset: 1px;
 }
 </style>
