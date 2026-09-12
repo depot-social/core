@@ -61,6 +61,7 @@ export default defineNuxtConfig({
     auth: {
       populate: [
         'address',
+        'organization',
         'resources',
         'resources.user',
         'resources.user.organization',
