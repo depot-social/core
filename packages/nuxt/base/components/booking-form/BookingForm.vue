@@ -1,5 +1,10 @@
 <template>
-  <UForm :schema="schema" :state="state" class="w-full" @submit="onSubmit">
+  <UForm
+    :schema="schema"
+    :state="state"
+    class="w-full flex flex-col gap-6"
+    @submit="onSubmit"
+  >
     <section class="flex flex-col gap-6">
       <div class="">
         <span class="text-lg">{{ $t('contactData') }}</span>
@@ -44,7 +49,11 @@
       </div>
     </section>
 
-    <section class="flex gap-3 flex-col mt-24 max-w-full">
+    <section>
+      <slot></slot>
+    </section>
+
+    <section class="flex gap-3 flex-col max-w-full">
       <div class="basis-1/3">
         <span class="text-lg">{{ $t('notesToLender') }}</span>
         <p class="text-gray-700">{{ $t('notesToLenderDescription') }}</p>
