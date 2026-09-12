@@ -63,7 +63,9 @@
         class="bg-white py-6 md:py-8 transition-all"
         :class="state.loading && 'opacity-40'"
       >
-        <div class="px-4 sm:px-6 mb-5">
+        <div
+          class="flex justify-between items-center gap-3.5 flex-wrap px-4 sm:px-6 mb-5"
+        >
           <p class="text-2lg! flex items-center flex-wrap gap-2">
             <span class="font-semibold text-black">
               {{
@@ -154,7 +156,7 @@
             "
           >
             <UButton
-              class="w-max mt-4"
+              class="w-max"
               variant="outline"
               @click="
                 purposesValue = [];
