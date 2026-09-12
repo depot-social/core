@@ -5,3 +5,4 @@ tsconfig.tsbuildinfo
 packages/strapi/src/extensions/documentation/documentation/*
 .cursor/*
 .codex
+ausleihe.code-workspace
