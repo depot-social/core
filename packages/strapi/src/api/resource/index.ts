@@ -1,8 +1,8 @@
 import type { Core } from '@strapi/strapi';
 import {
-  Address,
-  ObfuscatedGeoData,
-  Resource,
+  type Address,
+  type ObfuscatedGeoData,
+  type Resource,
   geocodeAddress,
   obfuscateGeodata,
 } from '@depot/shared';
