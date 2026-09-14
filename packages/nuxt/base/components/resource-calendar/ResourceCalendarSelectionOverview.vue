@@ -12,8 +12,13 @@
         {{ $t('available') }}
       </span>
       <p>
-        {{ selection.start?.toDateString() }} -
-        {{ selection.end?.toDateString() }}
+        <span v-if="selection.start">{{
+          formatDate(selection.start, 'EEEE, d. MMMM yyyy')
+        }}</span>
+        <span v-if="selection.end">
+          -
+          {{ formatDate(selection.end, 'EEEE, d. MMMM yyyy') }}
+        </span>
       </p>
     </div>
   </div>
@@ -22,12 +27,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { CalendarActiveSelection } from '../calendar/calendar.props';
+import { useDateFormat } from '~/base/composables/useDateFormat';
 
 interface Props {
   selection: CalendarActiveSelection;
 }
 
 const props = defineProps<Props>();
+const { formatDate } = useDateFormat();
 
 const selectionActive = computed(
   () => props.selection.start && props.selection.end

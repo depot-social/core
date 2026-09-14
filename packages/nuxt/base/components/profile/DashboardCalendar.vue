@@ -4,18 +4,30 @@
       <h3 class="text-xl text-bold">{{ $t('bookingsAndAvailabilities') }}</h3>
       <div class="flex items-center gap-6">
         <h2 class="text-lg leading-none">
-          {{ format(currentMonthStart, 'MMMM yyyy') }}
+          {{ formatDate(currentMonthStart, 'MMMM yyyy') }}
         </h2>
         <div class="join">
-          <button class="join-item btn btn-info" type="button" @click="gotoPrevMonth">
+          <button
+            class="join-item btn btn-info"
+            type="button"
+            @click="gotoPrevMonth"
+          >
             <i class="ph ph-caret-left">
               <span class="sr-only">{{ $t('previousMonth') }}</span>
             </i>
           </button>
-          <button class="join-item btn btn-info" type="button" @click="gotoToday">
+          <button
+            class="join-item btn btn-info"
+            type="button"
+            @click="gotoToday"
+          >
             {{ $t('today') }}
           </button>
-          <button class="join-item btn btn-info" type="button" @click="gotoNextMonth">
+          <button
+            class="join-item btn btn-info"
+            type="button"
+            @click="gotoNextMonth"
+          >
             <i class="ph ph-caret-right">
               <span class="sr-only">{{ $t('nextMonth') }}</span>
             </i>
@@ -44,7 +56,9 @@
             :title="format(day, 'yyyy-MM-dd')"
             @click="onClickDate(day)"
           >
-            <time :dateTime="format(day, 'yyyy-MM-dd')">{{ format(day, 'd') }}</time>
+            <time :dateTime="format(day, 'yyyy-MM-dd')">{{
+              format(day, 'd')
+            }}</time>
           </button>
 
           <div class="dashboard-calendar__events">
@@ -57,7 +71,9 @@
                   ? 'dashboard-calendar__event--availability'
                   : 'dashboard-calendar__event--booking',
               ]"
-              :title="`${formatTime(event.start)} - ${formatTime(event.end)}${event.title ? `: ${event.title}` : ''}`"
+              :title="`${formatTime(event.start)} - ${formatTime(event.end)}${
+                event.title ? `: ${event.title}` : ''
+              }`"
             >
               <span class="dashboard-calendar__event-time">
                 {{ formatTime(event.start) }} - {{ formatTime(event.end) }}
@@ -97,6 +113,7 @@ import {
   startOfMonth,
   startOfToday,
 } from 'date-fns';
+import { useDateFormat } from '~/base/composables/useDateFormat';
 
 interface Props {
   dashboard: AvailabilitiesGetDashboardResponseData;
@@ -123,6 +140,7 @@ const colStartClasses = [
 ];
 
 const props = defineProps<Props>();
+const { formatDate } = useDateFormat();
 
 const calendarKey = ref(0);
 const currentMonthStart = ref(startOfMonth(startOfToday()));
@@ -133,7 +151,9 @@ const formatTime = (value: Date) => format(value, 'HH:mm') + ' ' + $t('oClock');
 const toDate = (value: string | Date) =>
   value instanceof Date ? value : new Date(value);
 
-const mapAvailabilityToEvent = (availability: Availability): DashboardEvent => ({
+const mapAvailabilityToEvent = (
+  availability: Availability
+): DashboardEvent => ({
   id: `availability-${availability.id}`,
   type: 'availability',
   title: availability.title,
@@ -153,22 +173,26 @@ const mapBookingToEvent = (
 });
 
 const normalizedEvents = computed<DashboardEvent[]>(() => {
-  const availabilities = props.dashboard.availabilities.map(mapAvailabilityToEvent);
-  const bookingsResourceOwner = props.dashboard.bookingsResourceOwner.map((booking) =>
-    mapBookingToEvent(booking, 'owner')
+  const availabilities = props.dashboard.availabilities.map(
+    mapAvailabilityToEvent
+  );
+  const bookingsResourceOwner = props.dashboard.bookingsResourceOwner.map(
+    (booking) => mapBookingToEvent(booking, 'owner')
   );
   const bookingsCustomer = props.dashboard.bookingsCustomer.map((booking) =>
     mapBookingToEvent(booking, 'customer')
   );
 
-  return [...availabilities, ...bookingsResourceOwner, ...bookingsCustomer].sort(
-    (left, right) => {
-      const startDiff = left.start.getTime() - right.start.getTime();
-      if (startDiff !== 0) return startDiff;
-      if (left.type === right.type) return 0;
-      return left.type === 'availability' ? -1 : 1;
-    }
-  );
+  return [
+    ...availabilities,
+    ...bookingsResourceOwner,
+    ...bookingsCustomer,
+  ].sort((left, right) => {
+    const startDiff = left.start.getTime() - right.start.getTime();
+    if (startDiff !== 0) return startDiff;
+    if (left.type === right.type) return 0;
+    return left.type === 'availability' ? -1 : 1;
+  });
 });
 
 const getEventsForDay = (day: Date): DashboardEvent[] => {

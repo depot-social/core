@@ -138,7 +138,7 @@
                 </p>
                 <p class="text-gray-800">
                   {{ $t('resource_memberSince') }}
-                  {{ format(user.createdAt, 'MMM yyyy') }}
+                  {{ formatDate(user.createdAt, 'MMM yyyy') }}
                 </p>
                 <!-- <ul class="flex gap-2 mt-4 text-base">
                 <li class="badge badge-sm border-0">4 Ressourcen</li>
@@ -327,10 +327,12 @@ import {
 import { format } from 'date-fns';
 import { marked } from 'marked';
 import { onMounted, onUnmounted, ref } from 'vue';
+import { useDateFormat } from '~/base/composables/useDateFormat';
 import { PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 const imageGrid = ref<HTMLElement | null>(null); // Create a ref to link to your element
 const clientWidth = ref(0);
+const { formatDate } = useDateFormat();
 
 let resizeObserver: ResizeObserver | null = null;
 

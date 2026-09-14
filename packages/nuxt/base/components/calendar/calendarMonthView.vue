@@ -9,7 +9,7 @@
     <div class="md:grid">
       <div class="flex flex-col items-center">
         <span class="flex-auto text-black">
-          {{ format(month, 'MMMM yyyy') }}
+          {{ formatDate(month, 'MMMM yyyy') }}
         </span>
       </div>
       <div
@@ -44,12 +44,14 @@ import {
   startOfMonth,
 } from 'date-fns';
 import CalendarDay from './calendarDay.vue';
+import { useDateFormat } from '~/base/composables/useDateFormat';
 import type {
   CalendarDaySlotProps,
   CalendarMonthViewProps,
 } from './calendar.props';
 
 const props = defineProps<CalendarMonthViewProps>();
+const { formatDate } = useDateFormat();
 defineSlots<{
   day(props: CalendarDaySlotProps): unknown;
 }>();

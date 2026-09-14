@@ -122,7 +122,7 @@
                 </p>
                 <p class="text-gray-800">
                   {{ $t('resource_memberSince') }}
-                  {{ format(user.createdAt, 'MMM yyyy') }}
+                  {{ formatDate(user.createdAt, 'MMM yyyy') }}
                 </p>
                 <!-- <ul class="flex gap-2 mt-4 text-base">
                   <li class="badge badge-sm border-0">4 Ressourcen</li>
@@ -250,6 +250,7 @@ import { format } from 'date-fns';
 import { marked } from 'marked';
 import { computed, ref } from 'vue';
 import { useResourcePricing } from '~/base/composables/useResourcePricing';
+import { useDateFormat } from '~/base/composables/useDateFormat';
 import { PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 // Get route params
@@ -264,6 +265,7 @@ if (!slug) {
 }
 
 const { find } = useStrapi();
+const { formatDate } = useDateFormat();
 
 let similarResources: Resource[] = [];
 
