@@ -61,34 +61,50 @@
             }}</time>
           </button>
 
-          <div class="dashboard-calendar__events">
-            <p
-              v-for="event in getVisibleEventsForDay(day)"
-              :key="event.id"
-              :class="[
-                'dashboard-calendar__event',
-                event.type === 'availability'
-                  ? 'dashboard-calendar__event--availability'
-                  : 'dashboard-calendar__event--booking',
-              ]"
-              :title="`${formatTime(event.start)} - ${formatTime(event.end)}${
-                event.title ? `: ${event.title}` : ''
-              }`"
+          <div
+            class="dashboard-calendar__range-lanes"
+            :style="{ height: `${getRangeLaneCount(day) * 1.5}rem` }"
+          >
+            <template
+              v-for="segment in getRangeSegmentsStartingOn(day)"
+              :key="`${segment.event.id}-${format(
+                segment.start,
+                'yyyy-MM-dd'
+              )}`"
             >
-              <span class="dashboard-calendar__event-time">
-                {{ formatTime(event.start) }} - {{ formatTime(event.end) }}
-              </span>
-              <span v-if="event.title">{{ event.title }}</span>
-            </p>
-
-            <button
-              v-if="getHiddenEventsCountForDay(day) > 0"
-              type="button"
-              class="dashboard-calendar__more"
-              @click="showAllEventsForDay(day)"
-            >
-              +{{ getHiddenEventsCountForDay(day) }} {{ $t('more') }}
-            </button>
+              <NuxtLink
+                v-if="
+                  segment.event.type === 'booking' &&
+                  segment.event.bookingDocumentId
+                "
+                :to="getBookingPath(segment.event.bookingDocumentId)"
+                :class="getRangeClasses(segment)"
+                :style="getRangeStyle(segment)"
+                :title="getEventLabel(segment.event)"
+              >
+                <span class="dashboard-calendar__event-time">
+                  {{ formatTime(segment.event.start) }} -
+                  {{ formatTime(segment.event.end) }}
+                </span>
+                <span v-if="segment.event.title">{{
+                  segment.event.title
+                }}</span>
+              </NuxtLink>
+              <p
+                v-else
+                :class="getRangeClasses(segment)"
+                :style="getRangeStyle(segment)"
+                :title="getEventLabel(segment.event)"
+              >
+                <span class="dashboard-calendar__event-time">
+                  {{ formatTime(segment.event.start) }} -
+                  {{ formatTime(segment.event.end) }}
+                </span>
+                <span v-if="segment.event.title">{{
+                  segment.event.title
+                }}</span>
+              </p>
+            </template>
           </div>
         </div>
       </template>
@@ -104,30 +120,25 @@ import type {
 } from '@depot/shared';
 import {
   addMonths,
-  endOfDay,
   format,
   getDay,
   isBefore,
-  isWithinInterval,
-  startOfDay,
   startOfMonth,
   startOfToday,
 } from 'date-fns';
 import { useDateFormat } from '~/base/composables/useDateFormat';
+import { getBookingPath } from '~/base/utils/paths';
+import {
+  createDashboardRangeLayout,
+  getDashboardCalendarDateKey,
+  type DashboardEvent,
+  type DashboardRangeSegment,
+} from './dashboardCalendarRanges';
 
 interface Props {
   dashboard: AvailabilitiesGetDashboardResponseData;
+  displayAvailabilities?: boolean;
 }
-
-type DashboardEvent = {
-  id: string;
-  type: 'availability' | 'booking';
-  title: string;
-  start: Date;
-  end: Date;
-};
-
-const MAX_EVENTS_PER_DAY = 3;
 
 const colStartClasses = [
   '',
@@ -139,14 +150,20 @@ const colStartClasses = [
   'col-start-6',
 ];
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  displayAvailabilities: true,
+});
 const { formatDate } = useDateFormat();
 
 const calendarKey = ref(0);
 const currentMonthStart = ref(startOfMonth(startOfToday()));
-const eventsDisplayedCount = ref<Record<string, number>>({});
 
 const formatTime = (value: Date) => format(value, 'HH:mm') + ' ' + $t('oClock');
+
+const getEventLabel = (event: DashboardEvent): string =>
+  `${formatTime(event.start)} - ${formatTime(event.end)}${
+    event.title ? `: ${event.title}` : ''
+  }`;
 
 const toDate = (value: string | Date) =>
   value instanceof Date ? value : new Date(value);
@@ -170,12 +187,13 @@ const mapBookingToEvent = (
   title: `${$t('booking')} ${booking.title}`,
   start: toDate(booking.start),
   end: toDate(booking.end),
+  bookingDocumentId: booking.documentId,
 });
 
 const normalizedEvents = computed<DashboardEvent[]>(() => {
-  const availabilities = props.dashboard.availabilities.map(
-    mapAvailabilityToEvent
-  );
+  const availabilities = props.displayAvailabilities
+    ? props.dashboard.availabilities.map(mapAvailabilityToEvent)
+    : [];
   const bookingsResourceOwner = props.dashboard.bookingsResourceOwner.map(
     (booking) => mapBookingToEvent(booking, 'owner')
   );
@@ -195,32 +213,33 @@ const normalizedEvents = computed<DashboardEvent[]>(() => {
   });
 });
 
-const getEventsForDay = (day: Date): DashboardEvent[] => {
-  const normalizedDay = startOfDay(day);
+const visibleMonths = computed(() => [
+  currentMonthStart.value,
+  addMonths(currentMonthStart.value, 1),
+]);
 
-  return normalizedEvents.value.filter((event) =>
-    isWithinInterval(normalizedDay, {
-      start: startOfDay(event.start),
-      end: endOfDay(event.end),
-    })
-  );
-};
+const rangeLayout = computed(() =>
+  createDashboardRangeLayout(normalizedEvents.value, visibleMonths.value)
+);
 
-const getDayKey = (day: Date) => format(day, 'yyyy-MM-dd');
+const getRangeSegmentsStartingOn = (day: Date): DashboardRangeSegment[] =>
+  rangeLayout.value.segmentsByStartDay.get(getDashboardCalendarDateKey(day)) ??
+  [];
 
-const getEventsDisplayedCountForDay = (day: Date): number =>
-  eventsDisplayedCount.value[getDayKey(day)] ?? MAX_EVENTS_PER_DAY;
+const getRangeLaneCount = (day: Date): number =>
+  rangeLayout.value.laneCountByDay.get(getDashboardCalendarDateKey(day)) ?? 0;
 
-const getVisibleEventsForDay = (day: Date): DashboardEvent[] =>
-  getEventsForDay(day).slice(0, getEventsDisplayedCountForDay(day));
+const getRangeStyle = (segment: DashboardRangeSegment) => ({
+  top: `${segment.lane * 1.5}rem`,
+  width: `calc(${segment.span * 100}% + ${(segment.span - 1) * 2}px)`,
+});
 
-const getHiddenEventsCountForDay = (day: Date): number =>
-  Math.max(getEventsForDay(day).length - getEventsDisplayedCountForDay(day), 0);
-
-const showAllEventsForDay = (day: Date) => {
-  const dayKey = getDayKey(day);
-  eventsDisplayedCount.value[dayKey] = getEventsForDay(day).length;
-};
+const getRangeClasses = (segment: DashboardRangeSegment) => [
+  'dashboard-calendar__event dashboard-calendar__range',
+  segment.event.type === 'availability'
+    ? 'dashboard-calendar__event--availability'
+    : 'dashboard-calendar__event--booking',
+];
 
 const refreshCalendar = () => {
   calendarKey.value += 1;
@@ -246,19 +265,23 @@ const gotoToday = () => {
 @reference '~/base/assets/css/main.css';
 
 .dashboard-calendar__day {
-  @apply min-h-[9rem] border border-gray-100 rounded-md px-1 py-1 flex flex-col gap-1;
+  @apply relative min-h-[9rem] border border-gray-100 rounded-md py-1 flex flex-col gap-1;
 }
 
 .dashboard-calendar__day .date__header {
-  @apply w-8 h-8 rounded-[5px] text-gray-900 text-sm font-semibold hover:bg-gray-200;
+  @apply ml-1 w-8 h-8 rounded-[5px] text-gray-900 text-sm font-semibold hover:bg-gray-200;
 }
 
-.dashboard-calendar__events {
-  @apply flex flex-col gap-1;
+.dashboard-calendar__range-lanes {
+  @apply relative w-full shrink-0;
 }
 
 .dashboard-calendar__event {
-  @apply text-[10px] leading-tight rounded px-1 py-[2px] truncate;
+  @apply text-[10px] leading-tight px-1 truncate;
+}
+
+.dashboard-calendar__range {
+  @apply absolute left-0 z-10 h-5 flex items-center rounded;
 }
 
 .dashboard-calendar__event--availability {
@@ -266,14 +289,10 @@ const gotoToday = () => {
 }
 
 .dashboard-calendar__event--booking {
-  @apply text-[#C82F09] bg-[#FFEDD5];
+  @apply text-[#C82F09] bg-[#FFEDD5] cursor-pointer;
 }
 
 .dashboard-calendar__event-time {
   @apply mr-1 font-medium;
-}
-
-.dashboard-calendar__more {
-  @apply text-[10px] text-gray-500;
 }
 </style>

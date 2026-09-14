@@ -38,7 +38,10 @@
 
       <div class="bg-white mt-4 pt-8 flex flex-col">
         <BerlinProfileResourceList :resources="resources || []" />
-        <DashboardCalendar :dashboard="dashboard" />
+        <DashboardCalendar
+          :dashboard="dashboard"
+          :display-availabilities="false"
+        />
       </div>
     </div>
   </div>

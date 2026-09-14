@@ -56,7 +56,7 @@ definePageMeta({
 });
 
 const { fetchUser } = useStrapiAuth();
-const strapiUrl = useStrapiUrl()
+const strapiUrl = useStrapiUrl();
 
 const userData = (await fetchUser()) as Ref<User | null>;
 
