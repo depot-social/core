@@ -3,7 +3,11 @@ import { Booking, Price } from '@depot/shared';
 import { ConversationsService } from '../../plugins/conversations/server/services/conversations-service';
 import { PricesService } from '../../plugins/prices/server/services/prices-service';
 import { EmailsService } from '../../plugins/emails/server/services/emails-service';
-import { getRelationDocumentId, isAdminOrBackofficeRequest } from '../../utils';
+import {
+  getRelationDatabaseId,
+  getRelationDocumentId,
+  isAdminOrBackofficeRequest,
+} from '../../utils';
 import { AvailabilitiesService } from '../../plugins/availabilities/server/services/availabilities-service';
 
 const formatDateTime = (value: string | Date | null | undefined): string => {
@@ -108,13 +112,14 @@ export default {
       const ctx = strapi.requestContext.get();
 
       let bookingData = data;
+      let existingBooking: any;
 
       if (isUpdate) {
-        const existingBooking = await strapi.db
+        existingBooking = await strapi.db
           .query('api::booking.booking')
           .findOne({
             where,
-            populate: ['resource'],
+            populate: ['resource', 'customer'],
           });
 
         if (!existingBooking) {
@@ -145,6 +150,51 @@ export default {
 
       if (endDate <= startDate) {
         ctx.throw(400, 'End date must be larger than start date.');
+      }
+
+      if (!isAdminOrBackofficeRequest(ctx)) {
+        const authenticatedUserId = ctx?.state?.user?.id;
+
+        if (!authenticatedUserId) {
+          ctx.throw(401, 'Authentication required.');
+        }
+
+        const effectiveResourceDatabaseId = getRelationDatabaseId(resource);
+        const effectiveResourceDocumentId = getRelationDocumentId(resource);
+
+        if (!effectiveResourceDatabaseId && !effectiveResourceDocumentId) {
+          ctx.throw(400, 'Invalid resource document ID.');
+        }
+
+        const fullResource = effectiveResourceDatabaseId
+          ? await strapi.db.query('api::resource.resource').findOne({
+              where: { id: effectiveResourceDatabaseId },
+              populate: ['user'],
+            })
+          : await strapi.documents('api::resource.resource').findOne({
+              documentId: effectiveResourceDocumentId,
+              populate: {
+                user: {
+                  fields: ['id'],
+                },
+              },
+            });
+
+        if (!fullResource?.user?.id) {
+          ctx.throw(400, 'Resource has no owner.');
+        }
+
+        event.params.data.resourceOwner = fullResource.user.id;
+
+        if (isUpdate) {
+          if (!existingBooking?.customer?.id) {
+            ctx.throw(400, 'Booking has no customer.');
+          }
+
+          event.params.data.customer = existingBooking.customer.id;
+        } else {
+          event.params.data.customer = authenticatedUserId;
+        }
       }
 
       return;
@@ -182,27 +232,6 @@ export default {
 
       if (typeof maxAvailableUnits === 'number' && bookedUnits > maxAvailableUnits) {
         ctx.throw(400, `Requested booked units are not available. Available: ${maxAvailableUnits}`);
-      }
-
-      // Automatically assign the resource owner
-      const fullResource = await strapi.documents('api::resource.resource').findOne({
-        documentId: resourceDocumentId,
-        populate: ['user'],
-      });
-
-      if (!fullResource?.user?.id) {
-        ctx.throw(400, 'Resource has no owner.');
-      }
-
-      event.params.data.resourceOwner = fullResource.user.id;
-
-      if (isAdminOrBackofficeRequest(ctx)) {
-        return;
-      }
-
-      // Automatically assign the customer
-      if (ctx?.state?.user?.id) {
-        event.params.data.customer = ctx.state.user.id;
       }
     };
 

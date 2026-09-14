@@ -14,12 +14,17 @@
         <div class="grid grid-cols-2 gap-2">
           <UFormField
             :label="$t('firstNameOrOrganization')"
-            name="booking.customer.firstName"
           >
-            <UInput v-model="state.booking.customer.firstName" required />
+            <UInput
+              :model-value="customer.firstName"
+              disabled
+            />
           </UFormField>
-          <UFormField :label="$t('lastName')" name="booking.customer.lastName">
-            <UInput v-model="state.booking.customer.lastName" required />
+          <UFormField :label="$t('lastName')">
+            <UInput
+              :model-value="customer.lastName"
+              disabled
+            />
           </UFormField>
         </div>
         <div class="grid grid-cols-3 gap-2">
@@ -39,11 +44,11 @@
             <UInput v-model="state.booking.customerAddress.place" />
           </UFormField>
         </div>
-        <UFormField :label="$t('email')" name="booking.customer.email">
+        <UFormField :label="$t('email')">
           <UInput
-            v-model="state.booking.customer.email"
+            :model-value="customer.email"
             type="email"
-            required
+            disabled
           />
         </UFormField>
       </div>
@@ -117,19 +122,17 @@ const emit = defineEmits<{
 }>();
 
 const schema = createBookingFormSchema({
-  required: $t('validation_required'),
-  minLength2: $t('validation_minLength2'),
-  invalidEmail: $t('validation_invalidEmail'),
   consentRequired: $t('validation_consentRequired'),
 });
 
+const customer = computed(() => ({
+  firstName: props.formData.customer?.firstName || '',
+  lastName: props.formData.customer?.lastName || '',
+  email: props.formData.customer?.email || '',
+}));
+
 const state = reactive<BookingFormInput>({
   booking: {
-    customer: {
-      firstName: props.formData.customer?.firstName || '',
-      lastName: props.formData.customer?.lastName || '',
-      email: props.formData.customer?.email || '',
-    },
     customerAddress: {
       street: props.formData.customerAddress?.street || '',
       zip: props.formData.customerAddress?.zip || '',

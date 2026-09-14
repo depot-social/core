@@ -9,7 +9,7 @@
       </div>
     </div>
 
-    <div v-else class="flex min-h-screen justify-between bg-base-100">
+    <div class="flex min-h-screen justify-between bg-base-100">
       <div class="basis-2/3 flex flex-col items-start gap-8 px-24 py-12">
         <button class="link no-underline" @click="$router.back()">
           <i class="ph ph-arrow-left" /> {{ $t('backToPreviousPage') }}
@@ -90,7 +90,7 @@
 <script setup lang="ts">
 import type { Booking, UpdateBookingRequest, User } from '@depot/shared';
 import type { BookingFormValues } from '~/base/components/booking-form/schema';
-import { PAGE_NOT_FOUND } from '~/base/utils/errors';
+import { getStrapiErrorMessage, PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 useHead({
   title: $t('bookingRequest_pageTitle'),
@@ -107,7 +107,7 @@ const id = route.params.id as string;
 
 const user = useStrapiUser() as Ref<User>;
 
-const { data: booking, error } = await useAsyncData('booking', async () => {
+const { data: booking } = await useAsyncData('booking', async () => {
   try {
     const response = await findOne<Booking>('bookings', id, {
       populate: [
@@ -184,6 +184,8 @@ const errorMessage = ref('');
 const toast = useToast();
 
 const onSubmit = async (formData: BookingFormValues) => {
+  errorMessage.value = '';
+
   try {
     if (!booking.value?.documentId || !booking.value.resource?.documentId) {
       throw new Error('Missing booking id');
@@ -196,11 +198,6 @@ const onSubmit = async (formData: BookingFormValues) => {
       title: booking.value.title,
       resource: {
         documentId: booking.value.resource.documentId,
-      },
-      resourceOwner: booking.value.resourceOwner ?? booking.value.resource.user,
-      customer: {
-        ...booking.value.customer,
-        ...formData.customer,
       },
       customerAddress: formData.customerAddress,
       commentCustomer: formData.commentCustomer,
@@ -221,7 +218,7 @@ const onSubmit = async (formData: BookingFormValues) => {
     });
   } catch (err) {
     console.error('Booking update error:', err);
-    errorMessage.value = $t('bookingUpdateError');
+    errorMessage.value = getStrapiErrorMessage(err, $t('bookingUpdateError'));
   }
 };
 
@@ -245,7 +242,7 @@ const onConfirm = async () => {
     console.error('Confirm booking error:', e);
     toast.add({
       title: $t('error'),
-      description: $t('actionFailed'),
+      description: getStrapiErrorMessage(e, $t('actionFailed')),
       color: 'error',
     });
   }
@@ -271,7 +268,7 @@ const onCancel = async () => {
     console.error('Cancel booking error:', e);
     toast.add({
       title: $t('error'),
-      description: $t('actionFailed'),
+      description: getStrapiErrorMessage(e, $t('actionFailed')),
       color: 'error',
     });
   }

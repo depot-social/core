@@ -3,18 +3,10 @@ import * as v from 'valibot';
 import { createBookingFormSchema } from './schema';
 
 const schema = createBookingFormSchema({
-  required: 'Required',
-  minLength2: 'Must contain at least two characters',
-  invalidEmail: 'Invalid email',
   consentRequired: 'Consent is required',
 });
 
 const validBooking = {
-  customer: {
-    firstName: 'Erika',
-    lastName: 'Musterfrau',
-    email: 'erika@example.com',
-  },
   customerAddress: {
     street: 'Musterstraße 1',
     zip: '10115',
@@ -34,13 +26,17 @@ describe('createBookingFormSchema', () => {
     expect(result.issues?.[0]?.message).toBe('Consent is required');
   });
 
-  it('returns only booking data after successful validation', () => {
+  it('returns only customer-editable booking data after successful validation', () => {
     const result = v.parse(schema, {
       booking: validBooking,
       termsAccepted: true,
     });
 
-    expect(result).toEqual(validBooking);
+    expect(result).toEqual({
+      customerAddress: validBooking.customerAddress,
+      commentCustomer: validBooking.commentCustomer,
+    });
+    expect(result).not.toHaveProperty('customer');
     expect(result).not.toHaveProperty('termsAccepted');
   });
 });

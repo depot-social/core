@@ -1,10 +1,13 @@
 import * as v from 'valibot';
 
 export interface BookingFormValidationMessages {
-  required: string;
-  minLength2: string;
-  invalidEmail: string;
   consentRequired: string;
+}
+
+export interface BookingFormCustomer {
+  firstName: string;
+  lastName: string;
+  email: string;
 }
 
 export const createBookingFormSchema = (
@@ -13,23 +16,6 @@ export const createBookingFormSchema = (
   v.pipe(
     v.object({
       booking: v.object({
-        customer: v.object({
-          firstName: v.pipe(
-            v.string(),
-            v.nonEmpty(messages.required),
-            v.minLength(2, messages.minLength2)
-          ),
-          lastName: v.pipe(
-            v.string(),
-            v.nonEmpty(messages.required),
-            v.minLength(2, messages.minLength2)
-          ),
-          email: v.pipe(
-            v.string(),
-            v.nonEmpty(messages.required),
-            v.email(messages.invalidEmail)
-          ),
-        }),
         customerAddress: v.object({
           street: v.string(),
           zip: v.string(),
@@ -42,7 +28,10 @@ export const createBookingFormSchema = (
         v.check((accepted) => accepted, messages.consentRequired)
       ),
     }),
-    v.transform(({ booking }) => booking)
+    v.transform(({ booking }) => ({
+      customerAddress: booking.customerAddress,
+      commentCustomer: booking.commentCustomer,
+    }))
   );
 
 export type BookingFormInput = v.InferInput<
@@ -54,7 +43,7 @@ export type BookingFormValues = v.InferOutput<
 >;
 
 export interface BookingFormInitialData {
-  customer?: Partial<BookingFormValues['customer']>;
+  customer?: Partial<BookingFormCustomer>;
   customerAddress?: Partial<BookingFormValues['customerAddress']>;
   commentCustomer?: string | null;
 }

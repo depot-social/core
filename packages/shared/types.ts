@@ -56,8 +56,6 @@ type BookingWritableFields = Pick<
   | 'bookedUnits'
   | 'title'
   | 'resource'
-  | 'resourceOwner'
-  | 'customer'
   | 'customerAddress'
   | 'commentCustomer'
 >;

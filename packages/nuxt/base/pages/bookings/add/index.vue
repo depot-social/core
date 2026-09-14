@@ -10,7 +10,7 @@
     </div>
 
     <div
-      v-else-if="pending"
+      v-if="pending"
       class="col-span-full flex flex-col items-center text-center"
     >
       <div class="loading loading-spinner loading-lg" />
@@ -44,7 +44,11 @@ import type {
 import type { BookingFormValues } from '~/base/components/booking-form/schema';
 import { fetchMaxAvailableUnits } from '~/base/utils/availabilities';
 import { getResourcePath, getBookingPath } from '~/base/utils/paths';
-import { PAGE_NOT_FOUND, MISSING_PARAMETERS_ERROR } from '~/base/utils/errors';
+import {
+  getStrapiErrorMessage,
+  PAGE_NOT_FOUND,
+  MISSING_PARAMETERS_ERROR,
+} from '~/base/utils/errors';
 
 useHead({
   title: $t('bookingRequest_pageTitle'),
@@ -167,6 +171,8 @@ const bookingFormData = reactive<Partial<Booking>>({
 const errorMessage = ref('');
 
 const onSubmit = async (formData: BookingFormValues) => {
+  errorMessage.value = '';
+
   try {
     const bookingRequest = {
       start,
@@ -176,11 +182,6 @@ const onSubmit = async (formData: BookingFormValues) => {
       title: '',
       resource: {
         documentId: resourceDocumentId,
-      },
-      resourceOwner: resource.value?.user as User,
-      customer: {
-        ...user.value,
-        ...formData.customer,
       },
       customerAddress: formData.customerAddress,
       commentCustomer: formData.commentCustomer,
@@ -200,7 +201,10 @@ const onSubmit = async (formData: BookingFormValues) => {
     await navigateTo(getBookingPath(response.data.documentId));
   } catch (error) {
     console.error('Booking submission error:', error);
-    errorMessage.value = $t('bookingSubmissionError');
+    errorMessage.value = getStrapiErrorMessage(
+      error,
+      $t('bookingSubmissionError')
+    );
   }
 };
 </script>

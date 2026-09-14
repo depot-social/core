@@ -56,6 +56,11 @@ const asNonEmptyString = (value: unknown): string | undefined => {
   return normalizedValue || undefined;
 };
 
+const asDatabaseId = (value: unknown): number | undefined =>
+  typeof value === 'number' && Number.isInteger(value) && value > 0
+    ? value
+    : undefined;
+
 /**
  * Reads a Strapi v5 document ID from a relation payload.
  *
@@ -98,6 +103,44 @@ export const getRelationDocumentId = (value: unknown): string | undefined => {
 
     if (nestedDocumentId) {
       return nestedDocumentId;
+    }
+  }
+
+  return undefined;
+};
+
+/**
+ * Reads the numeric database ID used in relation payloads after Strapi's
+ * Document Service has resolved an incoming document ID.
+ */
+export const getRelationDatabaseId = (value: unknown): number | undefined => {
+  const directDatabaseId = asDatabaseId(value);
+
+  if (directDatabaseId) {
+    return directDatabaseId;
+  }
+
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined;
+  }
+
+  const relation = value as DocumentRelation;
+  const objectDatabaseId = asDatabaseId(relation.id);
+
+  if (objectDatabaseId) {
+    return objectDatabaseId;
+  }
+
+  const relationOperation = relation.set ?? relation.connect;
+  const relationValues = Array.isArray(relationOperation)
+    ? relationOperation
+    : [relationOperation];
+
+  for (let index = relationValues.length - 1; index >= 0; index -= 1) {
+    const nestedDatabaseId = getRelationDatabaseId(relationValues[index]);
+
+    if (nestedDatabaseId) {
+      return nestedDatabaseId;
     }
   }
 

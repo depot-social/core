@@ -1,7 +1,7 @@
 const { ApplicationError, ForbiddenError } = require('@strapi/utils').errors; // ^^ Error classes: https://docs.strapi.io/dev-docs/error-handling#default-error-classes
 import type { Core } from '@strapi/strapi';
 import { isAfter, isBefore, isValid } from 'date-fns';
-import { Booking, Resource } from '@depot/shared';
+import { Booking } from '@depot/shared';
 import { AvailabilitiesService } from '../plugins/availabilities/server/services/availabilities-service'; // @todo not ideal
 import { getRelationDocumentId } from '../utils';
 
@@ -94,8 +94,8 @@ export default async (
     }
 
     if (
-      originalBooking.customer.id !== user.id &&
-      originalBooking.resourceOwner.id !== user.id
+      originalBooking.customer?.id !== user.id &&
+      originalBooking.resourceOwner?.id !== user.id
     ) {
       throw new ForbiddenError('Only owner of a given booking can change it.');
     }
@@ -149,33 +149,6 @@ export default async (
   );
 
   if (maxAvailable && maxAvailable >= requestedUnits) {
-    // Prevent wrong inputs by explicitly linking
-    // the actual customer & resourceOwner
-    delete body.data.customer;
-    delete body.data.resourceOwner;
-
-    //if (isAddAction) {
-    const resource: Resource = (await strapi
-      .documents('api::resource.resource')
-      .findOne({
-        documentId: resourceDocumentId,
-        fields: ['documentId'],
-
-        populate: {
-          user: {
-            fields: ['id'],
-          },
-        },
-      })) as unknown as Resource;
-
-    if (!resource?.user?.id) {
-      throw new ApplicationError('Resource has no owner.');
-    }
-
-    body.data.customer = user.id;
-    body.data.resourceOwner = resource.user.id;
-    // }
-
     return true;
   } else {
     throw new ApplicationError(
