@@ -6,7 +6,7 @@
       <div class="flex flex-col w-full">
         <!-- TITLE H1 -->
         <h1
-          class="font-bold! leading-none tracking-tight text-[42px]! md:text-[96px]!"
+          class="font-bold! leading-none! tracking-tight text-[42px]! md:text-[96px]!"
         >
           Erstmal hier <br />
           schauen!
@@ -14,8 +14,13 @@
 
         <!-- Filter Dropdowns and Search -->
         <div
-          class="sm:relative sm:z-10 mt-auto text-xl grid sm:grid-cols-[repeat(2,minmax(260px,1fr))] max-w-[720px] gap-4"
+          class="sm:relative sm:z-10 mt-auto text-xl grid sm:grid-cols-[repeat(2,minmax(260px,1fr))] max-w-[540px] gap-4"
         >
+          <BerlinResourcesSearchInput
+            class="order-last sm:order-none box-content sm:col-span-2"
+            :query="state.searchQuery"
+            @change-query="onChangeQuery"
+          />
           <BerlinResourcesSearchFilterDropdown
             v-model="categoryValue"
             :items="categoryOptions"
@@ -27,23 +32,10 @@
           <BerlinResourcesSearchFilterDropdown
             v-model="districtsValue"
             :items="districtsOptions"
-            :multiple="false"
+            :multiple="true"
             class="bg-[#ffffff]"
             bg-color="#ffffff"
             placeholder="Bezirk"
-          />
-          <BerlinResourcesSearchInput
-            class="order-last sm:order-none box-content"
-            :query="state.searchQuery"
-            @change-query="onChangeQuery"
-          />
-          <BerlinResourcesSearchFilterDropdown
-            v-model="accessibilityStateValue"
-            :items="accessibilityStateOptions"
-            :multiple="false"
-            class="bg-[#ffffff]"
-            bg-color="#ffffff"
-            placeholder="Barriereangaben"
           />
         </div>
       </div>
@@ -66,7 +58,9 @@
         class="bg-white py-6 md:py-8 transition-all"
         :class="state.loading && 'opacity-40'"
       >
-        <div class="px-4 sm:px-6 mb-5">
+        <div
+          class="flex justify-between items-center gap-3.5 flex-wrap px-4 sm:px-6 mb-5"
+        >
           <p class="text-2lg! flex items-center flex-wrap gap-2">
             <span class="font-semibold text-black">
               {{
@@ -79,7 +73,6 @@
                   ? $t('berlin_resources_result')
                   : categoryValue.length > 0 ||
                     districtsValue.length > 0 ||
-                    accessibilityStateValue.length > 0 ||
                     state.searchQuery
                   ? $t('berlin_resources_results')
                   : $t('berlin_resources_initialResults')
@@ -97,11 +90,7 @@
             </template>
 
             <template
-              v-if="
-                categoryValue.length > 0 ||
-                districtsValue.length > 0 ||
-                accessibilityStateValue.length > 0
-              "
+              v-if="categoryValue.length > 0 || districtsValue.length > 0"
             >
               <template v-if="state.searchQuery">
                 <span>&</span>
@@ -127,55 +116,34 @@
                   {{ districtsValue.join(', ') }}
                 </span>
               </template>
-
-              <template v-if="accessibilityStateValue.length > 0">
-                <span>
-                  {{
-                    state.pagination.total === 1
-                      ? $t('berlin_is')
-                      : $t('berlin_are')
-                  }}
-                </span>
-              </template>
-
-              <template v-if="accessibilityStateValue.length > 0">
-                <span
-                  class="font-semibold text-black inline-flex items-center bg-very-bright-gray px-1.5 py-0.5 rounded"
-                >
-                  {{ accessibilityStateValue[0]?.label }}
-                </span>
-              </template>
-            </template>
-
-            <template
-              v-if="
-                categoryValue.length > 0 ||
-                districtsValue.length > 0 ||
-                accessibilityStateValue.length > 0 ||
-                state.searchQuery
-              "
-            >
-              <UButton
-                class="w-max md:ml-1.5"
-                @click="
-                  categoryValue = [];
-                  districtsValue = [];
-                  accessibilityStateValue = [];
-                  setSearchQuery('');
-                  $router.push({ query: {} });
-                "
-              >
-                {{ $t('berlin_resources_resetToInitialState') }}
-              </UButton>
             </template>
           </p>
+
+          <template
+            v-if="
+              categoryValue.length > 0 ||
+              districtsValue.length > 0 ||
+              state.searchQuery
+            "
+          >
+            <UButton
+              class="w-max"
+              variant="outline"
+              @click="
+                categoryValue = [];
+                districtsValue = [];
+                setSearchQuery('');
+                $router.push({ query: {} });
+              "
+            >
+              {{ $t('berlin_resources_resetToInitialState') }}
+            </UButton>
+          </template>
         </div>
 
         <BerlinResourcesSearchPagination :state="state" :set-page="setPage" />
 
-        <div
-          class="flex gap-8 md:gap-4 px-4 sm:px-6 flex-col lg:grid lg:grid-cols-[1fr_341px] 2xl:grid-cols-[1fr_440px]"
-        >
+        <div class="resources-wrap">
           <BaseLeafletMap
             v-if="resourceMarkers.length > 0"
             v-slot="{ index }"
@@ -187,7 +155,7 @@
                 ? Number(config.public.randomLocationRadius)
                 : 0
             "
-            class-names="hidden md:block order-2 rounded-[30px] md:sticky top-[20px] h-[250px] md:h-[calc(100vh-40px)] w-full h-[560px]! lg:h-[calc(100vh-42px)]!"
+            class-names="resources-map"
           >
             <div v-if="resourcesWithAddress[index]">
               <BaseResourceMapResourceMarker
@@ -196,10 +164,7 @@
             </div>
           </BaseLeafletMap>
 
-          <aside
-            v-else
-            class="hidden md:grid place-items-center order-2 rounded-[30px] md:sticky top-[20px] h-[560px] lg:h-[calc(100vh-42px)] w-full bg-neutral-50 border-2 border-dashed border-neutral-200"
-          >
+          <aside v-else class="no-resources-map">
             <div class="flex flex-col items-center gap-3 px-6 text-center">
               <span class="text-lg text-neutral-500">
                 {{ $t('berlin_map_noResultsForFilter') }}
@@ -214,10 +179,7 @@
             <BerlinResourcesListEmpty />
           </div>
 
-          <div
-            v-else
-            class="basis-full md:basis-2/3 2xl:basis-2/3 grid gap-x-5 gap-y-8 content-start grid-cols-[repeat(auto-fill,minmax(100%,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(295px,1fr))]"
-          >
+          <div v-else class="resources-card-grid">
             <BerlinResourceCard
               v-for="resource in state.resources"
               :key="resource.id"
@@ -231,18 +193,7 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  AccessibilityState,
-  BerlinResourceType,
-  Category,
-  District,
-  Resource,
-} from '@depot/shared';
-import {
-  getAccessibilityText,
-  getResourceType,
-  ResourceTypeComponent,
-} from '@depot/shared';
+import type { Category, District, Resource } from '@depot/shared';
 import { debounce } from 'lodash-es';
 import type { Marker } from '~/base/models/map';
 
@@ -288,9 +239,6 @@ const initialCategoryTitles = route.query.categories
 const initialDistrictNames = route.query.districts
   ? String(route.query.districts).split(',')
   : [];
-const initialAccessibilityStates = route.query.accessibility
-  ? (String(route.query.accessibility).split(',') as AccessibilityState[])
-  : [];
 
 // Find initial filter objects by name/title
 const initialCategories =
@@ -310,31 +258,6 @@ if (initialDistricts.length > 0) {
   districtsValue.value = initialDistricts.map((d) => d.name);
 }
 
-const accessibilityStateOptions = ref<
-  Array<{ label: string; value: AccessibilityState }>
->([
-  { label: getAccessibilityText('accessible') ?? '', value: 'accessible' },
-  {
-    label: getAccessibilityText('partly_accessible') ?? '',
-    value: 'partly_accessible',
-  },
-  // {
-  //   label: getAccessibilityText('not_accessible') ?? '',
-  //   value: 'not_accessible',
-  // },
-]);
-
-const accessibilityStateValue = ref<
-  Array<{ label: string; value: AccessibilityState }>
->([]);
-
-// Set UI accessibility filter value from URL
-if (initialAccessibilityStates.length > 0) {
-  accessibilityStateValue.value = accessibilityStateOptions.value.filter(
-    (opt) => initialAccessibilityStates.includes(opt.value)
-  );
-}
-
 const redactResourceLocation = computed(() => {
   if (resources.length === 0) return false;
   const resource = resources[0] as Resource;
@@ -346,10 +269,6 @@ const redactResourceLocation = computed(() => {
   );
 });
 
-// When accessibility filter is set, we need to fetch all resources and filter client-side
-const needsClientSideAccessibilityFilter =
-  initialAccessibilityStates.length > 0;
-
 const resourcesResponse = await find<Resource>('resources', {
   populate: [
     'categories',
@@ -358,6 +277,8 @@ const resourcesResponse = await find<Resource>('resources', {
     'images',
     'resourceTypes',
     'address',
+    'user',
+    'user.organization',
     // @ts-expect-errors – nested populate
     'attributes.attribute',
   ],
@@ -371,62 +292,24 @@ const resourcesResponse = await find<Resource>('resources', {
         ? { id: { $in: initialDistricts.map((d) => d.id) } }
         : undefined,
   } as Record<string, unknown>,
-  pagination: needsClientSideAccessibilityFilter
-    ? {
-        page: 1,
-        pageSize: 1000,
-        withCount: true,
-      }
-    : {
-        page: initialPage.value,
-        pageSize: 12,
-        withCount: true,
-      },
+  pagination: {
+    page: initialPage.value,
+    pageSize: 12,
+    withCount: true,
+  },
   sort: ['isPinned:desc', 'title:asc'],
 });
 
-// Apply client-side accessibility filter if needed
-let resources = resourcesResponse.data;
-let paginationMeta = resourcesResponse.meta?.pagination;
-
-if (needsClientSideAccessibilityFilter && resources) {
-  // Filter by accessibility state
-  const filteredResources = resources.filter((resource) => {
-    const berlinResourceType = getResourceType(
-      resource.resourceTypes ?? [],
-      ResourceTypeComponent.BERLIN_RESOURCE_TYPE
-    ) as BerlinResourceType | undefined;
-
-    return (
-      berlinResourceType &&
-      initialAccessibilityStates.includes(berlinResourceType.accessibilityState)
-    );
-  });
-
-  // Client-side pagination
-  const total = filteredResources.length;
-  const pageSize = 12;
-  const pageCount = Math.ceil(total / pageSize) || 1;
-  const page = Math.min(initialPage.value, pageCount);
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-
-  resources = filteredResources.slice(startIndex, endIndex);
-  paginationMeta = {
-    page,
-    pageSize,
-    pageCount,
-    total,
-  };
-}
+const resources = resourcesResponse.data;
+const paginationMeta = resourcesResponse.meta?.pagination;
 
 const {
   state,
+  mapResources,
   setPage,
   setSearchQuery,
   setSelectedCategories,
   setSelectedDistricts,
-  setSelectedAccessibilityStates,
 } = await useResourcesSearch(
   resources,
   12,
@@ -438,8 +321,6 @@ const {
   {
     categories: initialCategories.length > 0 ? initialCategories : null,
     districts: initialDistricts.length > 0 ? initialDistricts : null,
-    accessibilityStates:
-      initialAccessibilityStates.length > 0 ? initialAccessibilityStates : null,
   }
 );
 
@@ -453,7 +334,7 @@ const onChangeQuery = (value: string) => {
 
 // Watch for filter changes and update the search
 watch(
-  [categoryValue, districtsValue, accessibilityStateValue],
+  [categoryValue, districtsValue],
   async () => {
     // Convert category names back to category objects
     const selectedCategoryObjects =
@@ -473,16 +354,9 @@ watch(
       false
     );
 
+    // Last one triggers URL update with all filters combined
     await setSelectedDistricts(
       selectedDistrictObjects.length > 0 ? selectedDistrictObjects : null,
-      false
-    );
-
-    // Last one triggers URL update with all filters combined
-    await setSelectedAccessibilityStates(
-      accessibilityStateValue.value.length > 0
-        ? accessibilityStateValue.value.map((item) => item.value)
-        : null,
       true // This will update URL with all current filter state
     );
   },
@@ -502,18 +376,13 @@ watch(
 
 // Watch for URL filter changes (browser back/forward navigation)
 watch(
-  () => [
-    route.query.categories,
-    route.query.districts,
-    route.query.accessibility,
-  ],
+  () => [route.query.categories, route.query.districts],
 
   async (newFilters, oldFilters) => {
     // Only update if filters actually changed (not just page change)
     if (
       newFilters[0] === oldFilters?.[0] &&
-      newFilters[1] === oldFilters?.[1] &&
-      newFilters[2] === oldFilters?.[2]
+      newFilters[1] === oldFilters?.[1]
     ) {
       return;
     }
@@ -525,10 +394,6 @@ watch(
 
     const districtNames = route.query.districts
       ? String(route.query.districts).split(',')
-      : [];
-
-    const accessibilityStates = route.query.accessibility
-      ? (String(route.query.accessibility).split(',') as AccessibilityState[])
       : [];
 
     // Find filter objects by name/title
@@ -544,9 +409,6 @@ watch(
     // Update UI filter values
     categoryValue.value = categories.map((p) => p.title);
     districtsValue.value = districts.map((d) => d.name);
-    accessibilityStateValue.value = accessibilityStateOptions.value.filter(
-      (opt) => accessibilityStates.includes(opt.value)
-    );
 
     // Update state without triggering URL update
     await setSelectedCategories(
@@ -554,20 +416,13 @@ watch(
       false
     );
     await setSelectedDistricts(districts.length > 0 ? districts : null, false);
-    await setSelectedAccessibilityStates(
-      accessibilityStates.length > 0 ? accessibilityStates : null,
-      false
-    );
   },
   { deep: true }
 );
 
 const mapRefreshKey = computed(() => {
-  // Create a string unique to the current set of paginated results
-  // Includes page number to force refresh on pagination
-  return `${state.value.pagination.page}-${state.value.resources
-    .map((r) => r.id)
-    .join('-')}`;
+  // Create a string unique to the current set of map resources.
+  return mapResources.value.map((r) => r.id).join('-');
 });
 
 const resourceHasCoordinates = (resource: Resource): boolean => {
@@ -580,8 +435,10 @@ const resourceHasCoordinates = (resource: Resource): boolean => {
     : !!(resource.address.latitude && resource.address.longitude);
 };
 
+// The map is independent of the pagination: it shows every resource matching
+// the current filters.
 const resourcesWithAddress = computed(() =>
-  (state.value.resources as readonly Resource[]).filter(resourceHasCoordinates)
+  (mapResources.value as readonly Resource[]).filter(resourceHasCoordinates)
 );
 
 const resourceMarkers = computed(() =>

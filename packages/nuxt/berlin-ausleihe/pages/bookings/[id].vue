@@ -9,8 +9,13 @@
       </div>
     </div>
 
-    <div v-else class="flex min-h-screen justify-between bg-secondary">
-      <div class="basis-2/3 flex flex-col items-start gap-8 px-24 py-12">
+    <div
+      v-else
+      class="flex flex-col lg:flex-row lg:min-h-screen justify-between bg-secondary"
+    >
+      <div
+        class="basis-full lg:basis-2/3 flex flex-col items-start gap-8 px-8 xl:px-24 py-12"
+      >
         <button class="link no-underline" @click="$router.back()">
           <i class="ph ph-arrow-left" /> {{ $t('backToPreviousPage') }}
         </button>
@@ -63,26 +68,30 @@
           </span>
         </div>
 
-        <BaseBookingForm :form-data="bookingFormData" @submit="onSubmit" />
-
-        <div class="flex justify-between mt-6 max-w-[66.6%] w-full">
-          <button
-            v-if="userIsResourceOwner"
-            type="button"
-            class="btn btn-primary"
-            @click="onConfirm"
-          >
-            {{ $t('confirmBooking') }}
-          </button>
-          <button type="button" class="btn btn-info" @click="onCancel">
-            {{ $t('cancelBooking') }}
-          </button>
-        </div>
+        <BaseBookingForm
+          class="hidden"
+          :form-data="bookingFormData"
+          @submit="onSubmit"
+        />
       </div>
+
       <BerlinBookingFormSidebar
         :booking="bookingFormData"
         :resource="booking?.resource"
-      />
+      >
+        <div class="flex flex-wrap gap-4 mt-12">
+          <UButton
+            v-if="userIsResourceOwner"
+            class="w-full sm:w-auto"
+            @click="onConfirm"
+          >
+            {{ $t('confirmBooking') }}
+          </UButton>
+          <UButton class="w-full sm:w-auto" variant="outline" @click="onCancel">
+            {{ $t('cancelBooking') }}
+          </UButton>
+        </div>
+      </BerlinBookingFormSidebar>
     </div>
   </div>
 </template>
@@ -116,6 +125,7 @@ const { data: booking, error } = await useAsyncData('booking', async () => {
         'resource.prices',
         'resource.address',
         'resource.user',
+        'resource.user.organization',
         'customer',
         'customerAddress',
         'resourceOwner',

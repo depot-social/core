@@ -5,7 +5,7 @@
     >
       <div class="flex flex-col w-full">
         <h1
-          class="font-bold! leading-none tracking-tight text-[42px]! md:text-[96px]!"
+          class="font-bold! leading-none! tracking-tight text-[42px]! md:text-[96px]!"
         >
           Raum für <br />
           Engagement
@@ -25,7 +25,7 @@
           <BerlinResourcesSearchFilterDropdown
             v-model="districtsValue"
             :items="districtsOptions"
-            :multiple="false"
+            :multiple="true"
             :class="'bg-[#BAB0D8]'"
             :bg-color="'#BAB0D8'"
             placeholder="Bezirk"
@@ -63,7 +63,9 @@
         class="bg-white py-6 md:py-8 transition-all"
         :class="state.loading && 'opacity-40'"
       >
-        <div class="px-4 sm:px-6 mb-5">
+        <div
+          class="flex justify-between items-center gap-3.5 flex-wrap px-4 sm:px-6 mb-5"
+        >
           <p class="text-2lg! flex items-center flex-wrap gap-2">
             <span class="font-semibold text-black">
               {{
@@ -143,36 +145,35 @@
                 </span>
               </template>
             </template>
+          </p>
 
-            <template
-              v-if="
-                purposesValue.length > 0 ||
-                districtsValue.length > 0 ||
-                accessibilityStateValue.length > 0 ||
-                state.searchQuery
+          <template
+            v-if="
+              purposesValue.length > 0 ||
+              districtsValue.length > 0 ||
+              accessibilityStateValue.length > 0 ||
+              state.searchQuery
+            "
+          >
+            <UButton
+              class="w-max"
+              variant="outline"
+              @click="
+                purposesValue = [];
+                districtsValue = [];
+                accessibilityStateValue = [];
+                setSearchQuery('');
+                $router.push({ query: {} });
               "
             >
-              <UButton
-                class="w-max md:ml-1.5"
-                @click="
-                  purposesValue = [];
-                  districtsValue = [];
-                  accessibilityStateValue = [];
-                  setSearchQuery('');
-                  $router.push({ query: {} });
-                "
-              >
-                {{ $t('berlin_resources_resetToInitialState') }}
-              </UButton>
-            </template>
-          </p>
+              {{ $t('berlin_resources_resetToInitialState') }}
+            </UButton>
+          </template>
         </div>
 
         <BerlinResourcesSearchPagination :state="state" :set-page="setPage" />
 
-        <div
-          class="flex gap-8 md:gap-4 px-4 sm:px-6 flex-col lg:grid lg:grid-cols-[1fr_341px] 2xl:grid-cols-[1fr_440px]"
-        >
+        <div class="resources-wrap">
           <BaseLeafletMap
             v-if="resourceMarkers.length > 0"
             v-slot="{ index }"
@@ -184,7 +185,7 @@
                 ? Number(config.public.randomLocationRadius)
                 : 0
             "
-            class-names="hidden md:block order-2 rounded-[30px] md:sticky top-[20px] h-[250px] md:h-[calc(100vh-40px)] w-full h-[560px]! lg:h-[calc(100vh-42px)]!"
+            class-names="resources-map"
           >
             <div v-if="resourcesWithAddress[index]">
               <BaseResourceMapResourceMarker
@@ -193,10 +194,7 @@
             </div>
           </BaseLeafletMap>
 
-          <aside
-            v-else
-            class="hidden md:grid place-items-center order-2 rounded-[30px] md:sticky top-[20px] h-[560px] lg:h-[calc(100vh-42px)] w-full bg-neutral-50 border-2 border-dashed border-neutral-200"
-          >
+          <aside v-else class="no-resources-map">
             <div class="flex flex-col items-center gap-3 px-6 text-center">
               <span class="text-lg text-neutral-500">
                 {{ $t('berlin_map_noResultsForFilter') }}
@@ -211,10 +209,7 @@
             <BerlinResourcesListEmpty />
           </div>
 
-          <div
-            v-else
-            class="basis-full md:basis-2/3 2xl:basis-2/3 grid gap-x-5 gap-y-8 content-start grid-cols-[repeat(auto-fill,minmax(100%,1fr))] sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))] lg:grid-cols-[repeat(auto-fill,minmax(280px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(295px,1fr))]"
-          >
+          <div v-else class="resources-card-grid">
             <BerlinResourceCard
               v-for="resource in state.resources"
               :key="resource.id"
@@ -419,6 +414,7 @@ if (needsClientSideAccessibilityFilter && resources) {
 
 const {
   state,
+  mapResources,
   setPage,
   setSearchQuery,
   setSelectedPurposes,
@@ -556,11 +552,10 @@ watch(
 );
 
 const mapRefreshKey = computed(() => {
-  // Create a string unique to the current set of paginated results
-  // Includes page number to force refresh on pagination
-  return `${state.value.pagination.page}-${state.value.resources
-    .map((r) => r.id)
-    .join('-')}`;
+  // Create a string unique to the current set of map resources. Pagination is
+  // deliberately not part of it: the map shows all filtered resources and must
+  // not re-center when paging through the list.
+  return mapResources.value.map((r) => r.id).join('-');
 });
 
 const resourceHasCoordinates = (resource: Resource): boolean => {
@@ -573,8 +568,10 @@ const resourceHasCoordinates = (resource: Resource): boolean => {
     : !!(resource.address.latitude && resource.address.longitude);
 };
 
+// The map is independent of the pagination: it shows every resource matching
+// the current filters.
 const resourcesWithAddress = computed(() =>
-  (state.value.resources as readonly Resource[]).filter(resourceHasCoordinates)
+  (mapResources.value as readonly Resource[]).filter(resourceHasCoordinates)
 );
 
 const resourceMarkers = computed(() =>

@@ -24,57 +24,25 @@
         />
       </svg>
     </NuxtLinkLocale>
+
     <div v-else>
-      <div class="flex gap-1">
-        <div tabindex="0" class="dropdown dropdown-end dropdown-bottom">
-          <details>
-            <summary class="avatar avatar-online avatar-placeholder">
-              <div
-                class="cursor-pointer min-w-9 px-1 py-0.5 rounded-md bg-violet-100 border-2 border-black items-center justify-center flex text-base font-medium"
-              >
-                <span>{{ shortName }}</span>
-              </div>
-            </summary>
-            <ul
-              class="p-4 shadow menu dropdown-content z-[1] bg-white rounded-box"
-            >
-              <li class="menu-title">
-                {{ user.firstName }} {{ user.lastName }}
-              </li>
-              <li>
-                <NuxtLink
-                  :to="getUserProfilePath()"
-                  title="Übersicht über Ressourcen, Buchungen und Kontoaktivitäten"
-                >
-                  {{ $t(`dashboard`) }}
-                </NuxtLink>
-              </li>
-              <!-- <li>
-                <NuxtLink
-                  :to="getUserChatPath()"
-                  title="Kontaktiere Anbieter:innen und Ausleiher:innen"
-                >
-                  {{ $t(`messages`) }}
-                  <span class="badge badge-xs badge-primary">2</span>
-                </NuxtLink>
-              </li> -->
-              <li>
-                <NuxtLink :to="getUserSettingsPath()">
-                  {{ $t(`myProfile`) }}
-                </NuxtLink>
-              </li>
-              <li class="p-0">
-                <button
-                  class="btn btn-info bg-gray-100 btn-wide"
-                  @click="onClickLogout"
-                >
-                  {{ $t(`logout`) }}
-                </button>
-              </li>
-            </ul>
-          </details>
-        </div>
-      </div>
+      <UDropdownMenu
+        :items="items"
+        size="xl"
+        :modal="false"
+        :ui="{
+          content: 'max-w-56',
+          itemLabel: 'overflow-auto whitespace-normal',
+        }"
+      >
+        <button class="avatar avatar-online avatar-placeholder">
+          <div
+            class="cursor-pointer min-w-9 px-1 py-0.5 rounded-md bg-violet-100 border-2 border-black items-center justify-center flex text-base font-medium"
+          >
+            <span>{{ shortName }}</span>
+          </div>
+        </button>
+      </UDropdownMenu>
     </div>
   </div>
 </template>
@@ -82,15 +50,19 @@
 <script setup lang="ts">
 import type { User } from '@depot/shared';
 import { getUsernameAbbreviationFromUser } from '@depot/shared';
-import { getUserProfilePath, getUserSettingsPath } from '~/base/utils/paths';
+import type { DropdownMenuItem } from '@nuxt/ui';
 
 const user = useStrapiUser() as Ref<User>;
+const { logout } = useStrapiAuth();
 
 const shortName = computed(() =>
   user.value ? getUsernameAbbreviationFromUser(user.value) : ''
 );
 
-const { logout } = useStrapiAuth();
+const isOrganization = computed(() => !!user.value?.organization);
+const organizationName = computed(() =>
+  user.value?.organization ? user.value.organization.title : undefined
+);
 
 const onClickLogout = () => {
   logout();
@@ -99,4 +71,40 @@ const onClickLogout = () => {
   });
   navigateTo('/');
 };
+
+const items = computed<DropdownMenuItem[][]>(() => [
+  [
+    {
+      label: isOrganization.value
+        ? organizationName.value
+        : `${user.value?.firstName} ${user.value?.lastName}`,
+      type: 'label',
+    },
+  ],
+  [
+    {
+      label: 'Übersicht',
+      icon: 'i-lucide-layout-grid',
+      onSelect() {
+        navigateTo('/user');
+      },
+    },
+    {
+      label: 'Einstellungen',
+      icon: 'i-lucide-cog',
+      onSelect() {
+        navigateTo('user/settings');
+      },
+    },
+  ],
+  [
+    {
+      label: 'Logout',
+      icon: 'i-lucide-log-out',
+      onSelect() {
+        onClickLogout();
+      },
+    },
+  ],
+]);
 </script>

@@ -35,10 +35,13 @@
   </article>
 
   <div
-    v-if="berlinResourceType?.roomName"
+    v-if="isLayer('berlin-raum') && berlinResourceType?.roomName"
     class="mt-2.5 font-medium text-base leading-tight"
   >
     {{ berlinResourceType.roomName }}
+  </div>
+  <div v-else class="mt-2.5 font-medium text-base leading-tight">
+    {{ resource.title }}
   </div>
 </template>
 
@@ -46,6 +49,8 @@
 import type { BerlinResourceType, Resource } from '@depot/shared';
 import { getResourceType, ResourceTypeComponent } from '@depot/shared';
 import { computed } from 'vue';
+
+const { isLayer } = useActiveLayer();
 
 interface Props {
   resource: Resource;

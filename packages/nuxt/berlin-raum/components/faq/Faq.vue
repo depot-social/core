@@ -1,5 +1,8 @@
 <template>
-  <section id="faq" class="bg-violet-100">
+  <section
+    id="faq"
+    :class="isLayer('berlin-raum') ? 'bg-violet-100' : 'bg-secondary'"
+  >
     <div class="xl:container px-8 flex flex-wrap gap-8 md:gap-0 pt-12 pb-18">
       <h2
         v-if="resourcesSearchPage.faqSectionHeadline"
@@ -25,6 +28,7 @@ import type { SingleTypeResourcesSearchPage } from '@depot/shared';
 import { marked } from 'marked';
 
 const { find } = useStrapi();
+const { isLayer } = useActiveLayer();
 
 const resourcesSearchPageResponse = await find<SingleTypeResourcesSearchPage>(
   'resources-search-page',

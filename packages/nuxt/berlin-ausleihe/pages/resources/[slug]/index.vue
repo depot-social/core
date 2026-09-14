@@ -225,7 +225,7 @@
           </div>
 
           <div class="flex mt-7 mb-8 md:mt-28">
-            <BaseResourceCalendar
+            <BerlinResourceCalendar
               :resource="resource"
               :availabilities="availabilities"
             />

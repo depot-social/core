@@ -1,13 +1,11 @@
 <template>
-  <article
-    class="xx-aspect-[360/590] xx-md:aspect-[360/570] group rounded-[30px] shadow-lg duration-300"
-  >
+  <article class="group rounded-[30px] shadow-lg duration-300 max-w-[350px]">
     <NuxtLinkLocale
       :to="{ name: 'resources-slug', params: { slug: resource.slug } }"
-      class="flex h-full flex-col gap-6"
+      class="flex h-full flex-col gap-5"
     >
       <div
-        class="relative w-full rounded-t-[30px] basis-[43%] shrink-0 overflow-hidden aspect-[424/294] bg-[#D9D9D9]"
+        class="relative w-full rounded-t-[28px] basis-[42%] shrink-0 overflow-hidden aspect-[425/294] bg-[#D9D9D9]"
       >
         <NuxtImg
           v-if="resourceImages && resourceImages[0]?.url"
@@ -15,7 +13,7 @@
           :width="imageSize"
           :height="imageSize"
           :alt="resourceImages[0].alternativeText ?? ''"
-          class="object-cover aspect-[424/294] object-center w-full h-full"
+          class="object-cover aspect-[425/294] object-center w-full h-full"
         />
 
         <figure class="relative grid place-content-center h-full" v-else>
@@ -25,7 +23,7 @@
           >
           <img
             src="/placeholder.jpg"
-            class="absolute inset-0 object-cover aspect-[424/294] object-center w-full h-full"
+            class="absolute inset-0 object-cover aspect-[425/294] object-center w-full h-full"
             :alt="$t('berlin_resource_exampleImage')"
           />
         </figure>
@@ -34,7 +32,7 @@
       <div class="flex-grow flex flex-col flex-1 gap-2.5 2xl:gap-4 px-6 pb-6">
         <header>
           <svg
-            class="aspect-square w-[28px] mb-2"
+            class="aspect-square w-[28px] mb-0"
             viewBox="0 0 28 28"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -53,9 +51,9 @@
 
           <h2
             lang="de"
-            class="leading-tight text-xl hyphens-auto text-black font-semibold"
+            class="leading-[1.1]! text-xl mt-3! hyphens-auto text-black font-semibold"
           >
-            <span v-if="berlinResourceType?.roomName">
+            <span v-if="isLayer('berlin-raum') && berlinResourceType?.roomName">
               {{ berlinResourceType.roomName }}
             </span>
             <span v-else>
@@ -68,30 +66,58 @@
           <div
             class="flex flex-wrap gap-x-4 text-2lg leading-snug font-light text-black"
           >
-            <span v-if="berlinResourceType?.roomSizeSqm">
-              {{ berlinResourceType.roomSizeSqm }}qm
-            </span>
+            <template v-if="isLayer('berlin-raum')">
+              <span v-if="berlinResourceType?.roomSizeSqm">
+                {{ berlinResourceType.roomSizeSqm }}qm
+              </span>
 
-            <span v-if="berlinResourceType?.maxCapacity">
-              {{ berlinResourceType.maxCapacity?.replace(/\s*[-–—]\s*/g, '-') }}
-              Personen
-            </span>
+              <span v-if="berlinResourceType?.maxCapacity">
+                {{
+                  berlinResourceType.maxCapacity?.replace(/\s*[-–—]\s*/g, '-')
+                }}
+                Personen
+              </span>
 
-            <span v-if="isPaid">
-              {{ $t('berlin_resource_isPaid') }}
-            </span>
+              <span v-if="isPaid">
+                {{ $t('berlin_resource_isPaid') }}
+              </span>
 
-            <span v-if="accessibilityText">
-              {{ accessibilityText }}
-            </span>
+              <span v-if="accessibilityText">
+                {{ accessibilityText }}
+              </span>
+            </template>
+            <template v-else> {{ resource.district?.name }} </template>
           </div>
 
-          <p
-            v-if="berlinResourceType?.provider"
-            class="text-base leading-snug font-light mt-auto"
-          >
-            {{ berlinResourceType.provider }}
-          </p>
+          <template v-if="isLayer('berlin-raum')">
+            <UTooltip
+              v-if="berlinResourceType?.provider"
+              :text="berlinResourceType.provider"
+              :disabled="!isTextTruncated"
+              :content="{ side: 'top' }"
+            >
+              <p
+                ref="truncatedTextEl"
+                class="text-base leading-tight font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
+              >
+                {{ berlinResourceType.provider }}
+              </p>
+            </UTooltip>
+          </template>
+          <template v-else-if="isLayer('berlin-ausleihe') && isOrganization">
+            <UTooltip
+              :text="organizationName"
+              :disabled="!isTextTruncated"
+              :content="{ side: 'top' }"
+            >
+              <p
+                ref="truncatedTextEl"
+                class="text-base leading-tight font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
+              >
+                {{ organizationName }}
+              </p>
+            </UTooltip>
+          </template>
         </footer>
       </div>
     </NuxtLinkLocale>
@@ -103,9 +129,10 @@ import type { BerlinResourceType, Resource } from '@depot/shared';
 import {
   getAccessibilityText,
   getResourceType,
+  getUsernameFromUser,
   ResourceTypeComponent,
 } from '@depot/shared';
-import { computed } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
 interface Props {
   resource: Resource;
@@ -135,7 +162,34 @@ const isPaid = computed(() => {
   );
 });
 
+const isOrganization = computed(() => {
+  return !!props.resource.user?.organization;
+});
+
+const organizationName = computed(() => {
+  return props.resource.user
+    ? getUsernameFromUser(props.resource.user)
+    : undefined;
+});
+
 const accessibilityText = computed(() => {
   return getAccessibilityText(berlinResourceType.value?.accessibilityState);
 });
+
+const truncatedTextEl = ref<HTMLElement | null>(null);
+const isTextTruncated = ref(false);
+
+let resizeObserver: ResizeObserver | undefined;
+
+onMounted(() => {
+  if (!truncatedTextEl.value) return;
+
+  resizeObserver = new ResizeObserver(() => {
+    const el = truncatedTextEl.value;
+    isTextTruncated.value = !!el && el.scrollWidth > el.clientWidth;
+  });
+  resizeObserver.observe(truncatedTextEl.value);
+});
+
+onBeforeUnmount(() => resizeObserver?.disconnect());
 </script>
