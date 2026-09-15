@@ -100,7 +100,7 @@ const berlinBookingFormData = reactive<Partial<BerlinBooking>>({
   projectDescription: '',
   associationRegistrationNumber: '',
   projectWebsite: '',
-  intend: BerlinBookingIntend.OPEN_EVENT,
+  intend: BerlinBookingIntend.MEETING,
   personCount: BerlinBookingPersonCount.ONE_TO_TEN,
   // start: today
   start: new Date().toISOString().split('T')[0],

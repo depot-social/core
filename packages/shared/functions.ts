@@ -2,7 +2,6 @@ import { randomCirclePoint } from 'random-location';
 import {
   AccessibilityState,
   Address,
-  BerlinBookingIntend,
   Price,
   PriceTariffType,
   ResourceType,
@@ -126,24 +125,5 @@ export const getAccessibilityText = (
       return 'Nicht barrierefrei';
     default:
       return null;
-  }
-};
-
-export const getBerlinBookingIntend = (intend: BerlinBookingIntend): string => {
-  switch (intend) {
-    case BerlinBookingIntend.LEARNING_TOGETHER:
-      return 'Zusammen lernen';
-    case BerlinBookingIntend.COMMUNITY_COOKING:
-      return 'Gemeinsames Kochen';
-    case BerlinBookingIntend.MOVE:
-      return 'Bewegung';
-    case BerlinBookingIntend.OPEN_EVENT:
-      return 'Offene Veranstaltung';
-    case BerlinBookingIntend.QUIET_MEETING:
-      return 'Ruhiges Treffen';
-    case BerlinBookingIntend.MUSIC_AND_SINGING:
-      return 'Singen und Musik spielen';
-    default:
-      return '';
   }
 };
