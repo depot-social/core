@@ -45,7 +45,10 @@
         </span>
         <h1 class="text-xl md:text-2xl xl:text-3xl">{{ title }}</h1>
         <ul class="flex gap-4">
-          <li v-if="isNotForProfitOnly" class="badge bg-white badge-sm">
+          <li
+            v-if="pricesEnabled && isNotForProfitOnly"
+            class="badge bg-white badge-sm"
+          >
             {{ $t('resource_onlyForNonprofits') }}
           </li>
           <li class="badge badge-primary badge-sm hidden">
@@ -62,7 +65,7 @@
             </div>
             <div class="stat-title">{{ $t('resource_availableUnits') }}</div>
           </div>
-          <div v-if="regularPrice" class="stat flex flex-col">
+          <div v-if="pricesEnabled && regularPrice" class="stat flex flex-col">
             <div class="stat-value text-2lg">
               {{ formatPrice(regularPrice) }}
             </div>
@@ -70,7 +73,10 @@
               {{ getDurationText(regularPrice) }}
             </div>
           </div>
-          <div v-if="notForProfitPrice" class="stat flex flex-col">
+          <div
+            v-if="pricesEnabled && notForProfitPrice"
+            class="stat flex flex-col"
+          >
             <div class="stat-value text-2lg">
               {{ formatPrice(notForProfitPrice) }}
             </div>
@@ -87,7 +93,7 @@
               </div>
             </div>
           </div>
-          <div v-if="deposit" class="stat flex flex-col">
+          <div v-if="pricesEnabled && deposit" class="stat flex flex-col">
             <div class="stat-value text-2lg">
               {{ formatPrice({ value: deposit }) }}
             </div>
@@ -266,6 +272,7 @@ if (!slug) {
 
 const { find } = useStrapi();
 const { formatDate } = useDateFormat();
+const pricesEnabled = usePricesEnabled();
 
 let similarResources: Resource[] = [];
 

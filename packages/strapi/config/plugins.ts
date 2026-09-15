@@ -1,3 +1,5 @@
+import { readBooleanEnv } from '@depot/shared';
+
 export default ({ env }) => ({
     'users-permissions': {
         enabled: true,
@@ -17,7 +19,7 @@ export default ({ env }) => ({
         resolve: './src/plugins/conversations'
     },
     'prices': {
-        enabled: env('STRAPI_PLUGIN_PRICES', true),
+        enabled: readBooleanEnv(env('STRAPI_PLUGIN_PRICES'), true),
         resolve: './src/plugins/prices'
     },
     'emails': {
@@ -29,6 +31,8 @@ export default ({ env }) => ({
         resolve: './src/plugins/rental-agreement'
     },
     'import-csv': {
+        // CSV imports still map price fields. Keep this disabled until price-free
+        // imports have their own follow-up implementation.
         enabled: false, // env('STRAPI_PLUGIN_IMPORT_CSV', false),
         resolve: './src/plugins/import-csv'
     },

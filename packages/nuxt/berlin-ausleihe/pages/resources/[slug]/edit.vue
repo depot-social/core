@@ -76,6 +76,7 @@ if (!slug) {
 }
 
 const { find, update } = useStrapi();
+const pricesEnabled = usePricesEnabled();
 const user = useStrapiUser() as Ref<User | null>;
 
 const categoriesResponse = await find<Category>('categories', {
@@ -92,7 +93,12 @@ const resourceResponse = await useAsyncData(`resource-edit-${slug}`, () =>
         $eq: slug,
       },
     },
-    populate: ['address', 'prices', 'categories', 'user'],
+    populate: [
+      'address',
+      'categories',
+      'user',
+      ...(pricesEnabled.value ? ['prices'] : []),
+    ],
   })
 );
 
@@ -133,35 +139,10 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
   errorMessage.value = '';
 
   try {
-    const sharedPriceFields = {
-      currency: payload.price.currency,
-      durationType: payload.price.durationType,
-      vatValue: payload.price.vatValue,
-      depositValue: payload.price.depositValue ?? undefined,
-    };
-
-    const prices = [
-      {
-        ...sharedPriceFields,
-        tariffType: PriceTariffType.NOT_FOR_PROFIT,
-        value: payload.price.discountedValue,
-      },
-      ...(payload.price.regularValue != null
-        ? [
-            {
-              ...sharedPriceFields,
-              tariffType: PriceTariffType.REGULAR,
-              value: payload.price.regularValue,
-            },
-          ]
-        : []),
-    ];
-
     const requestBody: Record<string, unknown> = {
       title: payload.title,
       description: payload.description,
       categories: payload.categoryIds.map((id) => ({ id })),
-      prices,
       address: {
         street: payload.address.street,
         zip: payload.address.zip,
@@ -170,6 +151,32 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
         longitude: payload.geoData?.longitude ?? null,
       },
     };
+
+    if (pricesEnabled.value && payload.price) {
+      const sharedPriceFields = {
+        currency: payload.price.currency,
+        durationType: payload.price.durationType,
+        vatValue: payload.price.vatValue,
+        depositValue: payload.price.depositValue ?? undefined,
+      };
+
+      requestBody.prices = [
+        {
+          ...sharedPriceFields,
+          tariffType: PriceTariffType.NOT_FOR_PROFIT,
+          value: payload.price.discountedValue,
+        },
+        ...(payload.price.regularValue != null
+          ? [
+              {
+                ...sharedPriceFields,
+                tariffType: PriceTariffType.REGULAR,
+                value: payload.price.regularValue,
+              },
+            ]
+          : []),
+      ];
+    }
 
     const response = await update<Resource>(
       'resources',

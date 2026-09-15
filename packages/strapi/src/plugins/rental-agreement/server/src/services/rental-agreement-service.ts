@@ -1,5 +1,5 @@
 import type { Core } from '@strapi/strapi';
-import { Booking, Resource, User, Price, priceToString } from '@depot/shared';
+import { Booking, Resource, User, Price, priceToString, readBooleanEnv } from '@depot/shared';
 import { format, parseISO, differenceInHours, differenceInDays } from 'date-fns';
 import jsPDF from 'jspdf';
 
@@ -117,10 +117,11 @@ const addDetails = (
   margin: number,
   booking: Booking,
   resource: Resource,
-  price: Price | null
+  price: Price | null,
+  includePricing: boolean
 ): number => {
   const detailStartY = yPos;
-  const colWidth = (pageWidth - 2 * margin) / 3;
+  const colWidth = (pageWidth - 2 * margin) / (includePricing ? 3 : 2);
   const col1X = margin;
 
   // Column 1: Resource & Abholort
@@ -130,7 +131,7 @@ const addDetails = (
   });
   addText(doc, resource.title, col1X, detailStartY + 15, {
     fontSize: 10,
-    maxWidth: pageWidth / 3 - margin,
+    maxWidth: colWidth - margin,
   });
 
   addText(doc, 'Abholort:', col1X, detailStartY + 45, {
@@ -172,7 +173,7 @@ const addDetails = (
 
   addText(doc, dateRange, col2StartX, detailStartY + 15, {
     fontSize: 10,
-    maxWidth: pageWidth / 3 - margin,
+    maxWidth: colWidth - margin,
   });
 
   addText(doc, 'Anzahl gewählter Einheiten:', col2StartX, detailStartY + 45, {
@@ -180,6 +181,10 @@ const addDetails = (
     fontSize: 10,
   });
   addText(doc, `${booking.bookedUnits || 1}`, col2StartX, detailStartY + 60, { fontSize: 10 });
+
+  if (!includePricing) {
+    return detailStartY + 80;
+  }
 
   // Column 3: Preis
   const col3StartX = col2StartX + colWidth;
@@ -212,19 +217,26 @@ const addDetails = (
   return detailStartY + 80;
 };
 
-const addNotes = (doc: jsPDF, yPos: number, pageWidth: number, margin: number): number => {
+const addNotes = (
+  doc: jsPDF,
+  yPos: number,
+  pageWidth: number,
+  margin: number,
+  includePricing: boolean
+): number => {
   addText(doc, 'Anmerkung Anbieter:', margin, yPos, {
     fontSize: 10,
     fontStyle: 'bold',
   });
   yPos += 15;
-  const anmerkungText =
-    'Leihpreis plus Kaution sind bei Übergabe der Ressource in der genannten Höhe mitzubringen – am besten so gestückelt, dass die Anbieter*in die Kaution bei Rückgabe ohne zu wechseln zurückgeben kann. Den Verleihvertrag inkl. vorbereitetem Übergabeprotokoll druckt die Anbieter*in 2-fach aus, sodass der Vertrag bei Übergabe der Ressource gemeinsam von Anbieter*in und Nutzer*in unterschrieben werden kann. Bitte Nutzungsbedingungen (s. Links) beachten, insb. Abschnitt "Verschmutzung, Schäden, Unpünktlichkeit und sonstiger Mehraufwand".';
+  const anmerkungText = includePricing
+    ? 'Leihpreis plus Kaution sind bei Übergabe der Ressource in der genannten Höhe mitzubringen – am besten so gestückelt, dass die Anbieter*in die Kaution bei Rückgabe ohne zu wechseln zurückgeben kann. Den Verleihvertrag inkl. vorbereitetem Übergabeprotokoll druckt die Anbieter*in 2-fach aus, sodass der Vertrag bei Übergabe der Ressource gemeinsam von Anbieter*in und Nutzer*in unterschrieben werden kann. Bitte Nutzungsbedingungen (s. Links) beachten, insb. Abschnitt "Verschmutzung, Schäden, Unpünktlichkeit und sonstiger Mehraufwand".'
+    : 'Den Verleihvertrag inklusive vorbereitetem Übergabeprotokoll druckt die Anbieter*in 2-fach aus, sodass der Vertrag bei Übergabe der Ressource gemeinsam von Anbieter*in und Nutzer*in unterschrieben werden kann. Bitte Nutzungsbedingungen (s. Links) beachten, insbesondere den Abschnitt "Verschmutzung, Schäden, Unpünktlichkeit und sonstiger Mehraufwand".';
   addText(doc, anmerkungText, margin, yPos, {
     fontSize: 10,
     maxWidth: pageWidth - 2 * margin,
   });
-  yPos += 5 * 12 + 10; // Estimate lines + spacing
+  yPos += (includePricing ? 5 : 3) * 12 + 10; // Estimate lines + spacing
 
   // Ergänzungen
   addText(doc, 'Ergänzungen (Platz für handschriftliche Ergänzungen):', margin, yPos, {
@@ -258,7 +270,8 @@ const addHandoverProtocol = (
   doc: jsPDF,
   yPos: number,
   pageWidth: number,
-  margin: number
+  margin: number,
+  includePricing: boolean
 ): number => {
   addText(doc, 'Die Übergabe erfolgte am ______ . ______ . ________ , ______ Uhr.', margin, yPos, {
     fontSize: 10,
@@ -270,6 +283,34 @@ const addHandoverProtocol = (
   const tableCol1Width = tableWidth * 0.4;
   const tableCol2Width = tableWidth * 0.3;
   const tableCol3Width = tableWidth * 0.3;
+
+  if (!includePricing) {
+    const tableCol1Width = tableWidth * 0.5;
+    const tableCol2Width = tableWidth * 0.5;
+
+    doc.rect(margin, yPos, tableWidth, tableCellHeight * 2);
+    doc.rect(margin, yPos, tableCol1Width, tableCellHeight);
+    doc.rect(margin + tableCol1Width, yPos, tableCol2Width, tableCellHeight);
+    doc.line(margin + tableCol1Width, yPos, margin + tableCol1Width, yPos + tableCellHeight * 2);
+    doc.line(margin, yPos + tableCellHeight, margin + tableWidth, yPos + tableCellHeight);
+
+    addText(doc, 'Die Ressourcen wiesen folgende Mängel auf:', margin + 5, yPos + 18, {
+      fontSize: 9,
+    });
+    addText(
+      doc,
+      'Empfangsbestätigung Ressource, Nutzer*in',
+      margin + tableCol1Width + 5,
+      yPos + 18,
+      { fontSize: 9 }
+    );
+    addText(doc, '', margin + 5, yPos + tableCellHeight + 18, { fontSize: 9 });
+    addText(doc, 'Unterschrift/Datum', margin + tableCol1Width + 5, yPos + tableCellHeight + 18, {
+      fontSize: 9,
+    });
+
+    return yPos + tableCellHeight * 2 + 25;
+  }
 
   doc.rect(margin, yPos, tableWidth, tableCellHeight * 2); // Outer box
   doc.rect(margin, yPos, tableCol1Width, tableCellHeight); // Col 1 Header
@@ -319,7 +360,8 @@ const addReturnProtocol = (
   yPos: number,
   pageWidth: number,
   margin: number,
-  pageHeight: number
+  pageHeight: number,
+  includePricing: boolean
 ): number => {
   addText(doc, 'Die Rückgabe erfolgte am ______ . ______ . ________ , ______ Uhr.', margin, yPos, {
     fontSize: 10,
@@ -331,6 +373,34 @@ const addReturnProtocol = (
   const tableCol1Width = tableWidth * 0.4;
   const tableCol2Width = tableWidth * 0.3;
   const tableCol3Width = tableWidth * 0.3;
+
+  if (!includePricing) {
+    const tableCol1Width = tableWidth * 0.5;
+    const tableCol2Width = tableWidth * 0.5;
+
+    doc.rect(margin, yPos, tableWidth, tableCellHeight * 2);
+    doc.rect(margin, yPos, tableCol1Width, tableCellHeight);
+    doc.rect(margin + tableCol1Width, yPos, tableCol2Width, tableCellHeight);
+    doc.line(margin + tableCol1Width, yPos, margin + tableCol1Width, yPos + tableCellHeight * 2);
+    doc.line(margin, yPos + tableCellHeight, margin + tableWidth, yPos + tableCellHeight);
+
+    addText(doc, 'Die Ressourcen wiesen folgende Mängel auf:', margin + 5, yPos + 18, {
+      fontSize: 9,
+    });
+    addText(
+      doc,
+      'Empfangsbestätigung Ressource, Anbieter*in',
+      margin + tableCol1Width + 5,
+      yPos + 18,
+      { fontSize: 9 }
+    );
+    addText(doc, '', margin + 5, yPos + tableCellHeight + 18, { fontSize: 9 });
+    addText(doc, 'Unterschrift/Datum', margin + tableCol1Width + 5, yPos + tableCellHeight + 18, {
+      fontSize: 9,
+    });
+
+    return pageHeight - margin;
+  }
 
   doc.rect(margin, yPos, tableWidth, tableCellHeight * 2); // Outer box
   doc.rect(margin, yPos, tableCol1Width, tableCellHeight); // Col 1 Header
@@ -387,6 +457,7 @@ const addFooter = (doc: jsPDF, yPos: number, pageWidth: number, margin: number):
 
 export default ({ strapi }: { strapi: Core.Strapi }): RentalAgreementService => ({
   async generateRentalAgreementPdf(booking, resource, customer, resourceOwner) {
+    const pricesEnabled = readBooleanEnv(process.env.STRAPI_PLUGIN_PRICES, true);
     const doc = new jsPDF('p', 'pt', 'a4');
     const pageHeight = doc.internal.pageSize.getHeight();
     const pageWidth = doc.internal.pageSize.getWidth();
@@ -408,19 +479,28 @@ export default ({ strapi }: { strapi: Core.Strapi }): RentalAgreementService => 
     yPos += 40;
 
     // Details
-    yPos = addDetails(doc, yPos, pageWidth, margin, booking, resource, booking.price || null);
+    yPos = addDetails(
+      doc,
+      yPos,
+      pageWidth,
+      margin,
+      booking,
+      resource,
+      booking.price || null,
+      pricesEnabled
+    );
 
     // Notes
-    yPos = addNotes(doc, yPos, pageWidth, margin);
+    yPos = addNotes(doc, yPos, pageWidth, margin, pricesEnabled);
 
     // Signatures
     yPos = addSignatures(doc, yPos, pageWidth, margin);
 
     // Handover protocol
-    yPos = addHandoverProtocol(doc, yPos, pageWidth, margin);
+    yPos = addHandoverProtocol(doc, yPos, pageWidth, margin, pricesEnabled);
 
     // Return protocol
-    yPos = addReturnProtocol(doc, yPos, pageWidth, margin, pageHeight);
+    yPos = addReturnProtocol(doc, yPos, pageWidth, margin, pageHeight, pricesEnabled);
 
     // Footer
     addFooter(doc, yPos, pageWidth, margin);

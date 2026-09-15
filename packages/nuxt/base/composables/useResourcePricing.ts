@@ -7,7 +7,13 @@ import {
 } from '@depot/shared';
 
 export const useResourcePricing = (resource: Resource) => {
+  const pricesEnabled = usePricesEnabled();
+
   const regularPrice = computed(() => {
+    if (!pricesEnabled.value) {
+      return undefined;
+    }
+
     return getPriceByPriceTariff(
       resource.prices || [],
       PriceTariffType.REGULAR
@@ -15,6 +21,10 @@ export const useResourcePricing = (resource: Resource) => {
   });
 
   const notForProfitPrice = computed(() => {
+    if (!pricesEnabled.value) {
+      return undefined;
+    }
+
     return getPriceByPriceTariff(
       resource.prices || [],
       PriceTariffType.NOT_FOR_PROFIT
@@ -22,6 +32,10 @@ export const useResourcePricing = (resource: Resource) => {
   });
 
   const deposit = computed(() => {
+    if (!pricesEnabled.value) {
+      return null;
+    }
+
     return regularPrice.value
       ? regularPrice.value.depositValue
       : notForProfitPrice.value
@@ -30,6 +44,10 @@ export const useResourcePricing = (resource: Resource) => {
   });
 
   const isNotForProfitOnly = computed(() => {
+    if (!pricesEnabled.value) {
+      return false;
+    }
+
     return notForProfitPrice.value && !regularPrice.value;
   });
 

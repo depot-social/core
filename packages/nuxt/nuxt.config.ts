@@ -1,4 +1,8 @@
-import type { Resource, SingleTypePage } from '@depot/shared';
+import {
+  readBooleanEnv,
+  type Resource,
+  type SingleTypePage,
+} from '@depot/shared';
 import tailwindcss from '@tailwindcss/vite';
 
 const NUXT_LAYERS = process.env.NUXT_LAYERS ?? '';
@@ -50,6 +54,7 @@ export default defineNuxtConfig({
       depotBaseUrl: process.env.PUBLIC_DEPOT_BASE_URL || 'https://depot.social',
       mapboxToken: process.env.PUBLIC_MAPBOX_TOKEN || '',
       randomLocationRadius: process.env.PUBLIC_RANDOM_LOCATION_RADIUS || '200',
+      pricesEnabled: readBooleanEnv(process.env.STRAPI_PLUGIN_PRICES, true),
     },
   },
   i18n: {

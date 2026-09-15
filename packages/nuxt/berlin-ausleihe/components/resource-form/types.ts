@@ -13,7 +13,7 @@ export interface ResourceFormSubmitPayload {
   title: string;
   description: string;
   districtId: number;
-  price: ResourceFormPricePayload;
+  price?: ResourceFormPricePayload;
   categoryIds: number[];
   address: Pick<Address, 'street' | 'zip' | 'place'>;
   agreement: boolean;

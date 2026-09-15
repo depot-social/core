@@ -18,6 +18,14 @@ export default defineEventHandler(async (event) => {
   }
 
   const config = useRuntimeConfig(event);
+
+  if (!config.public.pricesEnabled) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: 'Prices are disabled',
+    });
+  }
+
   const { strapi_jwt } = parseCookies(event);
 
   return await $fetch<Price>(`${config.strapi.url}/api/resources/${id}/price`, {

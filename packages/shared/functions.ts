@@ -10,6 +10,28 @@ import {
   User,
 } from './types';
 
+/**
+ * Resolves the deployment feature flags shared by Strapi and Nuxt.
+ *
+ * Only explicit true/false and 1/0 values override the supplied default so a
+ * missing or malformed environment variable cannot accidentally disable a
+ * feature.
+ */
+export const readBooleanEnv = (
+  value: string | undefined | null,
+  defaultValue = false
+): boolean => {
+  if (value === null || typeof value === 'undefined') {
+    return defaultValue;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (['1', 'true'].includes(normalized)) return true;
+  if (['0', 'false'].includes(normalized)) return false;
+
+  return defaultValue;
+};
+
 export const getUsernameFromUser = (user: Partial<User>): string =>
   user.organization
     ? user.organization.title

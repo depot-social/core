@@ -1,4 +1,5 @@
 import type { Context } from 'koa';
+export { readBooleanEnv } from '@depot/shared';
 
 type StrapiRequestContext = {
   state?: {
@@ -13,7 +14,11 @@ type StrapiRequestContext = {
   };
 };
 
-type AnyContext = Context | StrapiRequestContext | (Context & StrapiRequestContext) | any;
+type AnyContext =
+  | Context
+  | StrapiRequestContext
+  | (Context & StrapiRequestContext)
+  | any;
 
 export const isAdminOrBackofficeRequest = (ctx: AnyContext): boolean => {
   const routeType = ctx?.state?.route?.info?.type;
@@ -25,19 +30,6 @@ export const isAdminOrBackofficeRequest = (ctx: AnyContext): boolean => {
     requestPath.startsWith('/content-manager/') ||
     requestPath.startsWith('/admin')
   );
-};
-
-export const readBooleanEnv = (
-  value: string | undefined,
-  defaultValue = false,
-): boolean => {
-  if (value === null || typeof value === 'undefined') return defaultValue;
-
-  const normalized = value.trim().toLowerCase();
-  if (['1', 'true'].includes(normalized)) return true;
-  if (['0', 'false'].includes(normalized)) return false;
-
-  return defaultValue;
 };
 
 type DocumentRelation = {

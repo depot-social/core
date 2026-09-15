@@ -7,6 +7,7 @@ interface BookingLifecycleSubscriber {
   beforeCreate: (event: unknown) => Promise<void>;
   beforeUpdate: (event: unknown) => Promise<void>;
   afterCreate: (event: unknown) => Promise<void>;
+  afterUpdate: (event: unknown) => Promise<void>;
 }
 
 const existingBooking = {
@@ -417,5 +418,80 @@ describe('booking lifecycle validation', () => {
     await lifecyclePromise;
 
     expect(lifecycleCompleted).toHaveBeenCalledOnce();
+  });
+
+  test('does not access the Prices plugin or write a booking price when disabled', async () => {
+    const originalPricesSetting = process.env.STRAPI_PLUGIN_PRICES;
+    process.env.STRAPI_PLUGIN_PRICES = 'false';
+
+    try {
+      const { strapi, subscribe } = createStrapiMock();
+
+      await bookingApi.bootstrap({ strapi: strapi as unknown as Core.Strapi });
+      const lifecycle = subscribe.mock
+        .calls[0][0] as BookingLifecycleSubscriber;
+      const event = {
+        result: {
+          ...existingBooking,
+          documentId: 'booking-document-id',
+        },
+      };
+
+      await expect(lifecycle.afterCreate(event)).resolves.toBeUndefined();
+      await expect(lifecycle.afterUpdate(event)).resolves.toBeUndefined();
+
+      expect(strapi.plugin).not.toHaveBeenCalledWith('prices');
+      expect(
+        strapi.documents('api::booking.booking').update
+      ).not.toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ price: expect.anything() }),
+        })
+      );
+    } finally {
+      if (originalPricesSetting === undefined) {
+        delete process.env.STRAPI_PLUGIN_PRICES;
+      } else {
+        process.env.STRAPI_PLUGIN_PRICES = originalPricesSetting;
+      }
+    }
+  });
+
+  test('calculates and persists a booking price when enabled', async () => {
+    const originalPricesSetting = process.env.STRAPI_PLUGIN_PRICES;
+    process.env.STRAPI_PLUGIN_PRICES = 'true';
+
+    try {
+      const { strapi, subscribe } = createStrapiMock();
+
+      await bookingApi.bootstrap({ strapi: strapi as unknown as Core.Strapi });
+      const lifecycle = subscribe.mock
+        .calls[0][0] as BookingLifecycleSubscriber;
+
+      await lifecycle.afterUpdate({
+        result: {
+          ...existingBooking,
+          documentId: 'booking-document-id',
+        },
+      });
+
+      expect(strapi.plugin).toHaveBeenCalledWith('prices');
+      expect(
+        strapi.documents('api::booking.booking').update
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          documentId: 'booking-document-id',
+          data: expect.objectContaining({
+            price: expect.objectContaining({ value: 100 }),
+          }),
+        })
+      );
+    } finally {
+      if (originalPricesSetting === undefined) {
+        delete process.env.STRAPI_PLUGIN_PRICES;
+      } else {
+        process.env.STRAPI_PLUGIN_PRICES = originalPricesSetting;
+      }
+    }
   });
 });

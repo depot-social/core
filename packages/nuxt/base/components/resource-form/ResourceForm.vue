@@ -5,7 +5,9 @@
     class="flex flex-col gap-6 md:gap-8 w-full items-start"
     @submit="onSubmit"
   >
-    <section class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7">
+    <section
+      class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7"
+    >
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <span class="badge badge-primary badge-sm">01</span>
@@ -51,7 +53,11 @@
               :aria-describedby="'resource-images-help'"
               @change="onFilesChange"
             />
-            <p id="resource-images-help" class="text-sm text-gray-700" aria-live="polite">
+            <p
+              id="resource-images-help"
+              class="text-sm text-gray-700"
+              aria-live="polite"
+            >
               {{ filesLabel }}
             </p>
           </div>
@@ -79,7 +85,9 @@
               class="relative flex gap-2 flex-wrap mt-3 min-h-[110px] items-center justify-start rounded-xl border-2 border-dashed border-black bg-orange-100 p-4 text-center hover:border-orange-800 focus-within:border-orange-800"
               :aria-describedby="error ? categoriesErrorId : categoriesHintId"
             >
-              <legend class="sr-only">{{ $t('resourceForm_categories') }}</legend>
+              <legend class="sr-only">
+                {{ $t('resourceForm_categories') }}
+              </legend>
               <button
                 v-for="category in categories"
                 :key="category.id"
@@ -113,11 +121,16 @@
       </div>
     </section>
 
-    <section class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7">
+    <section
+      v-if="pricesEnabled"
+      class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7"
+    >
       <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3">
           <span class="badge badge-primary badge-sm">02</span>
-          <h2 class="text-xl font-semibold text-black">{{ $t('resourceForm_priceTitle') }}</h2>
+          <h2 class="text-xl font-semibold text-black">
+            {{ $t('resourceForm_priceTitle') }}
+          </h2>
         </div>
         <p class="text-gray-700">
           {{ $t('resourceForm_priceDescription') }}
@@ -179,7 +192,9 @@
       </div>
     </section>
 
-    <section class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7">
+    <section
+      class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7"
+    >
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <span class="badge badge-primary badge-sm">03</span>
@@ -220,7 +235,11 @@
               :label="$t('address_city')"
               name="address.place"
             >
-              <UInput v-model="state.address.place" autocomplete="address-level2" required />
+              <UInput
+                v-model="state.address.place"
+                autocomplete="address-level2"
+                required
+              />
             </UFormField>
           </div>
         </div>
@@ -233,7 +252,10 @@
             class="rounded-xl border-2 border-black min-h-[220px] h-[220px] flex items-center justify-center w-full bg-orange-100 overflow-hidden"
             :aria-busy="geocodePending"
           >
-            <div v-if="geocodePending" class="flex h-full w-full flex-col items-center justify-center gap-2 p-4">
+            <div
+              v-if="geocodePending"
+              class="flex h-full w-full flex-col items-center justify-center gap-2 p-4"
+            >
               <span class="loading loading-spinner loading-md" />
               <p class="text-sm text-gray-700" aria-live="polite">
                 {{ $t('resourceForm_locationLoading') }}
@@ -250,7 +272,11 @@
               class="flex h-full w-full flex-col items-center justify-center text-center text-gray-700 text-sm p-4"
             >
               <p>{{ $t('resourceForm_mapPlaceholder') }}</p>
-              <p v-if="geocodeError" class="text-error mt-2" aria-live="assertive">
+              <p
+                v-if="geocodeError"
+                class="text-error mt-2"
+                aria-live="assertive"
+              >
                 {{ geocodeError }}
               </p>
             </div>
@@ -266,21 +292,23 @@
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <span class="badge badge-primary badge-sm">04</span>
-          <h2 class="text-xl font-semibold text-black">{{ $t('resourceForm_miscTitle') }}</h2>
+          <h2 class="text-xl font-semibold text-black">
+            {{ $t('resourceForm_miscTitle') }}
+          </h2>
         </div>
         <p class="text-gray-700">
           {{ $t('resourceForm_miscDescription') }}
         </p>
       </div>
 
-      <UFormField
-        name="agreement"
-        :label="$t('resourceForm_termsLabel')"
-      >
+      <UFormField name="agreement" :label="$t('resourceForm_termsLabel')">
         <template #label>
           <div class="flex items-start gap-2">
             <UCheckbox v-model="state.agreement" required />
-            <span class="text-sm text-black" v-html="$t('resourceForm_termsLabel')" />
+            <span
+              class="text-sm text-black"
+              v-html="$t('resourceForm_termsLabel')"
+            />
           </div>
         </template>
       </UFormField>
@@ -290,7 +318,9 @@
       </p>
     </section>
 
-    <div class="flex flex-col gap-4 w-full rounded-2xl bg-orange-100 p-4 md:p-5">
+    <div
+      class="flex flex-col gap-4 w-full rounded-2xl bg-orange-100 p-4 md:p-5"
+    >
       <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
         <UButton
           type="submit"
@@ -315,10 +345,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  PriceTariffType,
-  getPriceByPriceTariff,
-} from '@depot/shared';
+import { PriceTariffType, getPriceByPriceTariff } from '@depot/shared';
 import type { Category, Resource } from '@depot/shared';
 import type { GeoData } from '@depot/shared';
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
@@ -347,6 +374,7 @@ const isEditForm = computed(() => props.isEditForm);
 const isLoading = computed(() => props.loading);
 const categoriesHintId = 'resource-form-categories-hint';
 const categoriesErrorId = 'resource-form-categories-error';
+const pricesEnabled = usePricesEnabled();
 const durationTypeItems = [
   { label: $t('resourceForm_priceDurationTypeDaily'), value: 'daily' },
   { label: $t('resourceForm_priceDurationTypeHourly'), value: 'hourly' },
@@ -364,36 +392,41 @@ const schema = v.object({
     v.array(v.number()),
     v.minLength(1, $t('resourceForm_categoriesRequired'))
   ),
-  price: v.object({
-    currency: v.literal('euro'),
-    durationType: v.picklist(['daily', 'hourly'], $t('validation_required')),
-    vatValue: v.pipe(
-      v.number(),
-      v.minValue(0, $t('resourceForm_priceMustBePositive'))
-    ),
-    depositValue: v.pipe(
-      v.nullable(v.number()),
-      v.check(
-        (value) => value === null || value >= 0,
-        $t('resourceForm_priceMustBePositive')
-      )
-    ),
-    discountedValue: v.pipe(
-      v.nullable(v.number()),
-      v.check((value) => value !== null, $t('validation_required')),
-      v.check(
-        (value) => value !== null && value >= 0,
-        $t('resourceForm_priceMustBePositive')
-      )
-    ),
-    regularValue: v.pipe(
-      v.nullable(v.number()),
-      v.check(
-        (value) => value === null || value >= 0,
-        $t('resourceForm_priceMustBePositive')
-      )
-    ),
-  }),
+  price: pricesEnabled.value
+    ? v.object({
+        currency: v.literal('euro'),
+        durationType: v.picklist(
+          ['daily', 'hourly'],
+          $t('validation_required')
+        ),
+        vatValue: v.pipe(
+          v.number(),
+          v.minValue(0, $t('resourceForm_priceMustBePositive'))
+        ),
+        depositValue: v.pipe(
+          v.nullable(v.number()),
+          v.check(
+            (value) => value === null || value >= 0,
+            $t('resourceForm_priceMustBePositive')
+          )
+        ),
+        discountedValue: v.pipe(
+          v.nullable(v.number()),
+          v.check((value) => value !== null, $t('validation_required')),
+          v.check(
+            (value) => value !== null && value >= 0,
+            $t('resourceForm_priceMustBePositive')
+          )
+        ),
+        regularValue: v.pipe(
+          v.nullable(v.number()),
+          v.check(
+            (value) => value === null || value >= 0,
+            $t('resourceForm_priceMustBePositive')
+          )
+        ),
+      })
+    : v.optional(v.any()),
   address: v.object({
     street: v.pipe(
       v.string(),
@@ -416,7 +449,18 @@ const schema = v.object({
     : v.literal(true, $t('validation_consentRequired')),
 });
 
-type ResourceFormState = v.InferInput<typeof schema>;
+type ResourceFormState = Omit<v.InferInput<typeof schema>, 'price'> & {
+  // Keep a local value for the enabled template path. The disabled Valibot
+  // schema intentionally does not validate or submit this state.
+  price: {
+    currency: 'euro';
+    durationType: 'daily' | 'hourly';
+    vatValue: number;
+    depositValue: number | null;
+    discountedValue: number | null;
+    regularValue: number | null;
+  };
+};
 
 const buildInitialState = (resource?: Resource): ResourceFormState => ({
   // The form edits first visible values and maps them to 1..2 Strapi prices.
@@ -428,20 +472,16 @@ const buildInitialState = (resource?: Resource): ResourceFormState => ({
         resource?.prices ?? [],
         PriceTariffType.NOT_FOR_PROFIT
       )?.durationType ??
-      getPriceByPriceTariff(
-        resource?.prices ?? [],
-        PriceTariffType.REGULAR
-      )?.durationType ??
+      getPriceByPriceTariff(resource?.prices ?? [], PriceTariffType.REGULAR)
+        ?.durationType ??
       'daily',
     vatValue:
       getPriceByPriceTariff(
         resource?.prices ?? [],
         PriceTariffType.NOT_FOR_PROFIT
       )?.vatValue ??
-      getPriceByPriceTariff(
-        resource?.prices ?? [],
-        PriceTariffType.REGULAR
-      )?.vatValue ??
+      getPriceByPriceTariff(resource?.prices ?? [], PriceTariffType.REGULAR)
+        ?.vatValue ??
       0,
     depositValue:
       getPriceByPriceTariff(
@@ -592,9 +632,7 @@ const submitting = ref(false);
 const isSubmitting = computed(() => submitting.value || isLoading.value);
 
 const submitLabel = computed(() =>
-  isEditForm.value
-    ? $t('resourceForm_completeEdit')
-    : $t('resourceForm_submit')
+  isEditForm.value ? $t('resourceForm_completeEdit') : $t('resourceForm_submit')
 );
 
 const onSubmit = async (event: Event) => {
@@ -610,14 +648,18 @@ const onSubmit = async (event: Event) => {
     const payload: ResourceFormSubmitPayload = {
       title: state.title,
       description: state.description,
-      price: {
-        currency: state.price.currency,
-        durationType: state.price.durationType,
-        vatValue: state.price.vatValue,
-        depositValue: state.price.depositValue,
-        discountedValue: state.price.discountedValue as number,
-        regularValue: state.price.regularValue,
-      },
+      ...(pricesEnabled.value
+        ? {
+            price: {
+              currency: state.price.currency,
+              durationType: state.price.durationType,
+              vatValue: state.price.vatValue,
+              depositValue: state.price.depositValue,
+              discountedValue: state.price.discountedValue as number,
+              regularValue: state.price.regularValue,
+            },
+          }
+        : {}),
       categoryIds: state.categories,
       address: {
         street: state.address.street,
@@ -635,4 +677,3 @@ const onSubmit = async (event: Event) => {
   }
 };
 </script>
-

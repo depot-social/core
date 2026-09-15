@@ -51,12 +51,12 @@
           <p class="text-sm">{{ $t('timeframe') }}</p>
           <p class="font-bold!">
             <span
-              v-if="pending"
+              v-if="pricesEnabled && pending"
               class="loading loading-dots loading-xs"
               :aria-label="$t('loading')"
             />
 
-            <template v-else-if="priceDurationLabel">
+            <template v-else-if="pricesEnabled && priceDurationLabel">
               {{ priceDurationLabel }}
             </template>
 
@@ -73,41 +73,43 @@
       </div>
 
       <!-- Price calculation -->
-      <div v-if="pending" class="mt-4">
-        <div class="animate-pulse flex flex-col gap-2 mt-8">
-          <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/3"></div>
-          <div class="h-4 bg-gray-200 rounded w-2/3"></div>
-          <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+      <template v-if="pricesEnabled">
+        <div v-if="pending" class="mt-4">
+          <div class="animate-pulse flex flex-col gap-2 mt-8">
+            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+            <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+          </div>
         </div>
-      </div>
 
-      <div v-else-if="error" class="mt-4 p-4 bg-red-50 text-red-700 rounded">
-        {{ error.message }}
-      </div>
+        <div v-else-if="error" class="mt-4 p-4 bg-red-50 text-red-700 rounded">
+          {{ error.message }}
+        </div>
 
-      <div v-else-if="price" class="mt-4">
-        <dl class="flex flex-col gap-2 mt-8 text-gray-800">
-          <div class="flex justify-between py-1 text-base *:font-light">
-            <dt>{{ $t('deposit') }}</dt>
-            <dd>{{ formatPrice(price.depositValue || 0) }}</dd>
-          </div>
-          <div class="flex justify-between py-1 text-base *:font-light">
-            <dt>{{ $t('taxes') }}</dt>
-            <dd>{{ formatPrice(price.vatValue || 0) }}</dd>
-          </div>
-          <div class="flex justify-between py-1 text-base *:font-light">
-            <dt>{{ $t('rentalFee') }}</dt>
-            <dd>{{ formatPrice(price.resourceValue || 0) }}</dd>
-          </div>
-          <div
-            class="border-t pt-4 mt-3 border-grey-200 flex justify-between text-black text-base *:font-bold"
-          >
-            <dt>{{ $t('total') }}</dt>
-            <dd>{{ formatPrice(price.value || 0) }}</dd>
-          </div>
-        </dl>
-      </div>
+        <div v-else-if="price" class="mt-4">
+          <dl class="flex flex-col gap-2 mt-8 text-gray-800">
+            <div class="flex justify-between py-1 text-base *:font-light">
+              <dt>{{ $t('deposit') }}</dt>
+              <dd>{{ formatPrice(price.depositValue || 0) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 text-base *:font-light">
+              <dt>{{ $t('taxes') }}</dt>
+              <dd>{{ formatPrice(price.vatValue || 0) }}</dd>
+            </div>
+            <div class="flex justify-between py-1 text-base *:font-light">
+              <dt>{{ $t('rentalFee') }}</dt>
+              <dd>{{ formatPrice(price.resourceValue || 0) }}</dd>
+            </div>
+            <div
+              class="border-t pt-4 mt-3 border-grey-200 flex justify-between text-black text-base *:font-bold"
+            >
+              <dt>{{ $t('total') }}</dt>
+              <dd>{{ formatPrice(price.value || 0) }}</dd>
+            </div>
+          </dl>
+        </div>
+      </template>
 
       <slot></slot>
     </div>
@@ -126,6 +128,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const pricesEnabled = usePricesEnabled();
 
 // Format date helper
 const formatDate = (dateString?: string) => {
@@ -148,6 +151,10 @@ const {
     props.booking.start || 'no-start'
   }-${props.booking.end || 'no-end'}-${props.booking.bookedUnits || 0}`,
   async () => {
+    if (!pricesEnabled.value) {
+      return null;
+    }
+
     if (
       !props.booking.start ||
       !props.booking.end ||

@@ -5,7 +5,9 @@ import {
   Booking,
   getResourceType,
   getUsernameFromUser,
+  Price,
   priceToString,
+  readBooleanEnv,
   Resource,
   ResourceTypeComponent,
   SingleTypeEmailTemplate,
@@ -57,10 +59,54 @@ export const newLineToHtmlParagraph = (text: string): string => {
 };
 
 /**
+ * Price values are intentionally omitted, rather than blanked, for price-free
+ * deployments. Existing database templates can use this to conditionally show
+ * their price block while enabled deployments retain their current data.
+ */
+export const getBookingRequestPriceTemplateData = (
+  price: Price | null | undefined,
+  pricesEnabled = readBooleanEnv(process.env.STRAPI_PLUGIN_PRICES, true)
+): Record<string, string> => {
+  if (!pricesEnabled) {
+    return {};
+  }
+
+  return {
+    priceText: price
+      ? `Gesamt: ${priceToString(price.value || 0)} (Kaution: ${priceToString(
+          price.depositValue || 0
+        )}, Steuern: ${priceToString(
+          price.vatValue || 0
+        )}, Ausleihgebühr: ${priceToString(price.resourceValue)})`
+      : '-',
+  };
+};
+
+/**
+ * Email templates are managed in Strapi data. Remove the whole MJML text block
+ * containing the legacy price placeholder so a deployment that still has the
+ * old template neither renders money-related copy nor tries to interpolate a
+ * value that is deliberately not supplied.
+ */
+export const removeBookingRequestPriceTemplateContent = (
+  templateBody: string
+): string =>
+  templateBody
+    .replace(
+      /<mj-text\b[^>]*>[\s\S]*?{{\s*priceText\s*}}[\s\S]*?<\/mj-text>/gi,
+      ''
+    )
+    .replace(
+      /<mj-text\b[^>]*>[\s\S]*?(?:preis|kosten|kaution|gebühr|zahlung|gesamt)[\s\S]*?<\/mj-text>/gi,
+      ''
+    )
+    .replace(/{{\s*priceText\s*}}/gi, '');
+
+/**
  * Fetches the email template singleType from Strapi
  */
 const getEmailTemplateSingleType = async (
-  strapi: Core.Strapi,
+  strapi: Core.Strapi
 ): Promise<SingleTypeEmailTemplate | null> => {
   try {
     return (await strapi
@@ -79,7 +125,7 @@ const getEmailTemplateSingleType = async (
  */
 const compileTemplate = (
   templateString: string,
-  data: Record<string, any>,
+  data: Record<string, any>
 ): string => {
   if (!templateString) return '';
 
@@ -108,6 +154,10 @@ const compileTemplate = (
 
 export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
   async sendBookingRequestMail(bookingDocumentId) {
+    const pricesEnabled = readBooleanEnv(
+      process.env.STRAPI_PLUGIN_PRICES,
+      true
+    );
     const booking: Booking = (await strapi
       .documents('api::booking.booking')
       .findOne({
@@ -134,14 +184,6 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
         format(new Date(booking.start), 'dd.MM.yyyy, HH:mm') + ` Uhr`;
       const ende =
         format(new Date(booking.start), 'dd.MM.yyyy, HH:mm') + ` Uhr`;
-      const priceText = price
-        ? `Gesamt: ${priceToString(price.value || 0)} (Kaution: ${priceToString(
-          price.depositValue || 0,
-        )}, Steuern: ${priceToString(
-          price.vatValue || 0,
-        )}, Ausleihgebühr: ${priceToString(price.resourceValue)})`
-        : '-';
-
       const templateData = {
         customerName,
         commentCustomer,
@@ -150,7 +192,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
         bookedUnits: booking.bookedUnits,
         start,
         ende,
-        priceText,
+        ...getBookingRequestPriceTemplateData(price, pricesEnabled),
         resourceOwnerEmail: resourceOwner.email,
       };
 
@@ -163,12 +205,20 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
 
       // Compile title and body with data
       const compiledTitle = compileTemplate(
-        emailTemplate.bookingRequestTitle,
-        templateData,
+        pricesEnabled
+          ? emailTemplate.bookingRequestTitle
+          : removeBookingRequestPriceTemplateContent(
+              emailTemplate.bookingRequestTitle
+            ),
+        templateData
       );
       const compiledBody = compileTemplate(
-        emailTemplate.bookingRequestBody,
-        templateData,
+        pricesEnabled
+          ? emailTemplate.bookingRequestBody
+          : removeBookingRequestPriceTemplateContent(
+              emailTemplate.bookingRequestBody
+            ),
+        templateData
       );
 
       // Compile layout with compiled title and body
@@ -202,7 +252,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
           // from: process.env.REPLY_EMAIL || '',
           // replyTo: process.env.REPLY_EMAIL || '',
         },
-        emailTemplateData,
+        emailTemplateData
       );
     } catch (err) {
       console.log('Error sending email', err);
@@ -233,11 +283,11 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
     // Compile title and body with data
     const compiledTitle = compileTemplate(
       emailTemplate.organizationAwaitsActivationTitle,
-      templateData,
+      templateData
     );
     const compiledBody = compileTemplate(
       emailTemplate.organizationAwaitsActivationBody,
-      templateData,
+      templateData
     );
 
     // Compile layout with compiled title and body
@@ -301,11 +351,11 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
       // Compile title and body with data
       const compiledTitle = compileTemplate(
         emailTemplate.resourceAwaitsActivationTitle,
-        templateData,
+        templateData
       );
       const compiledBody = compileTemplate(
         emailTemplate.resourceAwaitsActivationBody,
-        templateData,
+        templateData
       );
 
       // Compile layout with compiled title and body
@@ -337,7 +387,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
         {
           to: process.env.ADMIN_EMAIL || '',
         },
-        emailTemplateData,
+        emailTemplateData
       );
     } catch (err) {
       console.log('Error sending email', err);
@@ -393,11 +443,11 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
 
       const compiledTitle = compileTemplate(
         emailTemplate.berlinBookingTitle,
-        templateData,
+        templateData
       );
       const compiledBody = compileTemplate(
         emailTemplate.berlinBookingBody,
-        templateData,
+        templateData
       );
 
       const compiledLayout = compileTemplate(emailTemplate.layout, {
@@ -420,7 +470,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
 
       const berlinResourceType = getResourceType(
         resource.resourceTypes,
-        ResourceTypeComponent.BERLIN_RESOURCE_TYPE,
+        ResourceTypeComponent.BERLIN_RESOURCE_TYPE
       ) as BerlinResourceType;
 
       if (
@@ -428,7 +478,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
         typeof berlinResourceType.contactEmail === 'undefined'
       ) {
         console.log(
-          'Error sending Berlin booking email - no resource owner contact email provided',
+          'Error sending Berlin booking email - no resource owner contact email provided'
         );
         return false;
       }
@@ -445,12 +495,12 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
           from: process.env.REPLY_EMAIL,
           replyTo: contactEmail,
         },
-        emailTemplateData,
+        emailTemplateData
       );
 
       const compiledTitleCopy = compileTemplate(
         emailTemplate.berlinBookingTitleCopy,
-        templateData,
+        templateData
       );
 
       // Copy (not BCC!) to requesting person
@@ -461,7 +511,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
           to: contactEmail,
           from: process.env.REPLY_EMAIL,
         },
-        emailTemplateData,
+        emailTemplateData
       );
 
       return true;
@@ -487,7 +537,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
 
       const berlinResourceType = getResourceType(
         resource?.resourceTypes,
-        ResourceTypeComponent.BERLIN_RESOURCE_TYPE,
+        ResourceTypeComponent.BERLIN_RESOURCE_TYPE
       ) as BerlinResourceType;
 
       const roomName = berlinResourceType?.roomName || 'n/a';
@@ -514,11 +564,11 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
 
       const compiledTitle = compileTemplate(
         emailTemplate.raffleEntryTitle,
-        templateData,
+        templateData
       );
       const compiledBody = compileTemplate(
         emailTemplate.raffleEntryBody,
-        templateData,
+        templateData
       );
 
       const compiledLayout = compileTemplate(emailTemplate.layout, {
@@ -546,15 +596,15 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
       // Send to engagiertes Berlin team
       await strapi.plugins['email'].services.email.sendTemplatedEmail(
         {
-          to: process.env.ADMIN_EMAIL || ''
+          to: process.env.ADMIN_EMAIL || '',
         },
-        emailTemplateData,
+        emailTemplateData
       );
 
       // Prepare copy for raffle participant / provider
       const compiledTitleCopy = compileTemplate(
         emailTemplate.raffleEntryTitleCopy,
-        templateData,
+        templateData
       );
 
       const compiledLayoutCopy = compileTemplate(emailTemplate.layout, {
@@ -584,7 +634,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
         {
           to: raffleEmail,
         },
-        emailTemplateDataCopy,
+        emailTemplateDataCopy
       );
 
       return true;

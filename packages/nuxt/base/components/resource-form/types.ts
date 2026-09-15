@@ -12,12 +12,10 @@ export interface ResourceFormPricePayload {
 export interface ResourceFormSubmitPayload {
   title: string;
   description: string;
-  price: ResourceFormPricePayload;
+  price?: ResourceFormPricePayload;
   categoryIds: number[];
   address: Pick<Address, 'street' | 'zip' | 'place'>;
   agreement: boolean;
   images: File[];
   geoData?: GeoData | null;
 }
-
-

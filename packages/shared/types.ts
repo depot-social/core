@@ -38,7 +38,7 @@ export interface Booking extends StrapiBaseEntity {
   resourceOwner: User;
   customer: User;
   customerAddress: Address;
-  price: Price;
+  price?: Price | null;
   commentCustomer: string | null;
 }
 
@@ -325,7 +325,7 @@ export interface Resource extends StrapiBaseEntity {
   address: Address;
   images: UploadedImage[];
   slug: string;
-  prices: Price[];
+  prices?: Price[] | null;
   links?: Link[];
   uploads?: Media[]; // @todo Correct?
   bookings?: Booking[];

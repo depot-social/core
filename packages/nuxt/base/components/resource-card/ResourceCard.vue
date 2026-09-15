@@ -21,6 +21,7 @@
           </span>
         </div>
         <div
+          v-if="pricesEnabled"
           class="opacity-0 group-hover:opacity-100 transition-all duration-300 absolute inset-0 bg-[rgba(0,0,0,0.35)] p-4 text-white backdrop-blur"
         >
           <div v-if="regularPrice" class="stat flex flex-col">
@@ -77,6 +78,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const resourceImages = computed(() => props.resource.images ?? []);
+const pricesEnabled = usePricesEnabled();
 
 const isOrganization = computed(() => {
   return (
@@ -86,6 +88,10 @@ const isOrganization = computed(() => {
 });
 
 const regularPrice = computed(() => {
+  if (!pricesEnabled.value) {
+    return undefined;
+  }
+
   return getPriceByPriceTariff(
     props.resource.prices || [],
     PriceTariffType.REGULAR
@@ -93,6 +99,10 @@ const regularPrice = computed(() => {
 });
 
 const notForProfitPrice = computed(() => {
+  if (!pricesEnabled.value) {
+    return undefined;
+  }
+
   return getPriceByPriceTariff(
     props.resource.prices || [],
     PriceTariffType.NOT_FOR_PROFIT

@@ -174,7 +174,7 @@
       </div>
     </section>
 
-    <section class="flex flex-col gap-5 w-full">
+    <section v-if="pricesEnabled" class="flex flex-col gap-5 w-full">
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <h2 class="text-xl font-semibold text-black">
@@ -340,6 +340,7 @@ const district = computed(() => props.district);
 const categories = computed(() => props.categories);
 const isEditForm = computed(() => props.isEditForm);
 const isLoading = computed(() => props.loading);
+const pricesEnabled = usePricesEnabled();
 const durationTypeItems = [
   { label: $t('resourceForm_priceDurationTypeDaily'), value: 'daily' },
   { label: $t('resourceForm_priceDurationTypeHourly'), value: 'hourly' },
@@ -369,36 +370,41 @@ const schema = v.object({
     v.array(v.number()),
     v.minLength(1, $t('resourceForm_categoriesRequired'))
   ),
-  price: v.object({
-    currency: v.literal('euro'),
-    durationType: v.picklist(['daily', 'hourly'], $t('validation_required')),
-    vatValue: v.pipe(
-      v.number(),
-      v.minValue(0, $t('resourceForm_priceMustBePositive'))
-    ),
-    depositValue: v.pipe(
-      v.nullable(v.number()),
-      v.check(
-        (value) => value === null || value >= 0,
-        $t('resourceForm_priceMustBePositive')
-      )
-    ),
-    discountedValue: v.pipe(
-      v.nullable(v.number()),
-      v.check((value) => value !== null, $t('validation_required')),
-      v.check(
-        (value) => value !== null && value >= 0,
-        $t('resourceForm_priceMustBePositive')
-      )
-    ),
-    regularValue: v.pipe(
-      v.nullable(v.number()),
-      v.check(
-        (value) => value === null || value >= 0,
-        $t('resourceForm_priceMustBePositive')
-      )
-    ),
-  }),
+  price: pricesEnabled.value
+    ? v.object({
+        currency: v.literal('euro'),
+        durationType: v.picklist(
+          ['daily', 'hourly'],
+          $t('validation_required')
+        ),
+        vatValue: v.pipe(
+          v.number(),
+          v.minValue(0, $t('resourceForm_priceMustBePositive'))
+        ),
+        depositValue: v.pipe(
+          v.nullable(v.number()),
+          v.check(
+            (value) => value === null || value >= 0,
+            $t('resourceForm_priceMustBePositive')
+          )
+        ),
+        discountedValue: v.pipe(
+          v.nullable(v.number()),
+          v.check((value) => value !== null, $t('validation_required')),
+          v.check(
+            (value) => value !== null && value >= 0,
+            $t('resourceForm_priceMustBePositive')
+          )
+        ),
+        regularValue: v.pipe(
+          v.nullable(v.number()),
+          v.check(
+            (value) => value === null || value >= 0,
+            $t('resourceForm_priceMustBePositive')
+          )
+        ),
+      })
+    : v.optional(v.any()),
   address: v.object({
     street: v.pipe(
       v.string(),
@@ -421,7 +427,18 @@ const schema = v.object({
     : v.literal(true, $t('validation_consentRequired')),
 });
 
-type ResourceFormState = v.InferInput<typeof schema>;
+type ResourceFormState = Omit<v.InferInput<typeof schema>, 'price'> & {
+  // Keep a local value for the enabled template path. The disabled Valibot
+  // schema intentionally does not validate or submit this state.
+  price: {
+    currency: 'euro';
+    durationType: 'daily' | 'hourly';
+    vatValue: number;
+    depositValue: number | null;
+    discountedValue: number | null;
+    regularValue: number | null;
+  };
+};
 
 const buildInitialState = (resource?: Resource): ResourceFormState => ({
   // The form edits first visible values and maps them to 1..2 Strapi prices.
@@ -597,14 +614,18 @@ const onSubmit = async (event: Event) => {
       title: state.title,
       description: state.description,
       districtId: state.district as number,
-      price: {
-        currency: state.price.currency,
-        durationType: state.price.durationType,
-        vatValue: state.price.vatValue,
-        depositValue: state.price.depositValue,
-        discountedValue: state.price.discountedValue as number,
-        regularValue: state.price.regularValue,
-      },
+      ...(pricesEnabled.value
+        ? {
+            price: {
+              currency: state.price.currency,
+              durationType: state.price.durationType,
+              vatValue: state.price.vatValue,
+              depositValue: state.price.depositValue,
+              discountedValue: state.price.discountedValue as number,
+              regularValue: state.price.regularValue,
+            },
+          }
+        : {}),
       categoryIds: state.categories,
       address: {
         street: state.address.street,

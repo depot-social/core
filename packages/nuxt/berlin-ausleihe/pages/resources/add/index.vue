@@ -54,6 +54,7 @@ definePageMeta({
 });
 
 const { find, create } = useStrapi();
+const pricesEnabled = usePricesEnabled();
 
 const districtsResponse = await find<District>('districts', {
   sort: ['name:asc'],
@@ -81,37 +82,12 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
   errorMessage.value = '';
 
   try {
-    const sharedPriceFields = {
-      currency: payload.price.currency,
-      durationType: payload.price.durationType,
-      vatValue: payload.price.vatValue,
-      depositValue: payload.price.depositValue ?? undefined,
-    };
-
-    const prices = [
-      {
-        ...sharedPriceFields,
-        tariffType: PriceTariffType.NOT_FOR_PROFIT,
-        value: payload.price.discountedValue,
-      },
-      ...(payload.price.regularValue != null
-        ? [
-            {
-              ...sharedPriceFields,
-              tariffType: PriceTariffType.REGULAR,
-              value: payload.price.regularValue,
-            },
-          ]
-        : []),
-    ];
-
     const requestBody: Record<string, unknown> = {
       title: payload.title,
       description: payload.description,
       images: payload.images,
       categories: payload.categoryIds.map((id) => ({ id })),
       district: { id: payload.districtId },
-      prices,
       address: {
         street: payload.address.street,
         zip: payload.address.zip,
@@ -120,6 +96,32 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
         longitude: payload.geoData?.longitude ?? null,
       },
     };
+
+    if (pricesEnabled.value && payload.price) {
+      const sharedPriceFields = {
+        currency: payload.price.currency,
+        durationType: payload.price.durationType,
+        vatValue: payload.price.vatValue,
+        depositValue: payload.price.depositValue ?? undefined,
+      };
+
+      requestBody.prices = [
+        {
+          ...sharedPriceFields,
+          tariffType: PriceTariffType.NOT_FOR_PROFIT,
+          value: payload.price.discountedValue,
+        },
+        ...(payload.price.regularValue != null
+          ? [
+              {
+                ...sharedPriceFields,
+                tariffType: PriceTariffType.REGULAR,
+                value: payload.price.regularValue,
+              },
+            ]
+          : []),
+      ];
+    }
 
     const _response = await create<Resource>('resources', requestBody);
 

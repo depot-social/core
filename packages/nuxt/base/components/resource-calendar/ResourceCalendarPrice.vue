@@ -23,6 +23,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+const pricesEnabled = usePricesEnabled();
 
 const _price = ref<Price | null>(null);
 const priceDuration = ref(' 3 Tage');
@@ -48,6 +49,11 @@ watch(
     () => props.selection.units,
   ],
   async () => {
+    if (!pricesEnabled.value) {
+      _price.value = null;
+      return;
+    }
+
     if (
       !props.selection.start ||
       !props.selection.end ||

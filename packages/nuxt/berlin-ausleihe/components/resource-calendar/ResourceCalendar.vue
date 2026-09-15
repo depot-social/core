@@ -15,6 +15,7 @@
         :selection="activeSelection"
       />
       <BaseResourceCalendarPrice
+        v-if="pricesEnabled"
         :selection="activeSelection"
         :resource-id="resource.documentId"
       />
@@ -45,6 +46,8 @@ const props = defineProps<{
   resource: Resource;
   availabilities: AvailabilitiesGetCalendarResponseData;
 }>();
+
+const pricesEnabled = usePricesEnabled();
 
 const activeSelection = reactive<CalendarActiveSelection>({
   maxAvailableUnits: 0,
