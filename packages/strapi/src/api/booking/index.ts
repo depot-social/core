@@ -24,29 +24,27 @@ const formatDateTime = (value: string | Date | null | undefined): string => {
   const pad = (n: number) => n.toString().padStart(2, '0');
 
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
-    date.getDate(),
+    date.getDate()
   )} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
 const populateBookingTitleFromResourceAndDates = async (
   strapi: Core.Strapi,
-  bookingDocumentId: string,
+  bookingDocumentId: string
 ): Promise<void> => {
   if (!bookingDocumentId) {
     return;
   }
 
-  const booking = (await strapi
-    .documents('api::booking.booking')
-    .findOne({
-      documentId: bookingDocumentId,
-      fields: ['id', 'start', 'end'],
-      populate: {
-        resource: {
-          fields: ['id', 'title'],
-        },
+  const booking = (await strapi.documents('api::booking.booking').findOne({
+    documentId: bookingDocumentId,
+    fields: ['id', 'start', 'end'],
+    populate: {
+      resource: {
+        fields: ['id', 'title'],
       },
-    })) as any;
+    },
+  })) as any;
 
   const startStr = formatDateTime(booking.start);
   const endStr = formatDateTime(booking.end);
@@ -70,7 +68,7 @@ const populateBookingTitleFromResourceAndDates = async (
 const saveBookingPrice = async (
   strapi: Core.Strapi,
   bookingDocumentId: string,
-  price: Price,
+  price: Price
 ): Promise<void> => {
   if (!bookingDocumentId || !price) {
     return;
@@ -91,7 +89,7 @@ export default {
    *
    * This gives you an opportunity to extend code.
    */
-  register(/*{ strapi }*/) { },
+  register(/*{ strapi }*/) {},
 
   /**
    * An asynchronous bootstrap function that runs before
@@ -141,8 +139,18 @@ export default {
 
       const { start, end, resource, bookedUnits } = bookingData;
 
-      if (!start || !end || !resource || !bookedUnits || isNaN(bookedUnits) || bookedUnits <= 0) {
-        ctx.throw(400, 'Fields start, end, resource, and bookedUnits must be set.');
+      if (
+        !start ||
+        !end ||
+        !resource ||
+        !bookedUnits ||
+        isNaN(bookedUnits) ||
+        bookedUnits <= 0
+      ) {
+        ctx.throw(
+          400,
+          'Fields start, end, resource, and bookedUnits must be set.'
+        );
       }
 
       const startDate = new Date(start);
@@ -230,8 +238,14 @@ export default {
         excludeBookingId
       );
 
-      if (typeof maxAvailableUnits === 'number' && bookedUnits > maxAvailableUnits) {
-        ctx.throw(400, `Requested booked units are not available. Available: ${maxAvailableUnits}`);
+      if (
+        typeof maxAvailableUnits === 'number' &&
+        bookedUnits > maxAvailableUnits
+      ) {
+        ctx.throw(
+          400,
+          `Requested booked units are not available. Available: ${maxAvailableUnits}`
+        );
       }
     };
 
@@ -252,15 +266,12 @@ export default {
 
       const ctx = strapi.requestContext.get();
       if (false && isAdminOrBackofficeRequest(ctx)) {
-        // e.g. when called from import-csv or Strapi UI
+        // e.g. when called from Strapi UI
         return;
       }
 
       if (!start || !end || !bookedUnits) {
-        console.warn(
-          'setBookingPrice hook: Incomplete booking data',
-          result,
-        );
+        console.warn('setBookingPrice hook: Incomplete booking data', result);
 
         return;
       }
@@ -279,10 +290,7 @@ export default {
       const resourceDocumentId = resolvedResource?.resource?.documentId;
 
       if (!resourceDocumentId) {
-        console.warn(
-          'setBookingPrice: No resource document ID found',
-          result,
-        );
+        console.warn('setBookingPrice: No resource document ID found', result);
         return;
       }
 
@@ -308,14 +316,12 @@ export default {
       );
 
       if (!price) {
-        console.warn(
-          'setBookingPrice: Failed to get price',
-        );
+        console.warn('setBookingPrice: Failed to get price');
         return;
       }
 
       await saveBookingPrice(strapi, documentId, price);
-    }
+    };
 
     const addBookingMessage = async (event: any) => {
       const conversationsService: ConversationsService = await strapi
@@ -376,7 +382,7 @@ export default {
       const ctx = strapi.requestContext.get();
 
       if (!ctx) {
-        // e.g. when called from import-csv
+        // e.g. when called from Strapi UI
         return;
       }
 

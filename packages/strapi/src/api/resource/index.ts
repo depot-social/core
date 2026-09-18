@@ -23,7 +23,7 @@ type LifecycleEvent = {
 
 const updateAddressGeocode = async (
   strapi: Core.Strapi,
-  address: Address,
+  address: Address
 ): Promise<void> => {
   const geocodedAddress = await geocodeAddress(address);
 
@@ -36,7 +36,7 @@ const updateAddressGeocode = async (
   if (geocodedAddress.latitude && geocodedAddress.longitude) {
     obfuscatedAddress = obfuscateGeodata(
       geocodedAddress.latitude,
-      geocodedAddress.longitude,
+      geocodedAddress.longitude
     );
   }
 
@@ -59,7 +59,7 @@ export default {
     const afterUpdateResource = async (event: LifecycleEvent) => {
       const ctx = strapi.requestContext.get();
       if (!ctx) {
-        // e.g. when called from import-csv
+        // e.g. when called from Strapi UI
         return;
       }
 
@@ -102,7 +102,7 @@ export default {
     const beforeCreateResource = async (event: LifecycleEvent) => {
       const ctx = strapi.requestContext.get();
       if (!ctx) {
-        // e.g. when called from import-csv
+        // e.g. when called from Strapi UI
         return;
       }
 
@@ -188,7 +188,7 @@ export default {
       const ctx = strapi.requestContext.get();
 
       if (!ctx) {
-        // e.g. when called from import-csv
+        // e.g. when called from Strapi UI
         return;
       }
 
@@ -208,8 +208,9 @@ export default {
         return;
       }
 
-      const emailsService: EmailsService =
-        await emailsPlugin.service('emailsService');
+      const emailsService: EmailsService = await emailsPlugin.service(
+        'emailsService'
+      );
 
       await emailsService.sendResourceAwaitsActivationMail(resource.documentId);
     };

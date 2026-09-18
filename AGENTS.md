@@ -8,7 +8,7 @@ See https://agents.md/.
   - `@depot/strapi` (backend, Strapi v5) → http://127.0.0.1:1337 (admin `/admin`)
   - `@depot/nuxt` (frontend, Nuxt 4, daisy UI and tailwind 4 for styling, Nuxt UI for forms handling and validation)
 - Shared package: `@depot/shared` (utilities, types, requests).
-- Strapi plugins: `availabilities`, `conversations` (socket.io), `prices`, `emails`, `import-csv`.
+- Strapi plugins: `availabilities`, `conversations` (socket.io), `prices`, `emails`, `rental-agreements` (pdf generation).
 - OpenAPI JSON (generated): `packages/strapi/src/extensions/documentation/documentation/<version>/full_documentation.json`.
 
 ### Environment

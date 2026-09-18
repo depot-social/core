@@ -28,10 +28,6 @@ export default ({ env }) => ({
         enabled: env('STRAPI_PLUGIN_RENTAL_AGREEMENT', true),
         resolve: './src/plugins/rental-agreement'
     },
-    'import-csv': {
-        enabled: false, // env('STRAPI_PLUGIN_IMPORT_CSV', false),
-        resolve: './src/plugins/import-csv'
-    },
     seo: {
         enabled: true
     },
