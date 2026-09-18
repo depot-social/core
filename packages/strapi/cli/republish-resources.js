@@ -34,7 +34,7 @@ async function main() {
     const resources = await app.documents(UID).findMany({
       status: 'published',
       populate: ['address'],
-      fields: ['documentId', 'title', 'slug']
+      fields: ['documentId', 'title', 'slug'],
     });
 
     for (const resource of resources) {
@@ -55,7 +55,7 @@ async function main() {
         }
 
         console.log(
-          `${DRY_RUN ? '[dry-run] ' : ''}Republish ${documentId} (${label})`,
+          `${DRY_RUN ? '[dry-run] ' : ''}Republish ${documentId} (${label})`
         );
 
         if (!DRY_RUN) {
@@ -77,7 +77,7 @@ async function main() {
     }
 
     console.log(
-      `Done. processed=${processed} skipped=${skipped} failed=${failed}`,
+      `Done. processed=${processed} skipped=${skipped} failed=${failed}`
     );
   } finally {
     await app.destroy();

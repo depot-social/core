@@ -19,5 +19,3 @@ export interface ResourceFormSubmitPayload {
   images: File[];
   geoData?: GeoData | null;
 }
-
-

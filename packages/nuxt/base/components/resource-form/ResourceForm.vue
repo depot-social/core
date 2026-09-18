@@ -5,7 +5,9 @@
     class="flex flex-col gap-6 md:gap-8 w-full items-start"
     @submit="onSubmit"
   >
-    <section class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7">
+    <section
+      class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7"
+    >
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <span class="badge badge-primary badge-sm">01</span>
@@ -51,7 +53,11 @@
               :aria-describedby="'resource-images-help'"
               @change="onFilesChange"
             />
-            <p id="resource-images-help" class="text-sm text-gray-700" aria-live="polite">
+            <p
+              id="resource-images-help"
+              class="text-sm text-gray-700"
+              aria-live="polite"
+            >
               {{ filesLabel }}
             </p>
           </div>
@@ -79,7 +85,9 @@
               class="relative flex gap-2 flex-wrap mt-3 min-h-[110px] items-center justify-start rounded-xl border-2 border-dashed border-black bg-orange-100 p-4 text-center hover:border-orange-800 focus-within:border-orange-800"
               :aria-describedby="error ? categoriesErrorId : categoriesHintId"
             >
-              <legend class="sr-only">{{ $t('resourceForm_categories') }}</legend>
+              <legend class="sr-only">
+                {{ $t('resourceForm_categories') }}
+              </legend>
               <button
                 v-for="category in categories"
                 :key="category.id"
@@ -113,11 +121,15 @@
       </div>
     </section>
 
-    <section class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7">
+    <section
+      class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7"
+    >
       <div class="flex flex-col gap-2">
-      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3">
           <span class="badge badge-primary badge-sm">02</span>
-          <h2 class="text-xl font-semibold text-black">{{ $t('resourceForm_priceTitle') }}</h2>
+          <h2 class="text-xl font-semibold text-black">
+            {{ $t('resourceForm_priceTitle') }}
+          </h2>
         </div>
         <p class="text-gray-700">
           {{ $t('resourceForm_priceDescription') }}
@@ -179,7 +191,9 @@
       </div>
     </section>
 
-    <section class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7">
+    <section
+      class="flex flex-col gap-5 w-full rounded-2xl border-2 border-black bg-white p-5 md:p-7"
+    >
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <span class="badge badge-primary badge-sm">03</span>
@@ -220,7 +234,11 @@
               :label="$t('address_city')"
               name="address.place"
             >
-              <UInput v-model="state.address.place" autocomplete="address-level2" required />
+              <UInput
+                v-model="state.address.place"
+                autocomplete="address-level2"
+                required
+              />
             </UFormField>
           </div>
         </div>
@@ -233,7 +251,10 @@
             class="rounded-xl border-2 border-black min-h-[220px] h-[220px] flex items-center justify-center w-full bg-orange-100 overflow-hidden"
             :aria-busy="geocodePending"
           >
-            <div v-if="geocodePending" class="flex h-full w-full flex-col items-center justify-center gap-2 p-4">
+            <div
+              v-if="geocodePending"
+              class="flex h-full w-full flex-col items-center justify-center gap-2 p-4"
+            >
               <span class="loading loading-spinner loading-md" />
               <p class="text-sm text-gray-700" aria-live="polite">
                 {{ $t('resourceForm_locationLoading') }}
@@ -250,7 +271,11 @@
               class="flex h-full w-full flex-col items-center justify-center text-center text-gray-700 text-sm p-4"
             >
               <p>{{ $t('resourceForm_mapPlaceholder') }}</p>
-              <p v-if="geocodeError" class="text-error mt-2" aria-live="assertive">
+              <p
+                v-if="geocodeError"
+                class="text-error mt-2"
+                aria-live="assertive"
+              >
                 {{ geocodeError }}
               </p>
             </div>
@@ -266,21 +291,23 @@
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-3">
           <span class="badge badge-primary badge-sm">04</span>
-          <h2 class="text-xl font-semibold text-black">{{ $t('resourceForm_miscTitle') }}</h2>
+          <h2 class="text-xl font-semibold text-black">
+            {{ $t('resourceForm_miscTitle') }}
+          </h2>
         </div>
         <p class="text-gray-700">
           {{ $t('resourceForm_miscDescription') }}
         </p>
       </div>
 
-      <UFormField
-        name="agreement"
-        :label="$t('resourceForm_termsLabel')"
-      >
+      <UFormField name="agreement" :label="$t('resourceForm_termsLabel')">
         <template #label>
           <div class="flex items-start gap-2">
             <UCheckbox v-model="state.agreement" required />
-            <span class="text-sm text-black" v-html="$t('resourceForm_termsLabel')" />
+            <span
+              class="text-sm text-black"
+              v-html="$t('resourceForm_termsLabel')"
+            />
           </div>
         </template>
       </UFormField>
@@ -290,7 +317,9 @@
       </p>
     </section>
 
-    <div class="flex flex-col gap-4 w-full rounded-2xl bg-orange-100 p-4 md:p-5">
+    <div
+      class="flex flex-col gap-4 w-full rounded-2xl bg-orange-100 p-4 md:p-5"
+    >
       <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full">
         <UButton
           type="submit"
@@ -315,10 +344,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  PriceTariffType,
-  getPriceByPriceTariff,
-} from '@depot/shared';
+import { PriceTariffType, getPriceByPriceTariff } from '@depot/shared';
 import type { Category, Resource } from '@depot/shared';
 import type { GeoData } from '@depot/shared';
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
@@ -428,20 +454,16 @@ const buildInitialState = (resource?: Resource): ResourceFormState => ({
         resource?.prices ?? [],
         PriceTariffType.NOT_FOR_PROFIT
       )?.durationType ??
-      getPriceByPriceTariff(
-        resource?.prices ?? [],
-        PriceTariffType.REGULAR
-      )?.durationType ??
+      getPriceByPriceTariff(resource?.prices ?? [], PriceTariffType.REGULAR)
+        ?.durationType ??
       'daily',
     vatValue:
       getPriceByPriceTariff(
         resource?.prices ?? [],
         PriceTariffType.NOT_FOR_PROFIT
       )?.vatValue ??
-      getPriceByPriceTariff(
-        resource?.prices ?? [],
-        PriceTariffType.REGULAR
-      )?.vatValue ??
+      getPriceByPriceTariff(resource?.prices ?? [], PriceTariffType.REGULAR)
+        ?.vatValue ??
       0,
     depositValue:
       getPriceByPriceTariff(
@@ -592,9 +614,7 @@ const submitting = ref(false);
 const isSubmitting = computed(() => submitting.value || isLoading.value);
 
 const submitLabel = computed(() =>
-  isEditForm.value
-    ? $t('resourceForm_completeEdit')
-    : $t('resourceForm_submit')
+  isEditForm.value ? $t('resourceForm_completeEdit') : $t('resourceForm_submit')
 );
 
 const onSubmit = async (event: Event) => {
@@ -635,4 +655,3 @@ const onSubmit = async (event: Event) => {
   }
 };
 </script>
-

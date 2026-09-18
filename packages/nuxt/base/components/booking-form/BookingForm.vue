@@ -12,19 +12,11 @@
       </div>
       <div class="max-w-full flex flex-col gap-2">
         <div class="grid grid-cols-2 gap-2">
-          <UFormField
-            :label="$t('firstNameOrOrganization')"
-          >
-            <UInput
-              :model-value="customer.firstName"
-              disabled
-            />
+          <UFormField :label="$t('firstNameOrOrganization')">
+            <UInput :model-value="customer.firstName" disabled />
           </UFormField>
           <UFormField :label="$t('lastName')">
-            <UInput
-              :model-value="customer.lastName"
-              disabled
-            />
+            <UInput :model-value="customer.lastName" disabled />
           </UFormField>
         </div>
         <div class="grid grid-cols-3 gap-2">
@@ -45,11 +37,7 @@
           </UFormField>
         </div>
         <UFormField :label="$t('email')">
-          <UInput
-            :model-value="customer.email"
-            type="email"
-            disabled
-          />
+          <UInput :model-value="customer.email" type="email" disabled />
         </UFormField>
       </div>
     </section>

@@ -7,7 +7,11 @@ export const useActiveLayer = () => {
   const activeLayer = useRuntimeConfig().public.activeLayer as string;
 
   const isLayer = (name: string) =>
-    activeLayer === name.trim().replace(/^\.?\/+/, '').replace(/\/+$/, '');
+    activeLayer ===
+    name
+      .trim()
+      .replace(/^\.?\/+/, '')
+      .replace(/\/+$/, '');
 
   return {
     activeLayer,

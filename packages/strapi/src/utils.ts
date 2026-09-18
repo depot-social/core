@@ -13,7 +13,11 @@ type StrapiRequestContext = {
   };
 };
 
-type AnyContext = Context | StrapiRequestContext | (Context & StrapiRequestContext) | any;
+type AnyContext =
+  | Context
+  | StrapiRequestContext
+  | (Context & StrapiRequestContext)
+  | any;
 
 export const isAdminOrBackofficeRequest = (ctx: AnyContext): boolean => {
   const routeType = ctx?.state?.route?.info?.type;
@@ -29,7 +33,7 @@ export const isAdminOrBackofficeRequest = (ctx: AnyContext): boolean => {
 
 export const readBooleanEnv = (
   value: string | undefined,
-  defaultValue = false,
+  defaultValue = false
 ): boolean => {
   if (value === null || typeof value === 'undefined') return defaultValue;
 

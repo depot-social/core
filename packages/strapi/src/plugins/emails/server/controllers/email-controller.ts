@@ -29,7 +29,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       const missingFields = requiredFields.filter((field) => !data[field]);
       if (missingFields.length > 0) {
         return ctx.badRequest(
-          `Missing required fields: ${missingFields.join(', ')}`,
+          `Missing required fields: ${missingFields.join(', ')}`
         );
       }
 
@@ -143,7 +143,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       const missingFields = requiredFields.filter((field) => !data[field]);
       if (missingFields.length > 0) {
         return ctx.badRequest(
-          `Missing required fields: ${missingFields.join(', ')}`,
+          `Missing required fields: ${missingFields.join(', ')}`
         );
       }
 

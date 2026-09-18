@@ -21,8 +21,8 @@ module.exports = (plugin) => {
       const allowedUpdateFields = plugin.config?.register?.allowedFields ?? [];
       const data = Object.fromEntries(
         Object.entries(ctx.request.body).filter(([key]) =>
-          allowedUpdateFields.includes(key),
-        ),
+          allowedUpdateFields.includes(key)
+        )
       );
       const updatedUser = await strapi
         .documents('plugin::users-permissions.user')

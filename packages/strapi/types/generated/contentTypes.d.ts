@@ -822,7 +822,7 @@ export interface ApiMessageMessage extends Struct.CollectionTypeSchema {
     messageType: Schema.Attribute.DynamicZone<
       [
         'message-types.booking-event-message-type',
-        'message-types.user-message-type',
+        'message-types.user-message-type'
       ]
     > &
       Schema.Attribute.Required &
@@ -988,7 +988,7 @@ export interface ApiResourceResource extends Struct.CollectionTypeSchema {
     resourceTypes: Schema.Attribute.DynamicZone<
       [
         'resource-types.contingent-resource-type',
-        'resource-types.berlin-resource-type',
+        'resource-types.berlin-resource-type'
       ]
     >;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;

@@ -1,4 +1,4 @@
-import type { CalendarDate } from "@depot/shared";
+import type { CalendarDate } from '@depot/shared';
 
 export interface OnChangeDateParams {
   start: Date | null;

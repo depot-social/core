@@ -217,9 +217,7 @@ export const fetchBookingById = async ({
   jwt,
   body,
   parameters,
-}: APIProps<{ id: string }>): Promise<
-  StrapiResponse<Booking | undefined>
-> => {
+}: APIProps<{ id: string }>): Promise<StrapiResponse<Booking | undefined>> => {
   const { id } = body;
 
   const response = await fetch(

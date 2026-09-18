@@ -83,7 +83,9 @@ const onSubmit = async (formPayload: UserProfileFormSubmitPayload) => {
       password: string;
       firstName: string;
       lastName: string;
-      address: { street?: string; zip?: string; place?: string } | Record<string, never>;
+      address:
+        | { street?: string; zip?: string; place?: string }
+        | Record<string, never>;
       salutation?: 'mrs' | 'mr' | 'na';
       phone?: string;
     } = {

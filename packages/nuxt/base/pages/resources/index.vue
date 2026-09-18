@@ -90,9 +90,7 @@ const resourcesSearchPage =
 // useSeo(resourcesSearchPage)
 
 const addressResourcesResponse = await find<Resource>('resources', {
-  populate: [
-    'address',
-  ],
+  populate: ['address'],
   pagination: {
     page: 1,
     pageSize: 1000,
