@@ -12,10 +12,7 @@
       class="opacity-0 group-hover:opacity-100 flex flex-col justify-between transition-all duration-300 absolute inset-0 bg-[rgba(0,0,0,0.35)] p-4 text-white backdrop-blur"
     >
       <span class="line-clamp-2">{{ resource.title }}</span>
-      <a
-        :href="getResourcePath(resource.slug)"
-        class="btn btn-primary"
-      >
+      <a :href="getResourcePath(resource.slug)" class="btn btn-primary">
         {{ $t('viewResource') }}
       </a>
     </div>

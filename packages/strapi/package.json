@@ -15,7 +15,6 @@
     "configuration:restore": "ENV_PATH=./../../.env strapi configuration:restore -f configuration.json",
     "clear-cache": "rm -rf .cache && rm -rf dist",
     "generate-types": "npm run strapi ts:generate-types --verbose",
-    "cli:import-csv": "ENV_PATH=./../../.env node ./cli/import-csv.js",
     "cli:republish-resources": "ENV_PATH=./../../.env node ./cli/republish-resources.js",
     "ci:install": "npx -y pnpm@10.15.0 install --frozen-lockfile",
     "ci:build": "npx -y pnpm@10.15.0 -r --filter @depot/shared --filter @depot/availabilities --filter @depot/conversations --filter @depot/emails --filter @depot/prices --filter @depot/rental-agreement --filter @depot/strapi build"

@@ -75,13 +75,12 @@ export type CreateBookingRequest = UpdateBookingRequest & {
 };
 
 export enum BerlinBookingIntend {
-  LEARNING_TOGETHER = 'Zusammen lernen',
-  COMMUNITY_COOKING = 'Gemeinsames Kochen',
-  MOVE = 'Bewegung',
-  YOUTH_PROJECTS = 'Jugend-Projekte',
-  OPEN_EVENT = 'Offene Veranstaltung',
-  QUIET_MEETING = 'Ruhiges Treffen',
-  MUSIC_AND_SINGING = 'Singen und Musik spielen',
+  MEETING = 'Besprechung',
+  SPORT = 'Sport',
+  COOKING = 'Kochen',
+  WORKSHOP = 'Workshop',
+  MUSIC = 'Musik',
+  EVENT = 'Veranstaltung',
 }
 
 export enum BerlinBookingPersonCount {

@@ -30,12 +30,6 @@ export default ({ env }) => ({
         enabled: env('STRAPI_PLUGIN_RENTAL_AGREEMENT', true),
         resolve: './src/plugins/rental-agreement'
     },
-    'import-csv': {
-        // CSV imports still map price fields. Keep this disabled until price-free
-        // imports have their own follow-up implementation.
-        enabled: false, // env('STRAPI_PLUGIN_IMPORT_CSV', false),
-        resolve: './src/plugins/import-csv'
-    },
     seo: {
         enabled: true
     },

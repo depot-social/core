@@ -33,7 +33,7 @@ describe('bookingHasAvailableUnitsPolicy', () => {
         params: {},
       },
       {},
-      { strapi } as any,
+      { strapi } as any
     );
 
     expect(result).toBe(true);
@@ -43,7 +43,7 @@ describe('bookingHasAvailableUnitsPolicy', () => {
       new Date(body.data.start),
       new Date(body.data.end),
       resourceDocumentId,
-      undefined,
+      undefined
     );
     expect(body.data).toMatchObject({
       customer: 999,

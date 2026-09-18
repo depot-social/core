@@ -12,23 +12,21 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
     }
 
     // Fetch booking with all required relations
-    const booking: Booking = (await strapi
-      .documents('api::booking.booking')
-      .findOne({
-        documentId: id.toString(),
-        populate: {
-          resource: {
-            populate: ['address'],
-          },
-          customer: {
-            populate: ['address', 'organization'],
-          },
-          resourceOwner: {
-            populate: ['address', 'organization'],
-          },
-          price: true,
+    const booking: Booking = (await strapi.documents('api::booking.booking').findOne({
+      documentId: id.toString(),
+      populate: {
+        resource: {
+          populate: ['address'],
         },
-      })) as unknown as Booking;
+        customer: {
+          populate: ['address', 'organization'],
+        },
+        resourceOwner: {
+          populate: ['address', 'organization'],
+        },
+        price: true,
+      },
+    })) as unknown as Booking;
 
     if (!booking) {
       ctx.throw(404, 'Booking not found');
@@ -68,11 +66,7 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
 
     // Set response headers and body
     ctx.type = 'application/pdf';
-    ctx.set(
-      'Content-Disposition',
-      `attachment; filename="Verleihvertrag-${booking.id}.pdf"`
-    );
+    ctx.set('Content-Disposition', `attachment; filename="Verleihvertrag-${booking.id}.pdf"`);
     ctx.body = pdfBuffer;
   },
 });
-

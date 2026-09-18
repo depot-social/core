@@ -14,11 +14,8 @@ This monorepo uses [pnpm workspaces](https://pnpm.io/workspaces). Packages:
 | `@depot/availabilities` | [packages/strapi/src/plugins/availabilities](./packages/strapi/src/plugins/availabilities/README.md) | Strapi plugin: availability logic & API |
 | `@depot/conversations` | [packages/strapi/src/plugins/conversations](./packages/strapi/src/plugins/conversations/README.md) | Strapi plugin: socket.io realtime chat |
 | `@depot/prices` | [packages/strapi/src/plugins/prices](./packages/strapi/src/plugins/prices/README.md) | Strapi plugin: price calculation |
-| `@depot/import-csv` | [packages/strapi/src/plugins/import-csv](./packages/strapi/src/plugins/import-csv/README.md) | Strapi plugin: import resources/bookings/units/users from CSV |
 | `@depot/emails` | [packages/strapi/src/plugins/emails](./packages/strapi/src/plugins/emails/README.md) | Strapi plugin: email sending (e.g. booking confirmations) |
 | `@depot/rental-agreement` | [packages/strapi/src/plugins/rental-agreement](./packages/strapi/src/plugins/rental-agreement/README.md) | Strapi plugin: PDF rental agreement generation |
-
-Planned (WIP): `@depot/notifications`, `@depot/resource-type-units`.
 
 ## Features
 
@@ -83,7 +80,7 @@ pnpm --filter @depot/nuxt add @depot/shared
 
 ## Plugins: enable/disable
 
-All shipped Strapi plugins are enabled by default except `@depot/import-csv`.
+All shipped Strapi plugins are enabled by default.
 Disable any plugin by setting its env to `false` in `.env`, e.g.:
 ```
 STRAPI_PLUGIN_AVAILABILITIES=false

@@ -43,7 +43,7 @@ type PopulatedResource = Pick<
  */
 async function fetchFullResourceTypes(
   resourceTypes: PartialResourceType[],
-  strapi: Core.Strapi,
+  strapi: Core.Strapi
 ): Promise<PartialResourceType[]> {
   if (!resourceTypes || !Array.isArray(resourceTypes)) {
     return [];
@@ -58,7 +58,7 @@ async function fetchFullResourceTypes(
         return { ...rt, ...componentData };
       }
       return rt;
-    }),
+    })
   );
 }
 
@@ -71,7 +71,7 @@ export function buildSearchIndex(data: SearchIndexData): string {
   // Extract Berlin Resource Type data
   const berlinResourceType = data.resourceTypes?.find(
     (rt): rt is PartialResourceType & Partial<BerlinResourceType> =>
-      rt.__component === 'resource-types.berlin-resource-type',
+      rt.__component === 'resource-types.berlin-resource-type'
   );
 
   if (berlinResourceType) {
@@ -89,13 +89,13 @@ export function buildSearchIndex(data: SearchIndexData): string {
 
     if (berlinResourceType.facilitiesAdditionalInfo) {
       indexParts.push(
-        `**Additional Facilities:** ${berlinResourceType.facilitiesAdditionalInfo}`,
+        `**Additional Facilities:** ${berlinResourceType.facilitiesAdditionalInfo}`
       );
     }
 
     if (berlinResourceType.accessibilityInfo) {
       indexParts.push(
-        `**Accessibility Info:** ${berlinResourceType.accessibilityInfo}`,
+        `**Accessibility Info:** ${berlinResourceType.accessibilityInfo}`
       );
     }
   }
@@ -111,7 +111,7 @@ export function buildSearchIndex(data: SearchIndexData): string {
   }
 
   return `\n\n${SEARCH_INDEX_START}\n### Search Index\n${indexParts.join(
-    '  \n',
+    '  \n'
   )}\n${SEARCH_INDEX_END}`;
 }
 
@@ -119,7 +119,7 @@ export function buildSearchIndex(data: SearchIndexData): string {
  * Removes existing search index from description
  */
 export function removeExistingSearchIndex(
-  description: string | null | undefined,
+  description: string | null | undefined
 ): string {
   if (!description) {
     return '';
@@ -162,13 +162,13 @@ export function updateDescriptionWithSearchIndex(data: SearchIndexData): void {
  */
 export async function handleSearchIndexOnCreate(
   data: SearchIndexData,
-  strapi: Core.Strapi,
+  strapi: Core.Strapi
 ): Promise<void> {
   // Fetch full resourceTypes component data
   if (data.resourceTypes) {
     data.resourceTypes = await fetchFullResourceTypes(
       data.resourceTypes,
-      strapi,
+      strapi
     );
   }
 
@@ -193,7 +193,7 @@ export async function handleSearchIndexOnCreate(
 export async function handleSearchIndexOnUpdate(
   data: SearchIndexData,
   where: UpdateWhereClause,
-  strapi: Core.Strapi,
+  strapi: Core.Strapi
 ): Promise<void> {
   if (!where?.id) {
     // Fallback if no where clause
@@ -208,7 +208,7 @@ export async function handleSearchIndexOnUpdate(
     where.id,
     {
       populate: ['resourceTypes', 'address'],
-    },
+    }
   )) as unknown as PopulatedResource | null;
 
   if (!existingResource) {
@@ -222,22 +222,22 @@ export async function handleSearchIndexOnUpdate(
   if (data.resourceTypes && Array.isArray(data.resourceTypes)) {
     resourceTypesToUse = await fetchFullResourceTypes(
       data.resourceTypes,
-      strapi,
+      strapi
     );
   } else if (resourceTypesToUse) {
     // Otherwise, fetch full data for existing resourceTypes
     resourceTypesToUse = await fetchFullResourceTypes(
       resourceTypesToUse,
-      strapi,
+      strapi
     );
   }
 
   // Fetch address if being updated
   const addressToUse: Partial<Address> | undefined = data.address?.id
-    ? (((await strapi.db
+    ? ((await strapi.db
         .query('custom.address')
         .findOne({ where: { id: data.address.id } })) as Address | null) ??
-      undefined)
+      undefined
     : existingResource.address;
 
   // Build merged data for search index

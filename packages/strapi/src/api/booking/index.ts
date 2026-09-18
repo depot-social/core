@@ -275,7 +275,7 @@ export default {
 
       const ctx = strapi.requestContext.get();
       if (false && isAdminOrBackofficeRequest(ctx)) {
-        // e.g. when called from import-csv or Strapi UI
+        // e.g. when called from Strapi UI
         return;
       }
 
@@ -391,7 +391,7 @@ export default {
       const ctx = strapi.requestContext.get();
 
       if (!ctx) {
-        // e.g. when called from import-csv
+        // e.g. when called from Strapi UI
         return;
       }
 

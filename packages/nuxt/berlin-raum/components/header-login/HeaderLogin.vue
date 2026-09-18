@@ -93,7 +93,7 @@ const items = computed<DropdownMenuItem[][]>(() => [
       label: 'Einstellungen',
       icon: 'i-lucide-cog',
       onSelect() {
-        navigateTo('user/settings');
+        navigateTo('/user/settings');
       },
     },
   ],

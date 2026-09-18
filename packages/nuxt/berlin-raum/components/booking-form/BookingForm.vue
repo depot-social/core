@@ -260,7 +260,7 @@ const state = reactive<BerlinBookingForm>({
   associationRegistrationNumber:
     props.formData.associationRegistrationNumber || '',
   projectWebsite: props.formData.projectWebsite || '',
-  intend: props.formData.intend || BerlinBookingIntend.OPEN_EVENT,
+  intend: props.formData.intend || BerlinBookingIntend.MEETING,
   personCount:
     props.formData.personCount || BerlinBookingPersonCount.ONE_TO_TEN,
   start: props.formData.start || '',
@@ -276,32 +276,28 @@ const submitting = ref(false);
 // Select options
 const intendOptions = [
   {
-    label: BerlinBookingIntend.OPEN_EVENT,
-    value: BerlinBookingIntend.OPEN_EVENT,
+    label: BerlinBookingIntend.MEETING,
+    value: BerlinBookingIntend.MEETING,
   },
   {
-    label: BerlinBookingIntend.COMMUNITY_COOKING,
-    value: BerlinBookingIntend.COMMUNITY_COOKING,
+    label: BerlinBookingIntend.SPORT,
+    value: BerlinBookingIntend.SPORT,
   },
   {
-    label: BerlinBookingIntend.YOUTH_PROJECTS,
-    value: BerlinBookingIntend.YOUTH_PROJECTS,
+    label: BerlinBookingIntend.COOKING,
+    value: BerlinBookingIntend.COOKING,
   },
   {
-    label: BerlinBookingIntend.QUIET_MEETING,
-    value: BerlinBookingIntend.QUIET_MEETING,
+    label: BerlinBookingIntend.WORKSHOP,
+    value: BerlinBookingIntend.WORKSHOP,
   },
   {
-    label: BerlinBookingIntend.MOVE,
-    value: BerlinBookingIntend.MOVE,
+    label: BerlinBookingIntend.MUSIC,
+    value: BerlinBookingIntend.MUSIC,
   },
   {
-    label: BerlinBookingIntend.MUSIC_AND_SINGING,
-    value: BerlinBookingIntend.MUSIC_AND_SINGING,
-  },
-  {
-    label: BerlinBookingIntend.LEARNING_TOGETHER,
-    value: BerlinBookingIntend.LEARNING_TOGETHER,
+    label: BerlinBookingIntend.EVENT,
+    value: BerlinBookingIntend.EVENT,
   },
 ];
 
