@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import { test, assert } from 'vitest';
+import { PriceTariffType } from '@depot/shared';
 import {
   getBookingRequestPriceTemplateData,
   newLineToHtmlParagraph,
@@ -71,7 +72,7 @@ test('omits booking-request price template data when prices are disabled', () =>
         currency: 'euro',
         duration: 1,
         durationType: 'daily',
-        tariffType: 'regular',
+        tariffType: PriceTariffType.REGULAR,
         resourceValue: 15,
         depositValue: 3,
         vatValue: 2,
@@ -92,7 +93,7 @@ test('keeps booking-request price template data when prices are enabled', () => 
         currency: 'euro',
         duration: 1,
         durationType: 'daily',
-        tariffType: 'regular',
+        tariffType: PriceTariffType.REGULAR,
         resourceValue: 15,
         depositValue: 3,
         vatValue: 2,
