@@ -19,8 +19,7 @@
       "required": true
     },
     "end": {
-      "type": "datetime",
-      "required": true
+      "type": "datetime"
     },
     "availableUnits": {
       "type": "integer"

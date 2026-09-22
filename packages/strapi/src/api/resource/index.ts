@@ -21,9 +21,23 @@ type LifecycleEvent = {
   result?: any;
 };
 
+const DEFAULT_AVAILABLE_UNITS = 1;
+
+type ResourceRequestContext = {
+  state?: {
+    resourceDefaultAvailableUnits?: number;
+  };
+};
+
+const getSubmittedAvailableUnits = (
+  ctx: ResourceRequestContext | undefined,
+): number | undefined => {
+  return ctx?.state?.resourceDefaultAvailableUnits;
+};
+
 const updateAddressGeocode = async (
   strapi: Core.Strapi,
-  address: Address
+  address: Address,
 ): Promise<void> => {
   const geocodedAddress = await geocodeAddress(address);
 
@@ -36,7 +50,7 @@ const updateAddressGeocode = async (
   if (geocodedAddress.latitude && geocodedAddress.longitude) {
     obfuscatedAddress = obfuscateGeodata(
       geocodedAddress.latitude,
-      geocodedAddress.longitude
+      geocodedAddress.longitude,
     );
   }
 
@@ -52,6 +66,39 @@ const updateAddressGeocode = async (
 
 export default {
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
+    const findDefaultAvailability = async (resourceDocumentId: string) =>
+      strapi.db.query('api::availability.availability').findOne({
+        where: {
+          resource: { documentId: resourceDocumentId },
+          end: { $null: true },
+        },
+      });
+
+    const ensureDefaultAvailability = async (
+      resource: Resource,
+      availableUnits = DEFAULT_AVAILABLE_UNITS,
+    ) => {
+      const existingDefaultAvailability = await findDefaultAvailability(
+        resource.documentId,
+      );
+
+      if (existingDefaultAvailability) {
+        return;
+      }
+
+      await strapi.documents('api::availability.availability').create({
+        data: {
+          title: 'default',
+          start: new Date().toISOString(),
+          end: null,
+          availableUnits,
+          resource: {
+            documentId: resource.documentId,
+          },
+        },
+      });
+    };
+
     /**
      * After updating a resource:
      * - Resolve & save geocoded address (if any)
@@ -113,9 +160,20 @@ export default {
           ctx.throw(401, 'Authentication required.');
         }
 
-        // This runs after Content API input validation, so the caller does not
-        // need permission to query users in order to own the new resource.
-        event.params.data.user = { documentId: authUser.documentId };
+        // Auto-assign logged-in user to created resource
+        // important: we need user.id here, NOT documentId
+        const user = await strapi.db
+          .query('plugin::users-permissions.user')
+          .findOne({
+            where: { documentId: authUser.documentId },
+            select: ['id'],
+          });
+
+        if (!user) {
+          ctx.throw(401, 'Authentication required.');
+        }
+
+        event.params.data.user = { id: user.id };
 
         // Ensure resource has slug
         event.params.data.slug = await strapi
@@ -162,6 +220,36 @@ export default {
     const beforeUpdateResource = async (event: LifecycleEvent) => {
       const { params } = event;
       const { data, where } = params;
+      const resourceId = where?.id;
+
+      if (resourceId) {
+        const resource = (await strapi.db
+          .query('api::resource.resource')
+          .findOne({ where: { id: resourceId } })) as Resource | null;
+
+        if (resource) {
+          const defaultAvailability = await findDefaultAvailability(
+            resource.documentId,
+          );
+          const submittedAvailableUnits = getSubmittedAvailableUnits(
+            strapi.requestContext.get() as ResourceRequestContext | undefined,
+          );
+
+          if (defaultAvailability) {
+            if (submittedAvailableUnits !== undefined) {
+              await strapi.db.query('api::availability.availability').update({
+                where: { id: defaultAvailability.id },
+                data: { availableUnits: submittedAvailableUnits },
+              });
+            }
+          } else {
+            await ensureDefaultAvailability(
+              resource,
+              submittedAvailableUnits ?? DEFAULT_AVAILABLE_UNITS,
+            );
+          }
+        }
+      }
 
       if (
         typeof process.env.STRAPI_CONCAT_SEARCH !== 'undefined' &&
@@ -187,12 +275,14 @@ export default {
 
       const ctx = strapi.requestContext.get();
 
-      if (!ctx) {
-        // e.g. when called from Strapi UI
-        return;
-      }
+      await ensureDefaultAvailability(
+        resource,
+        getSubmittedAvailableUnits(ctx as ResourceRequestContext | undefined) ??
+          DEFAULT_AVAILABLE_UNITS,
+      );
 
-      if (isAdminOrBackofficeRequest(ctx)) {
+      if (!ctx || isAdminOrBackofficeRequest(ctx)) {
+        // e.g. when called from Strapi UI
         return;
       }
 
@@ -208,9 +298,8 @@ export default {
         return;
       }
 
-      const emailsService: EmailsService = await emailsPlugin.service(
-        'emailsService'
-      );
+      const emailsService: EmailsService =
+        await emailsPlugin.service('emailsService');
 
       await emailsService.sendResourceAwaitsActivationMail(resource.documentId);
     };

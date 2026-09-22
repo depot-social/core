@@ -170,13 +170,19 @@ const toDate = (value: string | Date) =>
 
 const mapAvailabilityToEvent = (
   availability: Availability
-): DashboardEvent => ({
-  id: `availability-${availability.id}`,
-  type: 'availability',
-  title: availability.title,
-  start: toDate(availability.start),
-  end: toDate(availability.end),
-});
+): DashboardEvent | null => {
+  if (availability.end === null) {
+    return null;
+  }
+
+  return {
+    id: `availability-${availability.id}`,
+    type: 'availability',
+    title: availability.title,
+    start: toDate(availability.start),
+    end: toDate(availability.end),
+  };
+};
 
 const mapBookingToEvent = (
   booking: Booking,
@@ -192,7 +198,9 @@ const mapBookingToEvent = (
 
 const normalizedEvents = computed<DashboardEvent[]>(() => {
   const availabilities = props.displayAvailabilities
-    ? props.dashboard.availabilities.map(mapAvailabilityToEvent)
+    ? props.dashboard.availabilities
+        .map(mapAvailabilityToEvent)
+        .filter((event): event is DashboardEvent => event !== null)
     : [];
   const bookingsResourceOwner = props.dashboard.bookingsResourceOwner.map(
     (booking) => mapBookingToEvent(booking, 'owner')

@@ -128,10 +128,10 @@ export const getPlainRentPrice = (price: Price | null): number => {
 };
 
 export const getResourceType = (
-  resourceTypes: ResourceType[],
+  resourceTypes: ResourceType[] | null | undefined,
   componentId: ResourceTypeComponent
 ): ResourceType | undefined =>
-  resourceTypes.find(
+  resourceTypes?.find(
     (resourceType) => resourceType.__component === componentId
   );
 

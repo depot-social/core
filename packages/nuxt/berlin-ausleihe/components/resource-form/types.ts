@@ -12,6 +12,7 @@ export interface ResourceFormPricePayload {
 export interface ResourceFormSubmitPayload {
   title: string;
   description: string;
+  availableUnits: number;
   districtId: number;
   price?: ResourceFormPricePayload;
   categoryIds: number[];

@@ -133,7 +133,7 @@ export interface Availability {
   documentId: DocumentId;
   title: string;
   start: string | Date;
-  end: string | Date;
+  end: string | Date | null;
   availableUnits: number;
   resource?: Resource;
 }

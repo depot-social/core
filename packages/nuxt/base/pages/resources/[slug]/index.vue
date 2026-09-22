@@ -56,12 +56,9 @@
           </li>
         </ul>
         <div class="stats py-2 mt-auto bg-transparent">
-          <div
-            v-if="contingentResourceType?.availableUnits"
-            class="stat flex flex-col"
-          >
+          <div v-if="defaultAvailability" class="stat flex flex-col">
             <div class="stat-value text-2lg">
-              {{ contingentResourceType?.availableUnits }} {{ $t('pieces') }}
+              {{ defaultAvailability.availableUnits }} {{ $t('pieces') }}
             </div>
             <div class="stat-title">{{ $t('resource_availableUnits') }}</div>
           </div>
@@ -243,7 +240,6 @@
 import type {
   AvailabilitiesGetCalendarResponseData,
   BerlinResourceType,
-  ContingentResourceType,
   Resource,
 } from '@depot/shared';
 import {
@@ -287,6 +283,7 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
     populate: [
       'images',
       'resourceTypes',
+      'availabilities',
       'address',
       'prices',
       'categories',
@@ -320,10 +317,9 @@ const berlinResourceType = getResourceType(
   ResourceTypeComponent.BERLIN_RESOURCE_TYPE
 ) as BerlinResourceType | undefined;
 
-const contingentResourceType = getResourceType(
-  resourceTypes ?? [],
-  ResourceTypeComponent.CONTINGENT_RESOURCE_TYPE
-) as ContingentResourceType | undefined;
+const defaultAvailability = resource.availabilities?.find(
+  (availability) => availability.end === null
+);
 
 const markdownDescription = computed(() =>
   description ? marked(description) : ''

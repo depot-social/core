@@ -7,16 +7,8 @@ import type {
   AvailabilitiesGetCalendarResponseData,
   AvailabilitiesGetMaxAvailableResponseData,
   AvailabilitiesGetDashboardResponseData,
-  ContingentResourceType,
 } from '@depot/shared';
-import { getResourceType, ResourceTypeComponent } from '@depot/shared';
-import {
-  isBefore,
-  isAfter,
-  eachDayOfInterval,
-  endOfDay,
-  startOfDay,
-} from 'date-fns';
+import { eachDayOfInterval, endOfDay, startOfDay } from 'date-fns';
 import flatMap from 'lodash/flatMap';
 import { ParameterizedContext } from 'koa';
 
@@ -54,17 +46,33 @@ export interface AvailabilitiesService {
   getDashboardByUserId(userId: number): Promise<any>; // Promise<AvailabilitiesGetDashboardResponseData>;
 }
 
-const getSmallestMaxAvailableUnit = (
-  availabilitiesCoveringTimespan: Availability[],
-  maxAvailableUnits: number
-): number =>
-  availabilitiesCoveringTimespan.reduce(
-    (maxAvailableUnitsInTimespan: number, availability) =>
-      availability.availableUnits > maxAvailableUnitsInTimespan
-        ? availability.availableUnits
-        : maxAvailableUnitsInTimespan,
-    maxAvailableUnits
-  );
+const isAtOrBefore = (left: Date, right: Date): boolean =>
+  left.getTime() <= right.getTime();
+
+const overlapsTimespan = (
+  availability: Availability,
+  start: Date,
+  end: Date
+): boolean => {
+  const availabilityStart = new Date(availability.start);
+
+  if (!isAtOrBefore(availabilityStart, end)) {
+    return false;
+  }
+
+  if (availability.end === null) {
+    return true;
+  }
+
+  return isAtOrBefore(start, new Date(availability.end));
+};
+
+const isDefaultAvailabilityCoveringStart = (
+  availability: Availability,
+  start: Date
+): boolean =>
+  availability.end === null &&
+  isAtOrBefore(new Date(availability.start), start);
 
 export default ({
   strapi,
@@ -120,6 +128,17 @@ export default ({
           },
           {
             end: { $lte: end },
+          },
+        ],
+      },
+      {
+        // 5. A permanent default starts before the requested period ends.
+        $and: [
+          {
+            start: { $lte: end },
+          },
+          {
+            end: { $null: true },
           },
         ],
       },
@@ -237,51 +256,19 @@ export default ({
     } as AvailabilitiesGetCalendarResponseData;
   },
 
-  /**
-   * @todo In some occasions, the max available may not be as desired; e.g. when availability
-   * ends at that day.
-   */
   calcMaxAvailableWithinTimespan(
     start,
     end,
     availabilities,
     defaultAvailableUnits = 0
   ) {
-    // Filter availabilities covering (at least) the whole timespan to set new max value (if higher than currently)
-    const availabilitiesCoveringTimespan = availabilities.filter(
-      (availability) => {
-        // What for did we need this?
-        // if (availability.availableUnits < defaultAvailableUnits) {
-        //   return false
-        // }
-
-        const avStartDate = new Date(availability.start);
-        const avEndDate = new Date(availability.end);
-
-        return isBefore(avStartDate, start) && isAfter(avEndDate, end);
+    return availabilities.reduce((lowestAvailableUnits, availability) => {
+      if (!overlapsTimespan(availability, start, end)) {
+        return lowestAvailableUnits;
       }
-    );
 
-    // Use remaining availabilities to find the lowest available units
-    const availabilitiesWithinTimespan = availabilities.filter(
-      (availability) => !availabilitiesCoveringTimespan.includes(availability)
-    );
-
-    // Find lowest of the highest available units covering whole timespan
-    let maxAvailableUnits = getSmallestMaxAvailableUnit(
-      availabilitiesCoveringTimespan,
-      availabilitiesCoveringTimespan[0]
-        ? availabilitiesCoveringTimespan[0].availableUnits
-        : defaultAvailableUnits
-    );
-
-    // Find lowest of the remaining availabilities
-    maxAvailableUnits = getSmallestMaxAvailableUnit(
-      availabilitiesWithinTimespan,
-      maxAvailableUnits
-    );
-
-    return maxAvailableUnits;
+      return Math.min(lowestAvailableUnits, availability.availableUnits);
+    }, defaultAvailableUnits);
   },
 
   async getMaxAvailable(
@@ -302,37 +289,23 @@ export default ({
       return;
     }
 
-    const { availabilities, resourceTypes } = resource;
+    const availabilities = resource.availabilities ?? [];
+    const defaultAvailability = availabilities.find((availability) =>
+      isDefaultAvailabilityCoveringStart(availability, start)
+    );
 
-    const contingentResourceType = getResourceType(
-      resourceTypes,
-      ResourceTypeComponent.CONTINGENT_RESOURCE_TYPE
-    ) as ContingentResourceType;
-
-    if (!contingentResourceType) {
-      ctx.throw(404, 'Contingent resource type not found');
-      return;
+    if (!defaultAvailability) {
+      return 0;
     }
 
-    const defaultAvailableUnits = contingentResourceType
-      ? contingentResourceType.availableUnits
-      : 0;
-    const minBookableUnits = contingentResourceType
-      ? contingentResourceType.minBookableUnits
-      : 0;
-
-    let maxAvailableUnits = defaultAvailableUnits;
-
-    if (availabilities) {
-      maxAvailableUnits = (
-        this as AvailabilitiesService
-      ).calcMaxAvailableWithinTimespan(
-        start,
-        end,
-        availabilities,
-        defaultAvailableUnits
-      );
-    }
+    let maxAvailableUnits = (
+      this as AvailabilitiesService
+    ).calcMaxAvailableWithinTimespan(
+      start,
+      end,
+      availabilities,
+      defaultAvailability.availableUnits
+    );
 
     if (maxAvailableUnits === 0) {
       return 0;
@@ -369,13 +342,6 @@ export default ({
             start.toISOString(),
             end.toISOString()
           ),
-        },
-        resourceTypes: {
-          on: {
-            'resource-types.contingent-resource-type': {
-              fields: ['availableUnits', 'minBookableUnits'],
-            },
-          },
         },
       },
     })) as unknown as Resource;

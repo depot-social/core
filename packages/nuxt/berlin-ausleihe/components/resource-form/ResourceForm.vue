@@ -42,6 +42,22 @@
         </UFormField>
 
         <UFormField
+          :label="$t('resourceForm_availableUnits')"
+          name="availableUnits"
+          required
+        >
+          <UInput
+            v-model.number="state.availableUnits"
+            type="number"
+            min="1"
+            max="100"
+            step="1"
+            inputmode="numeric"
+            required
+          />
+        </UFormField>
+
+        <UFormField
           :label="$t('berlin_resource_form_categories')"
           name="categories"
           required
@@ -361,6 +377,12 @@ const schema = v.object({
     v.minLength(5, $t('resourceForm_titleMinLength'))
   ),
   description: v.string(),
+  availableUnits: v.pipe(
+    v.number(),
+    v.integer($t('resourceForm_availableUnitsInteger')),
+    v.minValue(1, $t('resourceForm_availableUnitsRange')),
+    v.maxValue(100, $t('resourceForm_availableUnitsRange'))
+  ),
   images: v.array(v.any()),
   district: v.pipe(
     v.nullable(v.number()),
@@ -480,6 +502,9 @@ const buildInitialState = (resource?: Resource): ResourceFormState => ({
   },
   title: resource?.title ?? '',
   description: resource?.description ?? '',
+  availableUnits:
+    resource?.availabilities?.find((availability) => availability.end === null)
+      ?.availableUnits ?? 1,
   images: [],
   district: resource?.district?.id ?? null,
   categories: resource?.categories?.map((category) => category.id) ?? [],
@@ -613,6 +638,7 @@ const onSubmit = async (event: Event) => {
     const payload: ResourceFormSubmitPayload = {
       title: state.title,
       description: state.description,
+      availableUnits: state.availableUnits,
       districtId: state.district as number,
       ...(pricesEnabled.value
         ? {

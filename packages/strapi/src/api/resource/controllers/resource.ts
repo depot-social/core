@@ -1,4 +1,5 @@
 import { factories } from '@strapi/strapi';
+import { errors } from '@strapi/utils';
 import { isAdminOrBackofficeRequest } from '../../../utils';
 import type { ResourceLocationRedactionService } from '../services/resourceLocationRedaction';
 
@@ -12,6 +13,7 @@ type AuthUser = {
 type ResourceControllerContext = {
   state?: {
     user?: AuthUser | null;
+    resourceDefaultAvailableUnits?: number;
   };
 };
 
@@ -41,6 +43,48 @@ const isNonEmptyString = (value: unknown): value is string =>
 
 const getResourceRequestData = (ctx: ResourceControllerContext) =>
   (ctx as ResourceRequest).request?.body?.data;
+
+const prepareResourceAvailabilityInput = (
+  ctx: ResourceControllerContext,
+  options: { stripSubmittedUser: boolean }
+) => {
+  const resourceData = getResourceRequestData(ctx);
+
+  if (
+    !resourceData ||
+    typeof resourceData !== 'object' ||
+    Array.isArray(resourceData)
+  ) {
+    return;
+  }
+
+  const availableUnits = resourceData.availableUnits;
+
+  if (availableUnits !== undefined) {
+    if (
+      typeof availableUnits !== 'number' ||
+      !Number.isInteger(availableUnits) ||
+      availableUnits < 1 ||
+      availableUnits > 100
+    ) {
+      throw new errors.ValidationError(
+        'availableUnits must be an integer between 1 and 100.'
+      );
+    }
+
+    ctx.state ??= {};
+    ctx.state.resourceDefaultAvailableUnits = availableUnits;
+    delete resourceData.availableUnits;
+  }
+
+  // Resource requests may set the default capacity, but relations are owned by
+  // the availability lifecycle and must never be changed through this endpoint.
+  delete resourceData.availabilities;
+
+  if (options.stripSubmittedUser) {
+    delete resourceData.user;
+  }
+};
 
 export default factories.createCoreController(
   'api::resource.resource',
@@ -137,16 +181,14 @@ export default factories.createCoreController(
           : resourceLocationRedaction.redactResourceLocation(response);
       },
 
-      async update(ctx: ResourceControllerContext) {
-        const resourceData = getResourceRequestData(ctx);
+      async create(ctx: ResourceControllerContext) {
+        prepareResourceAvailabilityInput(ctx, { stripSubmittedUser: false });
 
-        if (
-          resourceData &&
-          typeof resourceData === 'object' &&
-          !Array.isArray(resourceData)
-        ) {
-          delete resourceData.user;
-        }
+        return await super.create(ctx);
+      },
+
+      async update(ctx: ResourceControllerContext) {
+        prepareResourceAvailabilityInput(ctx, { stripSubmittedUser: true });
 
         return await super.update(ctx);
       },

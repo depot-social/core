@@ -195,7 +195,7 @@ const emit = defineEmits<{
 
 const config = useRuntimeConfig();
 
-const arbitraryDateAsDate = (date: Date | string | undefined): Date =>
+const arbitraryDateAsDate = (date: Date | string | null | undefined): Date =>
   date ? (typeof date === 'string' ? new Date(date) : date) : new Date();
 
 const formData = reactive({

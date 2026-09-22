@@ -263,7 +263,9 @@ const fetchCalendarData = () => {
 
   // Create availabilities events
   calendar.value.createEvents(
-    availabilities.map(mapAvailabilityToCalendarEvent)
+    availabilities
+      .filter((availability) => availability.end !== null)
+      .map(mapAvailabilityToCalendarEvent)
   );
 
   // Create bookings on own resources

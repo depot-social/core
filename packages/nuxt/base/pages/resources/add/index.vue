@@ -89,6 +89,7 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
     const requestBody: Record<string, unknown> = {
       title: payload.title,
       description: payload.description,
+      availableUnits: payload.availableUnits,
       categories: payload.categoryIds.map((id) => ({ id })),
       address: {
         street: payload.address.street,

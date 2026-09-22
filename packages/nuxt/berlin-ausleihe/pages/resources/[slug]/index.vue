@@ -76,12 +76,9 @@
                 </li>
               </ul>
               <div class="stats py-2 mt-auto bg-transparent">
-                <div
-                  v-if="contingentResourceType?.availableUnits"
-                  class="stat flex flex-col"
-                >
+                <div v-if="defaultAvailability" class="stat flex flex-col">
                   <div class="stat-value text-2lg">
-                    {{ contingentResourceType?.availableUnits }}
+                    {{ defaultAvailability.availableUnits }}
                     {{ $t('pieces') }}
                   </div>
                   <div class="stat-title">
@@ -324,14 +321,11 @@
 <script setup lang="ts">
 import type {
   AvailabilitiesGetCalendarResponseData,
-  ContingentResourceType,
   Resource,
 } from '@depot/shared';
 import {
-  getResourceType,
   getUsernameAbbreviationFromUser,
   getUsernameFromUser,
-  ResourceTypeComponent,
 } from '@depot/shared';
 import { format } from 'date-fns';
 import { marked } from 'marked';
@@ -371,7 +365,7 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
     },
     populate: [
       'images',
-      'resourceTypes',
+      'availabilities',
       'district',
       'address',
       'prices',
@@ -393,20 +387,11 @@ if (
 }
 
 const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
-const {
-  documentId,
-  title,
-  description,
-  images,
-  resourceTypes,
-  categories,
-  user,
-} = resource;
+const { documentId, title, description, images, categories, user } = resource;
 
-const contingentResourceType = getResourceType(
-  resourceTypes ?? [],
-  ResourceTypeComponent.CONTINGENT_RESOURCE_TYPE
-) as ContingentResourceType | undefined;
+const defaultAvailability = resource.availabilities?.find(
+  (availability) => availability.end === null
+);
 
 const markdownDescription = computed(() =>
   description ? marked(description) : ''
