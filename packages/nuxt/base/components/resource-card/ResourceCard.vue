@@ -83,6 +83,7 @@ const pricesEnabled = usePricesEnabled();
 const isOrganization = computed(() => {
   return (
     typeof props.resource.user !== 'undefined' &&
+    props.resource.user !== null &&
     typeof props.resource.user.organization !== 'undefined'
   );
 });
