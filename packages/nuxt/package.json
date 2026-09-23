@@ -7,7 +7,7 @@
     "dev": "nuxt dev --dotenv ../../.env",
     "generate": "nuxt generate --dotenv ../../.env",
     "preview": "nuxt preview --dotenv ../../.env",
-    "postinstall": "nuxt prepare"
+    "postinstall": "pnpm --filter @depot/shared build && nuxt prepare"
   },
   "dependencies": {
     "@nuxt/eslint": "1.9.0",
