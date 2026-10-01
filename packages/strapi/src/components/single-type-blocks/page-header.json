@@ -1,0 +1,32 @@
+{
+  "collectionName": "components_single_type_blocks_page_headers",
+  "info": {
+    "displayName": "PageHeader",
+    "icon": "picture",
+    "description": "Editable page header: headline, rich text subline, illustration and background color"
+  },
+  "options": {},
+  "attributes": {
+    "headline": {
+      "type": "text",
+      "required": true
+    },
+    "subline": {
+      "type": "richtext"
+    },
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
+    "imageLinkUrl": {
+      "type": "string"
+    },
+    "backgroundColor": {
+      "type": "string",
+      "regex": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+    }
+  }
+}

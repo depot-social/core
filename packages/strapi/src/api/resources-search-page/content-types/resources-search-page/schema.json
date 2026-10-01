@@ -12,6 +12,11 @@
   },
   "pluginOptions": {},
   "attributes": {
+    "header": {
+      "type": "component",
+      "component": "single-type-blocks.page-header",
+      "repeatable": false
+    },
     "faqSectionHeadline": {
       "type": "string"
     },

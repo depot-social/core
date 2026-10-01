@@ -20,7 +20,7 @@
     <div class="flex items-center gap-5 ml-auto">
       <NuxtLink
         to="https://engagiertes.berlin"
-        class="text-[16px] font-light no-underline"
+        class="hidden md:block text-[16px] font-light no-underline"
         target="_blank"
         external
       >

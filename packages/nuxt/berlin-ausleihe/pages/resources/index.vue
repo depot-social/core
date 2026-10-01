@@ -1,57 +1,47 @@
 <template>
   <div>
-    <section
-      class="relative z-10 flex px-6 py-6 md:py-8 bg-[#FFB76B] min-h-[500px] sm:min-h-[360px] md:min-h-[460px]"
+    <BerlinPageHeader
+      :header="pageHeader"
+      :fallback-headline="'Erstmal hier\nschauen!'"
+      fallback-background-class="bg-[#FFB76B]"
+      class="min-h-[500px] sm:min-h-[360px] md:min-h-[460px]"
     >
-      <div class="flex flex-col w-full">
-        <!-- TITLE H1 -->
-        <h1
-          class="font-bold! leading-none! tracking-tight text-[42px]! md:text-[96px]!"
-        >
-          Erstmal hier <br />
-          schauen!
-        </h1>
-
-        <!-- Filter Dropdowns and Search -->
-        <div
-          class="sm:relative sm:z-10 mt-auto text-xl grid sm:grid-cols-[repeat(2,minmax(260px,1fr))] max-w-[540px] gap-4"
-        >
-          <BerlinResourcesSearchInput
-            class="order-last sm:order-none box-content sm:col-span-2"
-            :query="state.searchQuery"
-            @change-query="onChangeQuery"
-          />
-          <BerlinResourcesSearchFilterDropdown
-            v-model="categoryValue"
-            :items="categoryOptions"
-            :multiple="false"
-            class="bg-[#ffffff]"
-            bg-color="#ffffff"
-            placeholder="Kategorie"
-          />
-          <BerlinResourcesSearchFilterDropdown
-            v-model="districtsValue"
-            :items="districtsOptions"
-            :multiple="true"
-            class="bg-[#ffffff]"
-            bg-color="#ffffff"
-            placeholder="Bezirk"
-          />
-        </div>
+      <!-- Filter Dropdowns and Search -->
+      <div
+        class="sm:relative sm:z-10 mt-auto text-xl grid sm:grid-cols-[repeat(2,minmax(260px,1fr))] max-w-[540px] gap-4"
+      >
+        <BerlinResourcesSearchInput
+          class="order-last sm:order-none box-content sm:col-span-2"
+          :query="state.searchQuery"
+          @change-query="onChangeQuery"
+        />
+        <BerlinResourcesSearchFilterDropdown
+          v-model="categoryValue"
+          :items="categoryOptions"
+          :multiple="false"
+          class="bg-[#ffffff]"
+          bg-color="#ffffff"
+          placeholder="Kategorie"
+        />
+        <BerlinResourcesSearchFilterDropdown
+          v-model="districtsValue"
+          :items="districtsOptions"
+          :multiple="true"
+          class="bg-[#ffffff]"
+          bg-color="#ffffff"
+          placeholder="Bezirk"
+        />
       </div>
 
-      <!-- Illustration -->
-      <figure
-        class="absolute right-6 md:right-12 xl:right-16 top-6 lg:top-auto lg:bottom-8"
-      >
+      <template #illustration>
         <svg
-          class="h-[150px] md:h-[298px] lg:h-[340px] xl:h-[380px] aspect-[664/466]"
+          class="m-auto sm:m-0 self-center h-[190px] sm:h-[230px] lg:h-[300px] xl:h-[330px] aspect-[664/466]"
           aria-hidden="true"
         >
           <use href="/illustrations/thumbs-up--team-up.svg#fragment" />
         </svg>
-      </figure>
-    </section>
+      </template>
+    </BerlinPageHeader>
 
     <section id="resources" class="flex flex-col gap-4">
       <div
@@ -198,6 +188,8 @@ import { debounce } from 'lodash-es';
 import type { Marker } from '~/base/models/map';
 
 const { find } = useStrapi();
+
+const pageHeader = await useResourcesSearchPageHeader();
 
 const config = useRuntimeConfig();
 const route = useRoute();

@@ -534,10 +534,19 @@ interface AccordionAccordion {
   accordionItems: AccordionItem[];
 }
 
+export interface PageHeader {
+  headline: string;
+  subline?: string | null;
+  image?: UploadedImage | null;
+  imageLinkUrl?: string | null;
+  backgroundColor?: string | null;
+}
+
 export interface SingleTypeResourcesSearchPage {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
+  header?: PageHeader | null;
   faqSectionHeadline?: string;
   faqs: FAQ[];
   seo?: StrapiSEO;

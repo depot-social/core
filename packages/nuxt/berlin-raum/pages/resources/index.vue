@@ -1,62 +1,54 @@
 <template>
   <div>
-    <section
-      class="relative z-10 flex px-6 py-6 md:py-8 bg-very-bright-gray min-h-[500px] sm:min-h-[360px] md:min-h-[510px] xl:min-h-[560px]"
+    <BerlinPageHeader
+      :header="pageHeader"
+      :fallback-headline="'Raum für\nEngagement'"
+      fallback-background-class="bg-very-bright-gray"
+      class="min-h-[500px] sm:min-h-[360px] md:min-h-[510px] xl:min-h-[560px]"
     >
-      <div class="flex flex-col w-full">
-        <h1
-          class="font-bold! leading-none! tracking-tight text-[42px]! md:text-[96px]!"
-        >
-          Raum für <br />
-          Engagement
-        </h1>
-
-        <div
-          class="sm:relative sm:z-10 mt-auto text-xl grid sm:grid-cols-[repeat(2,minmax(260px,1fr))] max-w-[720px] gap-4"
-        >
-          <BerlinResourcesSearchFilterDropdown
-            v-model="purposesValue"
-            :items="purposesOptions"
-            :multiple="false"
-            :class="'bg-[#F7BBCB]'"
-            :bg-color="'#F7BBCB'"
-            placeholder="Was hast du vor?"
-          />
-          <BerlinResourcesSearchFilterDropdown
-            v-model="districtsValue"
-            :items="districtsOptions"
-            :multiple="true"
-            :class="'bg-[#BAB0D8]'"
-            :bg-color="'#BAB0D8'"
-            placeholder="Bezirk"
-          />
-          <BerlinResourcesSearchInput
-            class="order-last sm:order-none box-content"
-            :query="state.searchQuery"
-            @change-query="onChangeQuery"
-          />
-          <BerlinResourcesSearchFilterDropdown
-            v-model="accessibilityStateValue"
-            :items="accessibilityStateOptions"
-            :multiple="false"
-            :class="'bg-[#95DAFC]'"
-            :bg-color="'#95DAFC'"
-            placeholder="Barriereangaben"
-          />
-        </div>
+      <div
+        class="sm:relative sm:z-10 mt-auto text-xl grid sm:grid-cols-[repeat(2,minmax(260px,1fr))] max-w-[720px] gap-4"
+      >
+        <BerlinResourcesSearchFilterDropdown
+          v-model="purposesValue"
+          :items="purposesOptions"
+          :multiple="false"
+          :class="'bg-[#F7BBCB]'"
+          :bg-color="'#F7BBCB'"
+          placeholder="Was hast du vor?"
+        />
+        <BerlinResourcesSearchFilterDropdown
+          v-model="districtsValue"
+          :items="districtsOptions"
+          :multiple="true"
+          :class="'bg-[#BAB0D8]'"
+          :bg-color="'#BAB0D8'"
+          placeholder="Bezirk"
+        />
+        <BerlinResourcesSearchInput
+          class="order-last sm:order-none box-content"
+          :query="state.searchQuery"
+          @change-query="onChangeQuery"
+        />
+        <BerlinResourcesSearchFilterDropdown
+          v-model="accessibilityStateValue"
+          :items="accessibilityStateOptions"
+          :multiple="false"
+          :class="'bg-[#95DAFC]'"
+          :bg-color="'#95DAFC'"
+          placeholder="Barriereangaben"
+        />
       </div>
 
-      <figure
-        class="absolute right-6 md:right-12 xl:right-16 top-6 lg:top-auto lg:bottom-8"
-      >
+      <template #illustration>
         <svg
-          class="h-[150px] md:h-[298px] lg:h-[340px] xl:h-[470px] aspect-[317/497]"
+          class="m-auto h-[190px] md:h-[298px] lg:h-[340px] xl:h-[470px] aspect-[317/497]"
           aria-hidden="true"
         >
           <use href="/illustrations/thumbs-up.svg#fragment" />
         </svg>
-      </figure>
-    </section>
+      </template>
+    </BerlinPageHeader>
 
     <section id="resources" class="flex flex-col gap-4">
       <div
@@ -239,6 +231,8 @@ import { debounce } from 'lodash-es';
 import type { Marker } from '~/base/models/map';
 
 const { find } = useStrapi();
+
+const pageHeader = await useResourcesSearchPageHeader();
 
 const config = useRuntimeConfig();
 const route = useRoute();

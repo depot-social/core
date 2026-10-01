@@ -1022,6 +1022,7 @@ export interface ApiResourcesSearchPageResourcesSearchPage
       Schema.Attribute.Private;
     faqs: Schema.Attribute.Relation<'oneToMany', 'api::faq.faq'>;
     faqSectionHeadline: Schema.Attribute.String;
+    header: Schema.Attribute.Component<'single-type-blocks.page-header', false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

@@ -260,6 +260,22 @@ export interface SingleTypeBlocksFaqs extends Struct.ComponentSchema {
   attributes: {};
 }
 
+export interface SingleTypeBlocksPageHeader extends Struct.ComponentSchema {
+  collectionName: 'components_single_type_blocks_page_headers';
+  info: {
+    description: 'Editable page header: headline, rich text subline, illustration and background color';
+    displayName: 'PageHeader';
+    icon: 'picture';
+  };
+  attributes: {
+    backgroundColor: Schema.Attribute.String;
+    headline: Schema.Attribute.Text & Schema.Attribute.Required;
+    image: Schema.Attribute.Media<'images'>;
+    imageLinkUrl: Schema.Attribute.String;
+    subline: Schema.Attribute.RichText;
+  };
+}
+
 declare module '@strapi/strapi' {
   export namespace Public {
     export interface ComponentSchemas {
@@ -277,6 +293,7 @@ declare module '@strapi/strapi' {
       'single-type-blocks.accordion': SingleTypeBlocksAccordion;
       'single-type-blocks.accordion-block': SingleTypeBlocksAccordionBlock;
       'single-type-blocks.faqs': SingleTypeBlocksFaqs;
+      'single-type-blocks.page-header': SingleTypeBlocksPageHeader;
     }
   }
 }
