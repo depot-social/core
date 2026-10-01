@@ -83,7 +83,6 @@
     "resourceTypes": {
       "type": "dynamiczone",
       "components": [
-        "resource-types.contingent-resource-type",
         "resource-types.berlin-resource-type"
       ]
     },

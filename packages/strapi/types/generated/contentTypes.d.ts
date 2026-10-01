@@ -986,10 +986,7 @@ export interface ApiResourceResource extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     purposes: Schema.Attribute.Relation<'manyToMany', 'api::purpose.purpose'>;
     resourceTypes: Schema.Attribute.DynamicZone<
-      [
-        'resource-types.contingent-resource-type',
-        'resource-types.berlin-resource-type',
-      ]
+      ['resource-types.berlin-resource-type']
     >;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     title: Schema.Attribute.String & Schema.Attribute.Required;

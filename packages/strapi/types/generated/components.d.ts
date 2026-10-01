@@ -145,29 +145,6 @@ export interface ResourceTypesBerlinResourceType
   };
 }
 
-export interface ResourceTypesContingentResourceType
-  extends Struct.ComponentSchema {
-  collectionName: 'components_contingent_resource_type';
-  info: {
-    description: 'Provides fields for contingent-based availability check';
-    displayName: 'ContingentResourceType';
-    icon: 'bezier-curve';
-  };
-  attributes: {
-    availableUnits: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<1>;
-    extraTextBookingConfirmation: Schema.Attribute.RichText;
-    extraTextRentContract: Schema.Attribute.RichText;
-    generateRentContract: Schema.Attribute.Boolean &
-      Schema.Attribute.DefaultTo<true>;
-    minBookableUnits: Schema.Attribute.Integer;
-    onlyNotForProfit: Schema.Attribute.Boolean &
-      Schema.Attribute.DefaultTo<false>;
-    openingTimes: Schema.Attribute.RichText;
-  };
-}
-
 export interface SharedOpenGraph extends Struct.ComponentSchema {
   collectionName: 'components_shared_open_graphs';
   info: {
@@ -271,7 +248,6 @@ declare module '@strapi/strapi' {
       'message-types.booking-event-message-type': MessageTypesBookingEventMessageType;
       'message-types.user-message-type': MessageTypesUserMessageType;
       'resource-types.berlin-resource-type': ResourceTypesBerlinResourceType;
-      'resource-types.contingent-resource-type': ResourceTypesContingentResourceType;
       'shared.open-graph': SharedOpenGraph;
       'shared.seo': SharedSeo;
       'single-type-blocks.accordion': SingleTypeBlocksAccordion;

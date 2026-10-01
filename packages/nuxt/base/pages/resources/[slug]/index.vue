@@ -289,7 +289,6 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
       'categories',
       'user',
       // 'resourceTypes.berlinResourceType',
-      // 'resourceTypes.contingentResourceType',
     ],
   })
 );

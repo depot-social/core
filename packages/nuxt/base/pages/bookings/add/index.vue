@@ -34,7 +34,6 @@
 </template>
 
 <script setup lang="ts">
-// Booking form for "ContingentResourceType"
 import type {
   Booking,
   CreateBookingRequest,

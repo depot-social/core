@@ -419,7 +419,6 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
       'prices',
       'categories',
       // 'resourceTypes.berlinResourceType',
-      // 'resourceTypes.contingentResourceType',
     ],
   })
 );

@@ -255,7 +255,6 @@ export interface UploadedImage extends StrapiBaseEntity {
 }
 
 export enum ResourceTypeComponent {
-  CONTINGENT_RESOURCE_TYPE = 'resource-types.contingent-resource-type',
   BERLIN_RESOURCE_TYPE = 'resource-types.berlin-resource-type',
 }
 
@@ -263,22 +262,12 @@ interface BaseResourceType {
   __component: ResourceTypeComponent;
 }
 
-export interface ContingentResourceType extends BaseResourceType {
-  availableUnits: number;
-  minBookableUnits: number;
-  generateRentContract: boolean;
-  onlyNotForProfit: boolean;
-  extraTextRentContract: string;
-  extraTextBookingConfirmation: string;
-  openingTimes: string;
-}
-
 export type AccessibilityState =
   | 'accessible'
   | 'not_accessible'
   | 'partly_accessible';
 
-export type ResourceType = ContingentResourceType | BerlinResourceType;
+export type ResourceType = BerlinResourceType;
 
 export interface BerlinResourceType extends BaseResourceType {
   __component: ResourceTypeComponent.BERLIN_RESOURCE_TYPE;

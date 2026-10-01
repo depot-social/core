@@ -6,7 +6,6 @@
       @change-date="onChangeDate"
       :availabilities="availabilities ? availabilities.dates : []"
     />
-    <BaseResourceCalendarOpeningTimesAlert :resource="resource" />
     <div
       class="mt-4 flex flex-col md:flex-row gap-4 md:gap-0 justify-between items-center"
     >
