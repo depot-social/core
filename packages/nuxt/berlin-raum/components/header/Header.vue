@@ -31,8 +31,12 @@
         FAQ
       </NuxtLink>
 
-      <NuxtLinkLocale
-        :to="{ name: 'resources-add' }"
+      <NuxtLink
+        :to="
+          isEnabled('resourceEditing')
+            ? localePath('resources-add')
+            : 'https://engagiertes.berlin/de/einreichen/raum/'
+        "
         class="text-[16px] font-semibold no-underline flex items-center gap-2"
       >
         {{ $t('berlin_resources_addRoom') }}
@@ -52,8 +56,13 @@
             d="M25 20H7v2h18v-2ZM25 15H7v2h18v-2ZM25 10H7v2h18v-2ZM25 5H7v2h18V5Z"
           />
         </svg>
-      </NuxtLinkLocale>
-      <BerlinHeaderLogin />
+      </NuxtLink>
+      <BerlinHeaderLogin v-if="isEnabled('login')" />
     </div>
   </header>
 </template>
+
+<script setup lang="ts">
+const localePath = useLocalePath();
+const { isEnabled } = useFeature();
+</script>

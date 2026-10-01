@@ -8,6 +8,16 @@ const resourceBasePath = '/raeume';
 export default defineNuxtConfig({
   css: ['~/berlin-raum/assets/css/main.css'],
   components: [{ path: './components', prefix: 'Berlin' }],
+  runtimeConfig: {
+    public: {
+      // Feature flags; override per deployment via env,
+      // e.g. NUXT_PUBLIC_FEATURES_LOGIN=true
+      features: {
+        login: false,
+        resourceEditing: false,
+      },
+    },
+  },
   i18n: {
     defaultLocale: 'de',
     locales: [{ code: 'de', name: 'de-DE', file: 'de.json' }],
