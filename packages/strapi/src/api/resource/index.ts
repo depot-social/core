@@ -7,11 +7,7 @@ import {
   obfuscateGeodata,
 } from '@depot/shared';
 import { EmailsService } from '../../plugins/emails/server/services/emails-service';
-import { isAdminOrBackofficeRequest, readBooleanEnv } from '../../utils';
-import {
-  handleSearchIndexOnCreate,
-  handleSearchIndexOnUpdate,
-} from './search-index-helper';
+import { isAdminOrBackofficeRequest } from '../../utils';
 
 type LifecycleEvent = {
   params: {
@@ -144,7 +140,6 @@ export default {
     /**
      * Before creating a resource:
      * - Resolve & save geocoded address (if any)
-     * - Update search index in description
      */
     const beforeCreateResource = async (event: LifecycleEvent) => {
       const ctx = strapi.requestContext.get();
@@ -188,17 +183,6 @@ export default {
       const { params } = event;
       const { data } = params;
 
-      /**
-       * Handle search index (fetches existing resource, merges data)
-       * based on STRAPI_CONCAT_SEARCH flag
-       */
-      if (
-        typeof process.env.STRAPI_CONCAT_SEARCH !== 'undefined' &&
-        readBooleanEnv(process.env.STRAPI_CONCAT_SEARCH, true)
-      ) {
-        await handleSearchIndexOnCreate(data, strapi);
-      }
-
       if (!data.address) {
         return;
       }
@@ -215,11 +199,11 @@ export default {
 
     /**
      * Before updating a resource:
-     * - Update search index in description based on STRAPI_CONCAT_SEARCH flag
+     * - Ensure default availability reflects submitted available units
      */
     const beforeUpdateResource = async (event: LifecycleEvent) => {
       const { params } = event;
-      const { data, where } = params;
+      const { where } = params;
       const resourceId = where?.id;
 
       if (resourceId) {
@@ -249,18 +233,6 @@ export default {
             );
           }
         }
-      }
-
-      if (
-        typeof process.env.STRAPI_CONCAT_SEARCH !== 'undefined' &&
-        readBooleanEnv(process.env.STRAPI_CONCAT_SEARCH, true)
-      ) {
-        const typedWhere =
-          where && typeof where.id !== 'undefined'
-            ? { id: Number(where.id) }
-            : {};
-
-        await handleSearchIndexOnUpdate(data, typedWhere, strapi);
       }
     };
 
