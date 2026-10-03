@@ -71,6 +71,7 @@ export interface SearchResult {
 
 export interface SearchService {
   search(uidOrName: string, params: SearchParams): Promise<SearchResult>;
+  resolveUid(uidOrName: string): ContentTypeUID;
 }
 
 export default ({ strapi }: { strapi: Core.Strapi }): SearchService => {
@@ -170,6 +171,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): SearchService => {
   };
 
   return {
+    resolveUid,
     async search(uidOrName, params) {
       const uid = resolveUid(uidOrName);
       const schema = getContentTypeSchema(uid);

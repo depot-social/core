@@ -17,13 +17,24 @@ export default ({ strapi }: { strapi: Core.Strapi }) => ({
       .service('searchService');
 
     try {
-      ctx.body = await searchService.search(uid, {
+      const result = await searchService.search(uid, {
         q: typeof q === 'string' ? q : undefined,
         filters: filters as SearchParams['filters'],
         sort,
         pagination: pagination as SearchParams['pagination'],
         locale: typeof locale === 'string' ? locale : undefined,
       });
+
+      // The populate config exposes relations (e.g. user) whose private fields
+      // must be stripped before leaving this public endpoint.
+      const schema = strapi.contentType(searchService.resolveUid(uid));
+      const results = await strapi.contentAPI.sanitize.output(
+        result.results,
+        schema,
+        { auth: ctx.state?.auth }
+      );
+
+      ctx.body = { ...result, results };
     } catch (error) {
       const err = error as { name?: string; message?: string };
 
