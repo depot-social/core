@@ -94,6 +94,10 @@ html {
   scroll-behavior: auto;
 }
 
+.link-underline {
+  @apply font-light text-black underline underline-offset-2 decoration-1;
+}
+
 p {
   @apply text-base font-light leading-normal tracking-[-1%];
 }
@@ -249,7 +253,7 @@ strong {
 }
 
 .raum-form-control:is(input, textarea, button) {
-  @apply text-base md:text-lg leading-tight px-5 py-4 bg-[#F7F7F7] bg-white border-none! w-full focus-within:bg-white transition-colors rounded-md;
+  @apply text-base md:text-lg leading-tight px-5 py-4 bg-white border-none! w-full focus-within:bg-white transition-colors rounded-md;
 
   box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.1) inset;
 

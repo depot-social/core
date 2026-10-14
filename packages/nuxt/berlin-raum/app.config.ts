@@ -18,9 +18,13 @@ export default defineAppConfig({
       },
       compoundVariants: [
         {
-          // regardless of the color and variant,
-          // we want to apply the same styles to all inputs
+          // no variant and color / default
           class: 'raum-form-control',
+        },
+        {
+          // input on surface color e.g. bg-secondary
+          variant: 'soft',
+          class: 'bg-[#F7F7F7]!',
         },
       ],
     },
@@ -32,6 +36,10 @@ export default defineAppConfig({
       compoundVariants: [
         {
           class: 'raum-form-control',
+        },
+        {
+          variant: 'soft',
+          class: 'bg-[#F7F7F7]!',
         },
       ],
     },
@@ -66,6 +74,11 @@ export default defineAppConfig({
       compoundVariants: [
         {
           class: 'h-full raum-form-control',
+        },
+        {
+          // input on surface color e.g. bg-secondary
+          variant: 'soft',
+          class: 'bg-[#F7F7F7]!',
         },
       ],
     },

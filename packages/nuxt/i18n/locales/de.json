@@ -158,7 +158,7 @@
   "reset_pageTitle": "Neues Passwort anfordern",
   "reset_backToHome": "Zur Startseite",
   "reset_requestNewPassword": "Neues Passwort anfordern",
-  "reset_instructions": "Nach Eingabe einer gültigen E-Mail Adresse erhälst Du einen Link zum Zurücksetzen Deines Passworts.",
+  "reset_instructions": "Nach Eingabe einer gültigen E-Mail Adresse erhältst Du einen Link zum Zurücksetzen Deines Passworts.",
   "reset_passwordFound": "Passwort wiedergefunden?",
   "reset_goToLogin": "Zum Login",
   "reset_errorTitle": "Fehler beim Anfordern:",

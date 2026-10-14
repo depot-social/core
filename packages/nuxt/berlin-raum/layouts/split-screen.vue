@@ -1,10 +1,12 @@
 <template>
   <main id="main">
-    <div class="flex items-center min-h-screen bg-secondary">
+    <div class="flex items-start min-h-screen">
       <div
-        class="md:basis-1/2 basis-full flex flex-col gap-2 md:gap-4 py-8 px-8 md:px-18 lg:px-24 max-h-screen overflow-scroll"
+        class="pt-16 lg:pt-42 md:basis-1/2 basis-full flex flex-col gap-2 md:gap-4 py-8 px-8 lg:px-12 xl:px-24 max-h-screen overflow-scroll"
       >
-        <slot />
+        <div class="xl:max-w-[65ch]">
+          <slot />
+        </div>
       </div>
       <div
         class="basis-1/2 relative max-h-screen overflow-hidden self-stretch bg-secondary hidden md:block"
