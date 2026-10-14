@@ -19,8 +19,8 @@
         </div>
       </div>
 
-      <div class="bg-secondary px-8 mt-4 py-8 flex flex-col rounded-[30px]">
-        <BaseUserProfileForm
+      <div class="px-8 mt-4 py-8 flex flex-col">
+        <BerlinUserProfileForm
           class="w-full"
           :is-edit-form="true"
           :loading="submitting"
@@ -35,11 +35,11 @@
 <script setup lang="ts">
 import type { User } from '@depot/shared';
 import type { Ref } from 'vue';
+import { getUserProfilePath } from '~/base/utils/paths';
 import type {
   UserProfileFormInitialData,
   UserProfileFormSubmitPayload,
-} from '~/base/components/user-profile-form/types';
-import { getUserProfilePath } from '~/base/utils/paths';
+} from '~/berlin-raum/components/user-profile-form/types';
 useHead({
   title: $t('myProfile'),
 });
@@ -65,6 +65,7 @@ const formInitialData = reactive<UserProfileFormInitialData>({
   lastName: '',
   salutation: undefined,
   phone: '',
+  organizationName: '',
   address: {
     street: '',
     zip: '',
@@ -86,6 +87,7 @@ watchEffect(() => {
     firstName: userData.value.firstName ?? '',
     lastName: userData.value.lastName ?? '',
     salutation,
+    organizationName: userData.value.organizationName ?? '',
     phone: userData.value.phone ?? '',
     address: {
       street: userData.value.address?.street ?? '',
@@ -127,6 +129,11 @@ const onSubmit = async (payload: UserProfileFormSubmitPayload) => {
 
   if (payload.salutation) {
     updatePayload.salutation = payload.salutation;
+  }
+
+  const organizationName = payload.organizationName?.trim();
+  if (organizationName) {
+    updatePayload.organizationName = organizationName;
   }
 
   const phone = payload.phone?.trim();
