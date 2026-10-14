@@ -78,6 +78,10 @@
     "phone": {
       "type": "string"
     },
+    "organizationName": {
+      "type": "string",
+      "unique": true
+    },
     "organization": {
       "type": "component",
       "component": "custom.organization",

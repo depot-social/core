@@ -5,7 +5,7 @@ export default ({ env }) => ({
         enabled: true,
         config: {
             register: {
-                allowedFields: ["firstName", "lastName", "address", "phone", "salutation"],
+                allowedFields: ["firstName", "lastName", "address", "phone", "salutation", "organizationName"],
             },
         }
     },

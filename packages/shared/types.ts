@@ -162,6 +162,7 @@ export interface User extends StrapiBaseEntity {
   firstName: string;
   lastName: string;
   phone: string;
+  organizationName: string;
   salutation?: string;
   address?: Address;
   resources?: Resource[];

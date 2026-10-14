@@ -1574,6 +1574,7 @@ export interface PluginUsersPermissionsUser
     > &
       Schema.Attribute.Private;
     organization: Schema.Attribute.Component<'custom.organization', false>;
+    organizationName: Schema.Attribute.String & Schema.Attribute.Unique;
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{
