@@ -104,7 +104,11 @@
               </p>
             </UTooltip>
           </template>
-          <template v-else-if="isLayer('berlin-ausleihe') && isOrganization">
+          <template
+            v-else-if="
+              isLayer('berlin-ausleihe') && organizationName != undefined
+            "
+          >
             <UTooltip
               :text="organizationName"
               :disabled="!isTextTruncated"
@@ -129,10 +133,16 @@ import type { BerlinResourceType, Resource } from '@depot/shared';
 import {
   getAccessibilityText,
   getResourceType,
-  getUsernameFromUser,
   ResourceTypeComponent,
 } from '@depot/shared';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import {
+  computed,
+  defineProps,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  withDefaults,
+} from 'vue';
 
 interface Props {
   resource: Resource;
@@ -162,13 +172,9 @@ const isPaid = computed(() => {
   );
 });
 
-const isOrganization = computed(() => {
-  return !!props.resource.user?.organization;
-});
-
 const organizationName = computed(() => {
   return props.resource.user
-    ? getUsernameFromUser(props.resource.user)
+    ? props.resource.user?.organizationName
     : undefined;
 });
 

@@ -179,6 +179,16 @@
           <div
             class="grid sm:grid-cols-[200px_1fr] md:grid-cols-[100px_1fr] lg:grid-cols-[155px_1fr] *:leading-snug *:even:mb-5 sm:*:even:mb-0 *:font-light sm:*:flex sm:*:items-start sm:*:py-[1.15rem] sm:*:border-b *:border-b-secondary gap-x-6"
           >
+            <template v-if="resource.user?.organizationName">
+              <span class="text-sm">
+                {{ $t('berlin_resource_provider') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ resource.user.organizationName }}
+              </span>
+            </template>
+
             <template v-if="resource.district">
               <span class="text-sm">
                 {{ $t('berlin_resource_district') }}
@@ -388,6 +398,8 @@ if (
 
 const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
 const { documentId, title, description, images, categories, user } = resource;
+
+console.log(resource);
 
 const defaultAvailability = resource.availabilities?.find(
   (availability) => availability.end === null
