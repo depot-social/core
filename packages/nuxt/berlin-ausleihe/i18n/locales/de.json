@@ -91,5 +91,6 @@
     "berlin_calendar_selectDateFirst": "Datum wählen",
     "form_submit": "Abschicken",
     "validation_invalidDate": "Bitte ein gültiges Datum eingeben",
-    "validation_minLength5": "Mindestens 5 Zeichen"
+    "validation_minLength5": "Mindestens 5 Zeichen",
+    "bookingRequestFrom": "Anfrage von: "
 }

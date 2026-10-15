@@ -20,7 +20,7 @@
             {{ $t('from') }}
           </template>
           <template v-else>
-            {{ $t('bookingRequestFrom') }}
+            {{ $t('bookingRequestFrom') }}<br />
             {{ booking?.customer?.firstName }} {{ booking?.customer?.lastName }}
             {{ $t('from') }}
           </template>

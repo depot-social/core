@@ -254,28 +254,30 @@
         <div
           class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-base mt-10"
         >
-          <BaseResourceCard
+          <BerlinResourceCard
             v-for="resource in similarResources"
             :key="resource.id"
             :resource="resource"
-            :image-size="460"
+            :class="'justify-self-center'"
           />
         </div>
         <div
           v-if="similarResources.length >= 3"
           class="w-full text-center mt-5 md:mt-8"
         >
-          <NuxtLinkLocale
-            :to="{
-              name: 'resources',
-              query: similarResourcesCategory
-                ? { categories: similarResourcesCategory.title }
-                : undefined,
-            }"
-            class="btn btn-primary btn-lg shadow-xl"
+          <UButton
+            :to="
+              localePath({
+                name: 'resources',
+                query: similarResourcesCategory
+                  ? { categories: similarResourcesCategory.title }
+                  : undefined,
+              })
+            "
+            class="mx-auto"
           >
             {{ $t('resource_allResourcesFromCategory') }}
-          </NuxtLinkLocale>
+          </UButton>
         </div>
       </div>
     </section>
@@ -344,6 +346,7 @@ let resizeObserver: ResizeObserver | null = null;
 
 // Get route params
 const route = useRoute();
+const localePath = useLocalePath();
 const slug = route.params.slug as string;
 
 if (!slug) {

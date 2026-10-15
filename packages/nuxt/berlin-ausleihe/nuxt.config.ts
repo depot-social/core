@@ -2,6 +2,8 @@ import type { Resource, SingleTypePage } from '@depot/shared';
 
 const resourceBasePath = '/ressourcen';
 
+// @todo: add missing translated paths eg: user, bookings etc.
+
 export default defineNuxtConfig({
   css: ['~/berlin-raum/assets/css/main.css'],
   components: [{ path: './components', prefix: 'Berlin' }],
