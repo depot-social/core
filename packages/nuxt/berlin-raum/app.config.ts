@@ -75,6 +75,9 @@ export default defineAppConfig({
     },
     button: {
       // @see https://ui.nuxt.com/docs/components/button#theme
+      slots: {
+        base: [''],
+      },
       compoundVariants: [
         {
           color: 'neutral',
