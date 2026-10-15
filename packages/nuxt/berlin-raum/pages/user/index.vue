@@ -38,10 +38,7 @@
 
       <div class="bg-white mt-4 pt-8 flex flex-col">
         <BerlinProfileResourceList :resources="resources || []" />
-        <DashboardCalendar
-          :dashboard="dashboard"
-          :display-availabilities="false"
-        />
+        <BaseProfileBookingList :dashboard="dashboard" />
       </div>
     </div>
   </div>
@@ -52,7 +49,6 @@ import type {
   AvailabilitiesGetDashboardResponseData,
   User,
 } from '@depot/shared';
-import DashboardCalendar from '~/base/components/profile/DashboardCalendar.vue';
 
 useHead({
   title: $t('myProfile'),
