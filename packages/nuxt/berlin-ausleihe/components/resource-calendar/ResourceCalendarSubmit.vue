@@ -1,10 +1,13 @@
 <template>
+  <hr class="mb-10 text-secondary" />
+
   <UButton
     v-if="userIsLoggedIn"
     type="submit"
     variant="outline"
-    @click="onSubmit"
+    :class="'justify-self-center sm:justify-self-auto'"
     :disabled="!canSubmit || isRedirecting"
+    @click="onSubmit"
   >
     <span v-if="isRedirecting" class="loading loading-spinner"></span>
     <span v-else>{{ $t('requestBooking') }}</span>
@@ -17,7 +20,7 @@
 
 <script setup lang="ts">
 import type { User } from '@depot/shared';
-import { computed, ref, type Ref } from 'vue';
+import { computed, defineProps, ref, type Ref } from 'vue';
 import type { CalendarActiveSelection } from '~/base/components/calendar/calendar.props';
 
 interface Props {
