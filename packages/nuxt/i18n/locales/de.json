@@ -253,5 +253,15 @@
   "bookingSuccessful": "Buchung angefragt",
   "bookingSuccessfulDescription": "Die Ausleiher:in wurde benachrichtigt.",
   "bookingStatus": "Buchungsstaus",
-  "cancelBooking": "Buchung stornieren"
+  "cancelBooking": "Buchung stornieren",
+  "myBookings": "Meine Buchungen",
+  "bookingFilter_all": "Alle",
+  "bookingFilter_past": "Vergangene",
+  "bookingFilter_upcoming": "Zukünftige",
+  "bookingPeriod": "Zeitraum",
+  "person": "Person",
+  "bookingType": "Art",
+  "bookingType_own": "Meine Anfrage",
+  "bookingType_incoming": "Anfrage an mich",
+  "noBookings": "Keine Buchungen vorhanden"
 }

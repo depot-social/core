@@ -248,44 +248,47 @@
           </div>
         </div>
       </div>
-
-      <section
-        v-if="similarResources && similarResources.length >= 1"
-        class="bg-orange-100 py-8"
-      >
-        <div class="container bg-white rounded-2xl py-5 lg:py-12">
-          <div class="container">
-            <h3 class="text-2lg font-medium text-black text-center">
-              {{ $t('resource_moreResourcesFromCategory') }}
-              <span class="marker">
-                {{ similarResourcesCategory && similarResourcesCategory.title }}
-              </span>
-              :
-            </h3>
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-base mt-10"
-            >
-              <BaseResourceCard
-                v-for="resource in similarResources"
-                :key="resource.id"
-                :resource="resource"
-              />
-            </div>
-            <div
-              v-if="similarResources.length >= 3"
-              class="w-full text-center mt-5 md:mt-8"
-            >
-              <NuxtLinkLocale
-                :to="{ name: 'resources' }"
-                class="btn btn-primary btn-lg shadow-xl"
-              >
-                {{ $t('resource_allResourcesFromCategory') }}
-              </NuxtLinkLocale>
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
+    <section
+      v-if="similarResources && similarResources.length >= 1"
+      class="py-8 col-span-12 xl:col-span-10 xl:col-start-2"
+    >
+      <div class="py-5 lg:py-12 px-0">
+        <h3 class="text-2lg font-medium text-black text-center">
+          {{ $t('resource_moreResourcesFromCategory') }}
+          <span class="marker">
+            {{ similarResourcesCategory && similarResourcesCategory.title }}
+          </span>
+          :
+        </h3>
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-base mt-10"
+        >
+          <BaseResourceCard
+            v-for="resource in similarResources"
+            :key="resource.id"
+            :resource="resource"
+            :image-size="460"
+          />
+        </div>
+        <div
+          v-if="similarResources.length >= 3"
+          class="w-full text-center mt-5 md:mt-8"
+        >
+          <NuxtLinkLocale
+            :to="{
+              name: 'resources',
+              query: similarResourcesCategory
+                ? { categories: similarResourcesCategory.title }
+                : undefined,
+            }"
+            class="btn btn-primary btn-lg shadow-xl"
+          >
+            {{ $t('resource_allResourcesFromCategory') }}
+          </NuxtLinkLocale>
+        </div>
+      </div>
+    </section>
 
     <dialog
       ref="imageModal"
@@ -384,6 +387,8 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
     ],
   })
 );
+
+console.log('resourceResponse', resourceResponse.data);
 
 if (
   !resourceResponse.data ||
