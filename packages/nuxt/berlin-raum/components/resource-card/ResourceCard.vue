@@ -1,5 +1,7 @@
 <template>
-  <article class="group rounded-[30px] shadow-lg duration-300 max-w-[350px]">
+  <article
+    class="group rounded-[30px] shadow-lg duration-300 max-w-[350px] w-full"
+  >
     <NuxtLinkLocale
       :to="{ name: 'resources-slug', params: { slug: resource.slug } }"
       class="flex h-full flex-col gap-5"

@@ -58,11 +58,8 @@ const { t } = useI18n();
 
 const formFieldUi = { label: 'font-text font-normal text-sm' };
 const selectUi = {
-  // ! needed to win against the global .raum-form-control styles
-  base: 'h-12 rounded-lg bg-white ps-3 pe-8 text-base border! border-solid! border-black! shadow-none!',
-  trailing: 'pe-2',
-  placeholder: 'text-sm',
-  trailingIcon: 'text-black',
+  base: 'shadow-none! h-14 border! border-solid! border-black!',
+  content: 'px-0!',
 };
 
 const disabled = computed(() => !props.selection.start || !props.selection.end);

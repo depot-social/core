@@ -1,22 +1,18 @@
 <template>
-  <button
+  <UButton
     v-if="userIsLoggedIn"
     type="submit"
-    class="btn btn-outline btn-lg w-full rounded-lg border-black bg-white text-black font-medium hover:bg-black hover:text-white"
+    variant="outline"
     @click="onSubmit"
     :disabled="!canSubmit || isRedirecting"
   >
     <span v-if="isRedirecting" class="loading loading-spinner"></span>
     <span v-else>{{ $t('requestBooking') }}</span>
-  </button>
-  <NuxtLink
-    v-else
-    href="/user/login"
-    class="btn btn-outline btn-lg w-full rounded-lg border-black bg-white text-black font-medium hover:bg-black hover:text-white"
-  >
+  </UButton>
+  <UButton v-else variant="outline" href="/user/login">
     <span v-if="isRedirecting" class="loading loading-spinner"></span>
     <span v-else>{{ $t('loginAndRequestBooking') }}</span>
-  </NuxtLink>
+  </UButton>
 </template>
 
 <script setup lang="ts">

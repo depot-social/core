@@ -36,9 +36,9 @@
         </div>
       </div>
 
-      <div class="bg-white mt-4 pt-8 flex flex-col">
-        <BerlinProfileResourceList :resources="resources || []" />
+      <div class="bg-white mt-4 pt-8 flex flex-col space-y-12">
         <BaseProfileBookingList :dashboard="dashboard" />
+        <BerlinProfileResourceList :resources="resources || []" />
       </div>
     </div>
   </div>

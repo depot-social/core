@@ -1,5 +1,35 @@
 export default defineAppConfig({
   ui: {
+    calendar: {
+      // @see https://ui.nuxt.com/docs/components/calendar#theme
+      slots: {
+        body: 'flex flex-col gap-8 pt-4 sm:flex-row sm:space-x-0',
+        headingLabel: 'font-normal text-base',
+        cell: 'w-full py-0.5',
+      },
+      variants: {
+        view: {
+          day: {
+            gridRow: 'grid-cols-7 place-items-stretch',
+          },
+        },
+      },
+      compoundVariants: [
+        {
+          // One continuous orange pill from start to end date
+          color: 'primary',
+          variant: 'solid',
+          class: {
+            headCell: 'text-orange-400 font-normal',
+            cellTrigger:
+              'm-0 h-9 w-full rounded-none text-black data-selected:bg-orange-400 data-selected:text-white data-selection-start:rounded-l-full data-selection-end:rounded-r-full data-highlighted:bg-orange-100 data-highlighted-start:rounded-l-full data-highlighted-end:rounded-r-full data-today:not-data-selected:text-orange-500 hover:not-data-selected:bg-orange-100 hover:not-data-selected:rounded-full data-outside-view:invisible',
+          },
+        },
+      ],
+      defaultVariants: {
+        size: 'lg',
+      },
+    },
     formField: {
       // @see https://ui.nuxt.com/docs/components/form-field#theme
       slots: {
@@ -68,8 +98,11 @@ export default defineAppConfig({
       // @see https://ui.nuxt.com/docs/components/select#theme
       slots: {
         base: 'w-full px-0',
-        content: 'w-full bg-white border-black border',
+        content: 'w-full bg-white border-black border px-0!',
         trailingIcon: 'text-black',
+        placeholder: 'text-sm text-black!',
+
+        //base: 'h-12 rounded-lg bg-white text-base shadow-none!',
       },
       compoundVariants: [
         {
@@ -84,9 +117,7 @@ export default defineAppConfig({
     },
     selectMenu: {
       // @see https://ui.nuxt.com/docs/components/select-menu#theme
-      slots: {
-        base: '',
-      },
+      slots: {},
       compoundVariants: [
         {
           class: 'raum-form-control',
