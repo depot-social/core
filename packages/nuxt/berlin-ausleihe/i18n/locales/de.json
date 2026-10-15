@@ -92,6 +92,7 @@
     "berlin_submit": "Abschicken",
     "berlin_to_parent": "zur Hauptseite",
     "berlin_with": "mit",
+    "berlin_calendar_selectDateFirst": "Datum wählen",
     "form_submit": "Abschicken",
     "validation_invalidDate": "Bitte ein gültiges Datum eingeben",
     "validation_minLength5": "Mindestens 5 Zeichen"

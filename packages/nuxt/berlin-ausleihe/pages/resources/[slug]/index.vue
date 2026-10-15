@@ -468,8 +468,12 @@ const calendarResponse = await useAsyncData('calendar', () =>
   )
 );
 
-const availabilities = calendarResponse.data
-  .value as unknown as AvailabilitiesGetCalendarResponseData;
+// The calendar endpoint wraps its payload in `data` like every Strapi response
+const availabilities = (
+  calendarResponse.data.value as unknown as {
+    data: AvailabilitiesGetCalendarResponseData;
+  } | null
+)?.data;
 
 // Use pricing composable
 const {
