@@ -36,8 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { format, set } from 'date-fns';
+import { computed, defineEmits, defineProps } from 'vue';
 import type {
   CalendarActiveSelection,
   OnChangeDateParams,
@@ -58,7 +58,7 @@ const { t } = useI18n();
 
 const formFieldUi = { label: 'font-text font-normal text-sm' };
 const selectUi = {
-  base: 'shadow-none! h-14 border! border-solid! border-black!',
+  base: 'shadow-none bg-[#F7F7F7]! h-14 border border-solid border-black',
   content: 'px-0!',
 };
 

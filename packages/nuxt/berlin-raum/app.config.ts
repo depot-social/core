@@ -20,9 +20,9 @@ export default defineAppConfig({
           color: 'primary',
           variant: 'solid',
           class: {
-            headCell: 'text-orange-400 font-normal',
+            headCell: 'text-black font-normal',
             cellTrigger:
-              'm-0 h-9 w-full rounded-none text-black data-selected:bg-orange-400 data-selected:text-white data-selection-start:rounded-l-full data-selection-end:rounded-r-full data-highlighted:bg-orange-100 data-highlighted-start:rounded-l-full data-highlighted-end:rounded-r-full data-today:not-data-selected:text-orange-500 hover:not-data-selected:bg-orange-100 hover:not-data-selected:rounded-full data-outside-view:invisible',
+              'm-0 h-9 w-full rounded-none text-black data-selected:bg-orange-300 data-selected:text-black data-selection-start:rounded-l-full data-selection-end:rounded-r-full data-highlighted:bg-orange-100 data-highlighted-start:rounded-l-full data-highlighted-end:rounded-r-full data-today:not-data-selected:text-orange-500 hover:not-data-selected:bg-orange-100 hover:not-data-selected:rounded-full data-outside-view:invisible',
           },
         },
       ],
@@ -77,16 +77,22 @@ export default defineAppConfig({
       // @see https://ui.nuxt.com/docs/components/button#theme
       compoundVariants: [
         {
+          color: 'neutral',
+          variant: 'ghost',
+          class:
+            'rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-sm gap-1.5 text-default hover:bg-elevated active:bg-elevated outline-inverted/25 focus-visible:outline-3 hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent',
+        },
+        {
           color: 'primary',
           variant: 'solid',
           class:
-            'mt-0 ring-0 text-center border-black border-2 rounded-lg py-3.5 px-6 w-max text-2lg cursor-pointer font-semibold bg-black text-white hover:bg-gray-800 hover:text-white active:bg-gray-800 focus-visible:bg-black focus-visible:text-white transition-colors leading-none h-auto shadow-none',
+            'mt-0 ring-0 text-center border-black border-2 rounded-lg py-3.5 px-6 w-max text-2lg cursor-pointer font-semibold bg-black text-white hover:bg-gray-800 hover:text-white active:bg-gray-800 focus-visible:bg-black disabled:border-gray-500 disabled:text-gray-600 focus-visible:text-white transition-colors leading-none h-auto shadow-none',
         },
         {
           color: 'primary',
           variant: 'outline',
           class:
-            'mt-0 ring-0 text-center border-black border-2 rounded-lg py-3.5 px-6 w-max text-2lg cursor-pointer font-semibold bg-white text-black hover:bg-black hover:text-white active:bg-gray-800 focus-visible:bg-black focus-visible:text-white transition-colors leading-none h-auto shadow-none',
+            'mt-0 ring-0 text-center border-black border-2 rounded-lg py-3.5 px-6 w-max text-2lg cursor-pointer font-semibold bg-white text-black hover:bg-black hover:text-white active:bg-gray-800 focus-visible:bg-black focus-visible:text-white disabled:border-gray-500 disabled:text-gray-600 transition-colors leading-none h-auto shadow-none',
         },
       ],
       defaultVariants: {

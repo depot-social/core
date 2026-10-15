@@ -48,7 +48,7 @@
       <div class="grid grid-cols-12 gap-5">
         <!-- Resource quick information and map -->
         <div
-          class="col-span-12 md:col-span-6 lg:col-span-5 md:sticky md:top-[20px] self-start mb-8 space-y-6"
+          class="col-span-12 lg:col-span-5 lg:sticky lg:top-[20px] self-start mb-8 space-y-6"
         >
           <h1
             v-if="resource?.title"
@@ -126,37 +126,6 @@
             </div>
           </div>
 
-          <div v-if="resource.user" class="flex flex-col">
-            <span class="text-base font-medium">{{
-              $t('resource_provider')
-            }}</span>
-            <div class="flex items-start mt-3 gap-3">
-              <div class="avatar avatar-placeholder">
-                <div class="bg-primary text-white rounded-full w-18">
-                  <span>
-                    {{ getUsernameAbbreviationFromUser(user) }}
-                  </span>
-                </div>
-              </div>
-              <div class="flex flex-col">
-                <p class="font-sans">
-                  {{ getUsernameFromUser(user) }}
-                </p>
-                <p class="text-gray-800">
-                  {{ $t('resource_memberSince') }}
-                  {{ formatDate(user.createdAt, 'MMM yyyy') }}
-                </p>
-                <!-- <ul class="flex gap-2 mt-4 text-base">
-                <li class="badge badge-sm border-0">4 Ressourcen</li>
-                <li class="badge badge-sm badge-accent">
-                  <i class="ph ph-checks mr-2"></i>
-                  Gemeinwohl Akteur
-                </li>
-              </ul> -->
-              </div>
-            </div>
-          </div>
-
           <div v-if="resource.address">
             <BaseResourceMap
               class="m-0!"
@@ -171,7 +140,7 @@
         </div>
 
         <!-- Resource information -->
-        <div class="col-span-12 md:col-span-6 md:col-start-7">
+        <div class="col-span-12 lg:col-span-6 lg:col-start-7">
           <h2 class="font-semibold text-xl mt-6 mb-5 sm:mb-7">
             {{ $t('berlin_resource_title') }}
           </h2>
@@ -337,10 +306,6 @@
 import type {
   AvailabilitiesGetCalendarResponseData,
   Resource,
-} from '@depot/shared';
-import {
-  getUsernameAbbreviationFromUser,
-  getUsernameFromUser,
 } from '@depot/shared';
 import { format } from 'date-fns';
 import { marked } from 'marked';
