@@ -54,7 +54,6 @@ import { EmptyResource, PriceTariffType } from '@depot/shared';
 import type { Ref } from 'vue';
 import { reactive, ref } from 'vue';
 import { AUTHORIZATION_ERROR, PAGE_NOT_FOUND } from '~/base/utils/errors';
-import { getResourcePath, getResourcesPath } from '~/base/utils/paths';
 import type { ResourceFormSubmitPayload } from '~/base/components/resource-form/types';
 
 useHead({
@@ -66,6 +65,7 @@ definePageMeta({
 });
 
 const route = useRoute();
+const localePath = useLocalePath();
 const slug = route.params.slug as string;
 
 if (!slug) {
@@ -193,7 +193,11 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
 
     const updatedSlug = response?.data?.slug ?? resourceFormData.slug;
     await navigateTo(
-      updatedSlug ? getResourcePath(updatedSlug) : getResourcesPath()
+      localePath(
+        updatedSlug
+          ? { name: 'resources-slug', params: { slug: updatedSlug } }
+          : { name: 'resources' }
+      )
     );
   } catch (error) {
     if (import.meta.dev) {

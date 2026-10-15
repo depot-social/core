@@ -2,23 +2,27 @@
   <button
     v-if="userIsLoggedIn"
     type="submit"
-    class="btn btn-primary self-end"
+    class="btn btn-outline btn-lg w-full rounded-lg border-black bg-white text-black font-medium hover:bg-black hover:text-white"
     @click="onSubmit"
     :disabled="!canSubmit || isRedirecting"
   >
     <span v-if="isRedirecting" class="loading loading-spinner"></span>
     <span v-else>{{ $t('requestBooking') }}</span>
   </button>
-  <a v-else href="/user/login" class="btn btn-primary self-end">
+  <NuxtLink
+    v-else
+    href="/user/login"
+    class="btn btn-outline btn-lg w-full rounded-lg border-black bg-white text-black font-medium hover:bg-black hover:text-white"
+  >
     <span v-if="isRedirecting" class="loading loading-spinner"></span>
     <span v-else>{{ $t('loginAndRequestBooking') }}</span>
-  </a>
+  </NuxtLink>
 </template>
 
 <script setup lang="ts">
 import type { User } from '@depot/shared';
 import { computed, ref, type Ref } from 'vue';
-import type { CalendarActiveSelection } from '../calendar/calendar.props';
+import type { CalendarActiveSelection } from '~/base/components/calendar/calendar.props';
 
 interface Props {
   selection: CalendarActiveSelection;

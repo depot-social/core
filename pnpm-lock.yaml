@@ -295,6 +295,9 @@ importers:
 
   packages/nuxt:
     dependencies:
+      '@internationalized/date':
+        specifier: ^3.12.4
+        version: 3.12.4
       '@nuxt/eslint':
         specifier: ^1.17.0
         version: 1.17.0(b14e1ac38e749786b87912b02d960902)
