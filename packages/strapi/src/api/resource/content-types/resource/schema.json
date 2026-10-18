@@ -87,9 +87,6 @@
         "resource-types.berlin-resource-type"
       ]
     },
-    "legacyId": {
-      "type": "integer"
-    },
     "user": {
       "type": "relation",
       "relation": "manyToOne",

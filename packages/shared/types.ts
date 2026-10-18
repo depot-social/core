@@ -333,7 +333,6 @@ export interface Resource extends StrapiBaseEntity {
   availabilities?: Availability[];
   attributes?: ResourceAttribute[];
   user: User;
-  legacyId?: number; // This HAS to stay here until migration to v3 finished
 }
 
 export const EmptyAddress = (): Address => ({

@@ -822,7 +822,7 @@ export interface ApiMessageMessage extends Struct.CollectionTypeSchema {
     messageType: Schema.Attribute.DynamicZone<
       [
         'message-types.booking-event-message-type',
-        'message-types.user-message-type',
+        'message-types.user-message-type'
       ]
     > &
       Schema.Attribute.Required &
@@ -974,7 +974,6 @@ export interface ApiResourceResource extends Struct.CollectionTypeSchema {
     district: Schema.Attribute.Relation<'oneToOne', 'api::district.district'>;
     images: Schema.Attribute.Media<'images' | 'videos', true>;
     isPinned: Schema.Attribute.Boolean;
-    legacyId: Schema.Attribute.Integer;
     links: Schema.Attribute.Component<'custom.link', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -988,7 +987,7 @@ export interface ApiResourceResource extends Struct.CollectionTypeSchema {
     resourceTypes: Schema.Attribute.DynamicZone<
       [
         'resource-types.contingent-resource-type',
-        'resource-types.berlin-resource-type',
+        'resource-types.berlin-resource-type'
       ]
     >;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
@@ -1566,7 +1565,6 @@ export interface PluginUsersPermissionsUser
       }>;
     firstName: Schema.Attribute.String;
     lastName: Schema.Attribute.String;
-    legacyId: Schema.Attribute.Integer & Schema.Attribute.Private;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

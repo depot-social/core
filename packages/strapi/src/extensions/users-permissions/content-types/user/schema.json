@@ -96,10 +96,6 @@
         "na"
       ]
     },
-    "legacyId": {
-      "type": "integer",
-      "private": true
-    },
     "resources": {
       "type": "relation",
       "relation": "oneToMany",
