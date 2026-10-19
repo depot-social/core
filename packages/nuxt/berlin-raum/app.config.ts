@@ -103,6 +103,13 @@ export default defineAppConfig({
         variant: 'solid',
       },
     },
+    pagination: {
+      // @see https://ui.nuxt.com/docs/components/pagination#theme
+      // Buttons use the neutral/ghost button variant (set on <UPagination>), only the active page is highlighted here
+      slots: {
+        item: 'justify-center aria-[current=page]:bg-black aria-[current=page]:text-white aria-[current=page]:hover:bg-gray-800',
+      },
+    },
     select: {
       // @see https://ui.nuxt.com/docs/components/select#theme
       slots: {

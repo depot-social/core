@@ -19,8 +19,13 @@
     </div>
 
     <UTable
+      ref="table"
+      v-model:pagination="pagination"
       :data="bookings"
       :columns="columns"
+      :pagination-options="{
+        getPaginationRowModel: getPaginationRowModel(),
+      }"
       :empty="$t('noBookings')"
       :ui="{ tbody: '[&>tr]:data-[selectable=true]:cursor-pointer' }"
       @select="onSelect"
@@ -70,12 +75,30 @@
         </span>
       </template>
     </UTable>
+
+    <div
+      v-if="bookings.length > pagination.pageSize"
+      class="flex justify-center border-t border-default pt-4"
+    >
+      <UPagination
+        color="neutral"
+        variant="ghost"
+        active-color="neutral"
+        active-variant="ghost"
+        :page="pagination.pageIndex + 1"
+        :items-per-page="table?.tableApi?.getState().pagination.pageSize"
+        :total="table?.tableApi?.getFilteredRowModel().rows.length"
+        @update:page="(p: number) => table?.tableApi?.setPageIndex(p - 1)"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { AvailabilitiesGetDashboardResponseData } from '@depot/shared';
 import type { TableColumn, TableRow } from '@nuxt/ui';
+import { getPaginationRowModel } from '@tanstack/vue-table';
+import { defineProps } from 'vue';
 import { getBookingPath } from '~/base/utils/paths';
 import {
   getBookingList,
@@ -92,6 +115,17 @@ const { formatDate } = useDateFormat();
 
 const filters: BookingFilter[] = ['all', 'past', 'upcoming'];
 const filter = ref<BookingFilter>('upcoming');
+
+const table = useTemplateRef('table');
+const pagination = ref({
+  pageIndex: 0,
+  pageSize: 6,
+});
+
+// Start on the first page whenever the filter changes
+watch(filter, () => {
+  pagination.value.pageIndex = 0;
+});
 
 const bookings = computed(() =>
   props.dashboard ? getBookingList(props.dashboard, filter.value) : []
