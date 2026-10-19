@@ -22,6 +22,34 @@ All email template content is stored in the singleType `plugin::emails.email-tem
 | `resourceAwaitsActivation` | Notify depot administrator about a new resource requiring review/approval |
 | `organizationAwaitsActivation` | Notify depot administrator about a new organization requesting non-profit recognition |
 | `berlinBooking` | Notify Berlin room provider about a new booking request (and copy to requester) |
+| `emailConfirmation` | Registration: confirm email address (sent by users-permissions, see below) |
+| `resetPassword` | Forgot password: reset link (sent by users-permissions, see below) |
+
+### Registration and reset password emails (users-permissions)
+
+These two emails are sent by Strapi's core users-permissions plugin, which reads them from its own store (Settings → Users & Permissions plugin → Email templates). To style them like all other emails, maintain them in the email-template singleType instead (`emailConfirmationTitle`/`Body`, `resetPasswordTitle`/`Body`).
+
+The plugin renders title and body into `layout` via MJML and writes the resulting HTML into the users-permissions store:
+- on Strapi startup (bootstrap)
+- whenever the email-template singleType is saved
+
+If title or body is empty, Strapi's own template is kept. Manual edits in the users-permissions settings are overwritten by the next sync. MJML errors are logged and the current template is kept.
+
+Placeholders are converted to users-permissions syntax (`{{ URL }}` → `<%= URL %>`) and filled by Strapi when sending:
+
+| Email | Body | Title |
+| --- | --- | --- |
+| `emailConfirmation` | `{{ URL }}`, `{{ CODE }}`, `{{ SERVER_URL }}`, `{{ ADMIN_URL }}`, `{{ USER.username }}`, `{{ USER.email }}` | `{{ USER.username }}`, `{{ USER.email }}` |
+| `resetPassword` | `{{ URL }}`, `{{ TOKEN }}`, `{{ SERVER_URL }}`, `{{ ADMIN_URL }}`, `{{ USER.username }}`, `{{ USER.email }}` | `{{ USER.username }}`, `{{ USER.email }}` |
+
+Links must be built like this:
+
+```mjml
+<mj-button href="{{ URL }}?confirmation={{ CODE }}">E-Mail bestätigen</mj-button>
+<mj-button href="{{ URL }}?code={{ TOKEN }}">Passwort zurücksetzen</mj-button>
+```
+
+For reset password, `URL` is the "Reset password page" configured in the users-permissions advanced settings.
 
 ### Mustache-style templating
 
