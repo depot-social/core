@@ -1,7 +1,8 @@
 /// <reference types="vitest" />
 import { test, assert } from 'vitest';
 import { PriceTariffType } from '@depot/shared';
-import {
+import type { Core } from '@strapi/strapi';
+import emailsService, {
   getBookingRequestPriceTemplateData,
   newLineToHtmlParagraph,
   removeBookingRequestPriceTemplateContent,
@@ -117,4 +118,40 @@ test('removes the legacy price block from a booking-request MJML template', () =
   assert.include(templateWithoutPrice, 'Weitere Buchungsdetails');
   assert.notInclude(templateWithoutPrice, 'priceText');
   assert.notInclude(templateWithoutPrice, 'kostet');
+});
+
+test('syncAuthEmailTemplates renders auth emails into the users-permissions store', async () => {
+  const emailSettings = {
+    email_confirmation: { options: { object: 'old', message: 'old' } },
+    reset_password: { options: { object: 'old', message: 'old' } },
+  };
+  let storedValue: typeof emailSettings | undefined;
+
+  const strapi = {
+    documents: () => ({
+      findFirst: async () => ({
+        layout:
+          '<mjml><mj-body background-color="#fff2e1"><mj-section><mj-column><mj-text>{{ headline }}</mj-text>{{ content }}</mj-column></mj-section></mj-body></mjml>',
+        emailConfirmationTitle: 'Willkommen {{ USER.username }}',
+        emailConfirmationBody:
+          '<mj-button href="{{ URL }}?confirmation={{ CODE }}">Bestätigen</mj-button>',
+      }),
+    }),
+    store: () => ({
+      get: async () => emailSettings,
+      set: async ({ value }: { value: typeof emailSettings }) => {
+        storedValue = value;
+      },
+    }),
+  } as unknown as Core.Strapi;
+
+  await emailsService({ strapi }).syncAuthEmailTemplates();
+
+  const confirmation = storedValue?.email_confirmation.options;
+  assert.equal(confirmation?.object, 'Willkommen <%= USER.username %>');
+  assert.include(confirmation?.message, '<%= URL %>?confirmation=<%= CODE %>');
+  assert.include(confirmation?.message, '#fff2e1');
+
+  // Without title and body the existing template is kept
+  assert.equal(storedValue?.reset_password.options.message, 'old');
 });

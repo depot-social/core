@@ -23,6 +23,7 @@ export interface EmailsService {
   sendOrganizationAwaitsActivationMail(userId: number): Promise<boolean>;
   sendBerlinBookingEmail(berlinBooking: BerlinBooking): Promise<boolean>;
   sendBerlinRaffleEntryEmail(raffleEntry: BerlinRaffleEntry): Promise<boolean>;
+  syncAuthEmailTemplates(): Promise<void>;
 }
 
 const depotBaseUrl =
@@ -150,6 +151,27 @@ const compileTemplate = (
   });
 
   return compiled(data);
+};
+
+/**
+ * Registration and reset password emails are sent by users-permissions.
+ * Maps users-permissions store keys to the singleType title/body fields.
+ */
+const authEmailFields = {
+  email_confirmation: ['emailConfirmationTitle', 'emailConfirmationBody'],
+  reset_password: ['resetPasswordTitle', 'resetPasswordBody'],
+} as const;
+
+/**
+ * {{ URL }} becomes <%= URL %>, which users-permissions replaces when sending
+ */
+const authEmailPlaceholders = {
+  URL: '<%= URL %>',
+  CODE: '<%= CODE %>',
+  TOKEN: '<%= TOKEN %>',
+  SERVER_URL: '<%= SERVER_URL %>',
+  ADMIN_URL: '<%= ADMIN_URL %>',
+  USER: { username: '<%= USER.username %>', email: '<%= USER.email %>' },
 };
 
 export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
@@ -641,6 +663,67 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
     } catch (err) {
       console.error('Error sending raffle entry email:', err);
       return false;
+    }
+  },
+
+  /**
+   * Renders the registration and reset password emails from the singleType
+   * into the users-permissions store. Emails without title or body keep
+   * their current template.
+   */
+  async syncAuthEmailTemplates() {
+    try {
+      const emailTemplate = await getEmailTemplateSingleType(strapi);
+      const pluginStore = strapi.store({
+        type: 'plugin',
+        name: 'users-permissions',
+      });
+      const emailSettings = (await pluginStore.get({ key: 'email' })) as Record<
+        string,
+        { options: Record<string, unknown> }
+      > | null;
+
+      if (!emailTemplate?.layout || !emailSettings) {
+        return;
+      }
+
+      for (const [key, [titleField, bodyField]] of Object.entries(
+        authEmailFields
+      )) {
+        if (!emailTemplate[titleField] || !emailTemplate[bodyField]) {
+          continue;
+        }
+
+        const compiledTitle = compileTemplate(
+          emailTemplate[titleField],
+          authEmailPlaceholders
+        );
+        const compiledBody = compileTemplate(
+          emailTemplate[bodyField],
+          authEmailPlaceholders
+        );
+        const compiledLayout = compileTemplate(emailTemplate.layout, {
+          headline: compiledTitle,
+          content: compiledBody,
+        });
+
+        const mail = mjml2html(compiledLayout, {
+          validationLevel:
+            process.env.NODE_ENV === 'production' ? 'skip' : 'strict',
+        });
+
+        if (mail.errors && mail.errors.length >= 1) {
+          console.error(`Auth email "${key}": MJML errors:`, mail.errors);
+          continue;
+        }
+
+        emailSettings[key].options.object = compiledTitle;
+        emailSettings[key].options.message = mail.html;
+      }
+
+      await pluginStore.set({ key: 'email', value: emailSettings });
+    } catch (err) {
+      console.error('Error syncing auth email templates:', err);
     }
   },
 });
