@@ -11,8 +11,10 @@
           <use href="/illustrations/ausleihe.svg#fragment" />
         </svg>
 
-        <span class="text-2lg font-normal hidden sm:inline">
-          ausleihe<span class="font-semibold">.engagiertes.berlin</span>
+        <span class="text-2lg font-normal">
+          ausleihe.<span class="font-semibold hidden sm:inline"
+            >engagiertes.berlin</span
+          >
         </span>
       </div>
     </NuxtLinkLocale>
@@ -20,7 +22,7 @@
     <div class="flex items-center gap-5 ml-auto">
       <NuxtLink
         to="https://engagiertes.berlin"
-        class="hidden md:block text-[16px] font-light no-underline"
+        class="hidden sm:block text-[16px] font-light no-underline"
         target="_blank"
         external
       >
@@ -34,7 +36,7 @@
       <NuxtLink
         v-if="isEnabled('resourceEditing')"
         :to="localePath('resources-add')"
-        class="text-[16px] font-semibold no-underline flex items-center gap-2"
+        class="hidden lg:flex text-[16px] font-semibold no-underline flex-nowrap! items-center gap-2"
       >
         {{ $t('berlin_resources_addResource') }}
 
