@@ -82,6 +82,11 @@
       "type": "string",
       "unique": true
     },
+    "link": {
+      "type": "component",
+      "component": "custom.link",
+      "repeatable": false
+    },
     "organization": {
       "type": "component",
       "component": "custom.organization",

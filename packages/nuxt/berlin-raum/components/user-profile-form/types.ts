@@ -6,6 +6,11 @@ export interface UserProfileAddressPayload {
   place?: string;
 }
 
+export interface UserProfileLinkPayload {
+  url: string;
+  title?: string;
+}
+
 export interface UserProfileFormSubmitPayload {
   email: string;
   firstName: string;
@@ -13,6 +18,7 @@ export interface UserProfileFormSubmitPayload {
   salutation?: UserSalutation;
   phone?: string;
   organizationName?: string;
+  link?: UserProfileLinkPayload;
   address: UserProfileAddressPayload;
   password?: string;
 }
@@ -24,5 +30,6 @@ export interface UserProfileFormInitialData {
   salutation?: UserSalutation;
   phone?: string;
   organizationName?: string;
+  link?: UserProfileLinkPayload;
   address?: UserProfileAddressPayload;
 }

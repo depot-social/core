@@ -163,6 +163,7 @@ export interface User extends StrapiBaseEntity {
   lastName: string;
   phone: string;
   organizationName: string;
+  link?: Link | null;
   salutation?: string;
   address?: Address;
   resources?: Resource[];

@@ -86,6 +86,9 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
       title: payload.title,
       description: payload.description,
       availableUnits: payload.availableUnits,
+      links: payload.website
+        ? [{ url: payload.website, title: payload.websiteTitle }]
+        : [],
       images: payload.images,
       categories: payload.categoryIds.map((id) => ({ id })),
       district: { id: payload.districtId },
