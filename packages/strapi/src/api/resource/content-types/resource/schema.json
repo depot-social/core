@@ -109,6 +109,11 @@
     },
     "isPinned": {
       "type": "boolean"
+    },
+    "searchIndex": {
+      "type": "text",
+      "visible": false,
+      "configurable": false
     }
   }
 }

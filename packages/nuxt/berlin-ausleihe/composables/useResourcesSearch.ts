@@ -1,23 +1,6 @@
 import type { Category, District, Resource } from '@depot/shared';
 import { readonly, ref, watch } from 'vue';
 
-interface SearchFacetBucket {
-  key: string;
-  label: string;
-  count: number;
-}
-
-interface SearchApiResponse {
-  results: Resource[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    pageCount: number;
-    total: number;
-  };
-  facets: Record<string, SearchFacetBucket[]>;
-}
-
 export interface ResourcesSearchState {
   resources: Resource[];
   categories: Category[];
@@ -34,6 +17,20 @@ export interface ResourcesSearchState {
     total: number;
   };
 }
+
+const RESOURCE_POPULATE = [
+  'address',
+  'resourceTypes',
+  'images',
+  'prices',
+  'district',
+  'user',
+  'user.organization',
+  'purposes',
+  'categories',
+  'attributes',
+  'attributes.attribute',
+];
 
 // Strapi's `maxLimit`, see packages/strapi/config/api.ts
 const MAP_PAGE_SIZE = 1000;
@@ -78,10 +75,10 @@ export const useResourcesSearch = async (
 
   const mapResources = ref<Resource[]>(initialResources);
 
-  const strapiClient = useStrapiClient();
+  const { find } = useStrapi();
 
   // Facet selections are applied as DB-level Strapi filters; the free-text term
-  // is handled by the endpoint's `q` param (also reaching dynamic-zone fields).
+  // filters the hidden `searchIndex` field (filled by the search plugin on save).
   const buildFilters = () => {
     const filters: Record<string, unknown> = {};
 
@@ -100,19 +97,38 @@ export const useResourcesSearch = async (
     return filters;
   };
 
-  const searchResources = (pagination: { page: number; pageSize: number }) => {
+  const searchResources = async (pagination: {
+    page: number;
+    pageSize: number;
+  }) => {
     const trimmedQuery = state.value.searchQuery.trim();
     const q =
       trimmedQuery.length >= MIN_SEARCH_LENGTH ? trimmedQuery : undefined;
 
-    return strapiClient<SearchApiResponse>('/search/resources', {
-      params: {
-        q,
-        filters: buildFilters(),
-        sort: sortParams,
-        pagination,
-      },
+    const response = await find<Resource>('resources', {
+      // @ts-expect-error - Strapi supports component and nested populate but types don't reflect it
+      populate: RESOURCE_POPULATE,
+      // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
+      sort: sortParams,
+      filters: {
+        ...buildFilters(),
+        ...(q && { searchIndex: { $containsi: q } }),
+      } as Record<string, unknown>,
+      pagination,
     });
+
+    const meta = response.meta?.pagination;
+
+    return {
+      results: response.data,
+      pagination: {
+        page: meta && 'page' in meta ? meta.page : pagination.page,
+        pageSize:
+          meta && 'pageSize' in meta ? meta.pageSize : pagination.pageSize,
+        pageCount: meta && 'pageCount' in meta ? meta.pageCount : 1,
+        total: meta?.total ?? 0,
+      },
+    };
   };
 
   // Fetches all resources matching the current filters for the map,

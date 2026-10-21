@@ -41,6 +41,17 @@ const getAuthenticatedUserId = (
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === 'string' && value.length > 0;
 
+// searchIndex is only used for filtering and may contain the (redacted) street.
+const omitSearchIndex = (entity: unknown): unknown => {
+  if (typeof entity !== 'object' || entity === null) return entity;
+
+  const { searchIndex: _searchIndex, ...rest } = entity as Record<
+    string,
+    unknown
+  >;
+  return rest;
+};
+
 const getResourceRequestData = (ctx: ResourceControllerContext) =>
   (ctx as ResourceRequest).request?.body?.data;
 
@@ -95,7 +106,11 @@ export default factories.createCoreController(
 
     return {
       async find(ctx: ResourceControllerContext) {
-        const response = (await super.find(ctx)) as FindResponse;
+        const coreResponse = (await super.find(ctx)) as FindResponse;
+        const response = {
+          ...coreResponse,
+          data: coreResponse.data.map(omitSearchIndex),
+        };
 
         if (
           !resourceLocationRedaction.isRedactionEnabled() ||
@@ -148,7 +163,11 @@ export default factories.createCoreController(
       },
 
       async findOne(ctx: ResourceControllerContext) {
-        const response = await super.findOne(ctx);
+        const coreResponse = await super.findOne(ctx);
+        const response = coreResponse && {
+          ...coreResponse,
+          data: omitSearchIndex(coreResponse.data),
+        };
 
         if (
           !resourceLocationRedaction.isRedactionEnabled() ||

@@ -36,7 +36,7 @@ export default ({ env }) => ({
         config: {
             contentTypes: {
                 'api::resource.resource': {
-                    // PDP fields Ausleihe + Raum.
+                    // PDP fields Ausleihe + Raum, concatenated into the hidden `searchIndex` on save.
                     searchFields: [
                         'title',
                         'description',
@@ -45,21 +45,9 @@ export default ({ env }) => ({
                         'resourceTypes.facilities',
                         'resourceTypes.facilitiesAdditionalInfo',
                     ],
-                    facets: [
-                        { field: 'purposes', labelField: 'title' },
-                        { field: 'categories', labelField: 'title' },
-                        { field: 'attributes.attribute', labelField: 'value' },
-                    ],
                     populate: {
                         address: true,
                         resourceTypes: true,
-                        images: true,
-                        prices: true,
-                        district: true,
-                        user: { populate: { organization: true } },
-                        purposes: true,
-                        categories: true,
-                        attributes: { populate: { attribute: true } },
                     },
                 },
             },
