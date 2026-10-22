@@ -83,28 +83,30 @@
       <UInput v-model="state.organizationName" variant="soft" />
     </UFormField>
 
-    <UFormField :label="$t('berlin_profile_linkUrl')" name="link.url">
-      <UInput
-        v-model="state.link.url"
-        type="url"
-        inputmode="url"
-        variant="soft"
-        placeholder="https://"
-        autocomplete="url"
-      />
+    <div class="flex flex-col gap-2.5 md:flex-row *:flex-1">
+      <UFormField :label="$t('berlin_profile_linkUrl')" name="link.url">
+        <UInput
+          v-model="state.link.url"
+          type="url"
+          inputmode="url"
+          variant="soft"
+          placeholder="https://"
+          autocomplete="url"
+        />
 
-      <template #help>
-        {{ $t('berlin_profile_linkUrlHelp') }}
-      </template>
-    </UFormField>
+        <template #help>
+          {{ $t('berlin_profile_linkUrlHelp') }}
+        </template>
+      </UFormField>
 
-    <UFormField :label="$t('berlin_profile_linkTitle')" name="link.title">
-      <UInput v-model="state.link.title" variant="soft" />
+      <UFormField :label="$t('berlin_profile_linkTitle')" name="link.title">
+        <UInput v-model="state.link.title" variant="soft" />
 
-      <template #help>
-        {{ $t('berlin_profile_linkTitleHelp') }}
-      </template>
-    </UFormField>
+        <template #help>
+          {{ $t('berlin_profile_linkTitleHelp') }}
+        </template>
+      </UFormField>
+    </div>
 
     <UFormField :label="$t('profile_phone')" name="phone">
       <UInput

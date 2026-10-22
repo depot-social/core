@@ -78,32 +78,34 @@
           />
         </UFormField>
 
-        <UFormField :label="$t('berlin_resource_website')" name="website">
-          <UInput
-            v-model="state.website"
-            type="url"
-            inputmode="url"
-            placeholder="https://"
-          />
+        <div class="flex flex-col gap-2.5 md:flex-row *:flex-1">
+          <UFormField :label="$t('berlin_resource_website')" name="website">
+            <UInput
+              v-model="state.website"
+              type="url"
+              inputmode="url"
+              placeholder="https://"
+            />
 
-          <template #help>
-            {{ $t('berlin_resource_form_websiteHelp') }}
-          </template>
-        </UFormField>
+            <template #help>
+              {{ $t('berlin_resource_form_websiteHelp') }}
+            </template>
+          </UFormField>
 
-        <UFormField
-          :label="$t('berlin_resource_form_websiteTitle')"
-          name="websiteTitle"
-        >
-          <UInput
-            v-model="state.websiteTitle"
-            :placeholder="$t('berlin_resource_form_websiteTitlePlaceholder')"
-          />
+          <UFormField
+            :label="$t('berlin_resource_form_websiteTitle')"
+            name="websiteTitle"
+          >
+            <UInput
+              v-model="state.websiteTitle"
+              :placeholder="$t('berlin_resource_form_websiteTitlePlaceholder')"
+            />
 
-          <template #help>
-            {{ $t('berlin_resource_form_websiteTitleHelp') }}
-          </template>
-        </UFormField>
+            <template #help>
+              {{ $t('berlin_resource_form_websiteTitleHelp') }}
+            </template>
+          </UFormField>
+        </div>
 
         <UFormField :label="$t('berlin_resource_form_images')" name="images">
           <BerlinResourceFormImagesUpload v-model="state.images" />
