@@ -600,4 +600,8 @@ export interface SingleTypeEmailTemplate extends StrapiBaseEntity {
   raffleEntryTitle: string;
   raffleEntryTitleCopy: string;
   raffleEntryBody: string;
+  emailConfirmationTitle: string;
+  emailConfirmationBody: string;
+  resetPasswordTitle: string;
+  resetPasswordBody: string;
 }

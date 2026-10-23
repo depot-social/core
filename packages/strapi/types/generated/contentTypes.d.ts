@@ -1160,6 +1160,8 @@ export interface PluginEmailsEmailTemplate extends Struct.SingleTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    emailConfirmationBody: Schema.Attribute.Text;
+    emailConfirmationTitle: Schema.Attribute.String;
     layout: Schema.Attribute.Text;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -1173,6 +1175,8 @@ export interface PluginEmailsEmailTemplate extends Struct.SingleTypeSchema {
     raffleEntryBody: Schema.Attribute.Text;
     raffleEntryTitle: Schema.Attribute.String;
     raffleEntryTitleCopy: Schema.Attribute.String;
+    resetPasswordBody: Schema.Attribute.Text;
+    resetPasswordTitle: Schema.Attribute.String;
     resourceAwaitsActivationBody: Schema.Attribute.Text;
     resourceAwaitsActivationTitle: Schema.Attribute.String;
     updatedAt: Schema.Attribute.DateTime;

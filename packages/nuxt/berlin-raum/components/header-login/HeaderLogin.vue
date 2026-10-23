@@ -59,10 +59,7 @@ const shortName = computed(() =>
   user.value ? getUsernameAbbreviationFromUser(user.value) : ''
 );
 
-const isOrganization = computed(() => !!user.value?.organization);
-const organizationName = computed(() =>
-  user.value?.organization ? user.value.organization.title : undefined
-);
+const organizationName = computed(() => user.value?.organizationName);
 
 const onClickLogout = () => {
   logout();
@@ -75,7 +72,7 @@ const onClickLogout = () => {
 const items = computed<DropdownMenuItem[][]>(() => [
   [
     {
-      label: isOrganization.value
+      label: organizationName.value
         ? organizationName.value
         : `${user.value?.firstName} ${user.value?.lastName}`,
       type: 'label',

@@ -68,6 +68,18 @@
     },
     "raffleEntryBody": {
       "type": "text"
+    },
+    "emailConfirmationTitle": {
+      "type": "string"
+    },
+    "emailConfirmationBody": {
+      "type": "text"
+    },
+    "resetPasswordTitle": {
+      "type": "string"
+    },
+    "resetPasswordBody": {
+      "type": "text"
     }
   }
 }
