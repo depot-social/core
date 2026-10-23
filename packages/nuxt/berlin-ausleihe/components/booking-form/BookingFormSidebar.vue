@@ -51,7 +51,7 @@
           <p class="text-sm">{{ $t('timeframe') }}</p>
           <p class="font-bold!">
             <span
-              v-if="pricesEnabled && pending"
+              v-if="pricesEnabled && pending && !storedPrice"
               class="loading loading-dots loading-xs"
               :aria-label="$t('loading')"
             />
@@ -74,7 +74,7 @@
 
       <!-- Price calculation -->
       <template v-if="pricesEnabled">
-        <div v-if="pending" class="mt-4">
+        <div v-if="pending && !storedPrice" class="mt-4">
           <div class="animate-pulse flex flex-col gap-2 mt-8">
             <div class="h-4 bg-gray-200 rounded w-1/2"></div>
             <div class="h-4 bg-gray-200 rounded w-1/3"></div>
@@ -83,7 +83,10 @@
           </div>
         </div>
 
-        <div v-else-if="error" class="mt-4 p-4 bg-red-50 text-red-700 rounded">
+        <div
+          v-else-if="error && !storedPrice"
+          class="mt-4 p-4 bg-red-50 text-red-700 rounded"
+        >
           {{ error.message }}
         </div>
 
@@ -125,6 +128,7 @@ import { fetchResourcePrice } from '~/base/utils/prices';
 interface Props {
   booking: Partial<Booking>;
   resource?: Resource;
+  storedPrice?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -143,7 +147,7 @@ const formatPrice = (value: number) => {
 
 // Fetch price data
 const {
-  data: price,
+  data: previewPrice,
   pending,
   error,
 } = await useAsyncData(
@@ -151,7 +155,7 @@ const {
     props.booking.start || 'no-start'
   }-${props.booking.end || 'no-end'}-${props.booking.bookedUnits || 0}`,
   async () => {
-    if (!pricesEnabled.value) {
+    if (!pricesEnabled.value || props.storedPrice) {
       return null;
     }
 
@@ -179,6 +183,10 @@ const {
   {
     server: true,
   }
+);
+
+const price = computed(() =>
+  props.storedPrice ? props.booking.price : previewPrice.value
 );
 
 const priceDurationLabel = computed(() => {

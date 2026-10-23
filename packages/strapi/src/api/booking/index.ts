@@ -166,6 +166,15 @@ export default {
       }
 
       if (!isAdminOrBackofficeRequest(ctx)) {
+        if (!isUpdate) {
+          if (
+            data.bookingStatus !== undefined &&
+            data.bookingStatus !== 'requested'
+          ) {
+            ctx.throw(400, 'New bookings must have status requested.');
+          }
+          data.bookingStatus = 'requested';
+        }
         const authenticatedUserId = ctx?.state?.user?.id;
 
         if (!authenticatedUserId) {

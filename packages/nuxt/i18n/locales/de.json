@@ -252,7 +252,7 @@
   "noUnitsAvailableDescription": "Bitte gewünschten Zeitraum anpassen und erneut versuchen.",
   "bookingSuccessful": "Buchung angefragt",
   "bookingSuccessfulDescription": "Die Ausleiher:in wurde benachrichtigt.",
-  "bookingStatus": "Buchungsstaus",
+  "bookingStatus": "Buchungsstatus",
   "cancelBooking": "Buchung stornieren",
   "myBookings": "Meine Buchungen",
   "bookingFilter_all": "Alle",
@@ -263,5 +263,16 @@
   "bookingType": "Art",
   "bookingType_own": "Meine Anfrage",
   "bookingType_incoming": "Anfrage an mich",
-  "noBookings": "Keine Buchungen vorhanden"
+  "noBookings": "Keine Buchungen vorhanden",
+  "bookingStatus_requested": "Angefragt",
+  "bookingStatus_confirmed": "Bestätigt",
+  "bookingStatus_cancelled": "Storniert",
+  "bookingConfirmed": "Buchung bestätigt",
+  "bookingCancelled": "Buchung storniert",
+  "bookingImmutableNotice": "Eine abgesendete Buchung kann nicht mehr geändert werden. Für Änderungen storniere die Buchung und sende eine neue Anfrage.",
+  "bookingCancelConfirmation": "Möchtest du diese Buchung wirklich stornieren? Beide Beteiligten werden per E-Mail benachrichtigt.",
+  "bookingStatusConflict": "Der Buchungsstatus hat sich zwischenzeitlich geändert. Die Ansicht wurde aktualisiert.",
+  "bookingActionForbidden": "Du darfst diese Buchungsaktion nicht ausführen.",
+  "bookingActionFailed": "Die Buchungsaktion konnte nicht ausgeführt werden. Bitte versuche es erneut.",
+  "bookingReloadFailed": "Die Aktion wurde gespeichert. Bitte lade die Seite neu, um alle Buchungsdetails zu aktualisieren."
 }

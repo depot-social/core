@@ -3,6 +3,23 @@ import { describe, expect, test, vi } from 'vitest';
 import bookingHasAvailableUnitsPolicy from './bookingHasAvailableUnitsPolicy';
 
 describe('bookingHasAvailableUnitsPolicy', () => {
+  test.each(['confirmed', 'cancelled'])(
+    'rejects initial status %s before checking availability',
+    async (bookingStatus) => {
+      const strapi = { plugin: vi.fn() };
+      await expect(
+        bookingHasAvailableUnitsPolicy(
+          {
+            state: { user: { id: 23 }, isAuthenticated: true },
+            request: { body: { data: { bookingStatus } } },
+          },
+          {},
+          { strapi } as never
+        )
+      ).rejects.toThrow('New bookings must have status requested.');
+      expect(strapi.plugin).not.toHaveBeenCalled();
+    }
+  );
   test('uses a string resource documentId throughout booking creation', async () => {
     const resourceDocumentId = 'yeb23930423324';
     const getMaxAvailable = vi.fn().mockResolvedValue(2);

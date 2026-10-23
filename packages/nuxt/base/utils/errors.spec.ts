@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { getStrapiErrorMessage } from './errors';
+import { getStrapiErrorMessage, getStrapiErrorStatus } from './errors';
+
+it.each([
+  [{ error: { status: 409 } }, 409],
+  [{ data: { error: { status: 403 } } }, 403],
+  [{ statusCode: 409 }, 409],
+  [new Error('Network error'), undefined],
+])('reads Strapi and fetch status codes', (error, status) => {
+  expect(getStrapiErrorStatus(error)).toBe(status);
+});
 
 describe('getStrapiErrorMessage', () => {
   it('returns a Strapi lifecycle error message', () => {

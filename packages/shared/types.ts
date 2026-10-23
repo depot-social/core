@@ -60,14 +60,14 @@ type BookingWritableFields = Pick<
   | 'commentCustomer'
 >;
 
-export type UpdateBookingRequest = Omit<
-  Partial<BookingWritableFields>,
-  'resource'
-> & {
-  resource?: ResourceRelationInput;
-};
+export interface UpdateBookingRequest {
+  bookingStatus: 'confirmed' | 'cancelled';
+}
 
-export type CreateBookingRequest = UpdateBookingRequest & {
+export type CreateBookingRequest = Partial<
+  Pick<BookingWritableFields, 'title' | 'customerAddress' | 'commentCustomer'>
+> & {
+  bookingStatus?: 'requested';
   start: string;
   end: string;
   bookedUnits: number;
@@ -586,6 +586,10 @@ export interface SingleTypeEmailTemplate extends StrapiBaseEntity {
   layout: string;
   bookingRequestTitle: string;
   bookingRequestBody: string;
+  bookingConfirmedTitle?: string;
+  bookingConfirmedBody?: string;
+  bookingCancelledTitle?: string;
+  bookingCancelledBody?: string;
   resourceAwaitsActivationTitle: string;
   resourceAwaitsActivationBody: string;
   organizationAwaitsActivationTitle: string;
