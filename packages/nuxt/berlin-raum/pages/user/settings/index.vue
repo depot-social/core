@@ -66,6 +66,10 @@ const formInitialData = reactive<UserProfileFormInitialData>({
   salutation: undefined,
   phone: '',
   organizationName: '',
+  link: {
+    url: '',
+    title: '',
+  },
   address: {
     street: '',
     zip: '',
@@ -88,6 +92,10 @@ watchEffect(() => {
     lastName: userData.value.lastName ?? '',
     salutation,
     organizationName: userData.value.organizationName ?? '',
+    link: {
+      url: userData.value.link?.url ?? '',
+      title: userData.value.link?.title ?? '',
+    },
     phone: userData.value.phone ?? '',
     address: {
       street: userData.value.address?.street ?? '',
@@ -140,6 +148,9 @@ const onSubmit = async (payload: UserProfileFormSubmitPayload) => {
   if (phone) {
     updatePayload.phone = phone;
   }
+
+  // Always send the link so clearing the URL removes it from the profile
+  updatePayload.link = payload.link ?? null;
 
   try {
     await strapiClient<User>(`/users/me`, {

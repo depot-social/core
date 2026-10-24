@@ -99,6 +99,7 @@ const resourceResponse = await useAsyncData(`resource-edit-${slug}`, () =>
       'categories',
       'district',
       'images',
+      'links',
       'user',
       ...(pricesEnabled.value ? ['prices'] : []),
     ],
@@ -146,6 +147,9 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
       title: payload.title,
       description: payload.description,
       availableUnits: payload.availableUnits,
+      links: payload.website
+        ? [{ url: payload.website, title: payload.websiteTitle }]
+        : [],
       categories: payload.categoryIds.map((id) => ({ id })),
       district: { id: payload.districtId },
       address: {

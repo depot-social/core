@@ -2,6 +2,7 @@ import { randomCirclePoint } from 'random-location';
 import {
   AccessibilityState,
   Address,
+  Link,
   Price,
   PriceTariffType,
   ResourceType,
@@ -134,6 +135,28 @@ export const getResourceType = (
   resourceTypes?.find(
     (resourceType) => resourceType.__component === componentId
   );
+
+/**
+ * Resolves the website shown on a resource detail page: the resource's own
+ * link wins, the provider's profile link is the fallback. The link title
+ * is used as anchor text, otherwise the plain URL.
+ */
+export const getResourceWebsite = (resource: {
+  links?: Pick<Link, 'url' | 'title'>[] | null;
+  user?: { link?: Pick<Link, 'url' | 'title'> | null } | null;
+}): { url: string; label: string } | undefined => {
+  const link = [resource.links?.[0], resource.user?.link].find((candidate) =>
+    candidate?.url?.trim()
+  );
+
+  if (!link) {
+    return undefined;
+  }
+
+  const url = link.url.trim();
+
+  return { url, label: link.title?.trim() || url };
+};
 
 export const getAccessibilityText = (
   accessibilityState: AccessibilityState | undefined

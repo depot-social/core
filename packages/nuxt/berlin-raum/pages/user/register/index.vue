@@ -85,6 +85,7 @@ const onSubmit = async (formPayload: UserProfileFormSubmitPayload) => {
       firstName: string;
       lastName: string;
       organizationName?: string;
+      link?: { url: string; title?: string };
       address:
         | { street?: string; zip?: string; place?: string }
         | Record<string, never>;
@@ -113,6 +114,10 @@ const onSubmit = async (formPayload: UserProfileFormSubmitPayload) => {
     const phone = formPayload.phone?.trim();
     if (phone) {
       registerPayload.phone = phone;
+    }
+
+    if (formPayload.link) {
+      registerPayload.link = formPayload.link;
     }
 
     await register(registerPayload);

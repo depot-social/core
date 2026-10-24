@@ -1573,6 +1573,7 @@ export interface PluginUsersPermissionsUser
       }>;
     firstName: Schema.Attribute.String;
     lastName: Schema.Attribute.String;
+    link: Schema.Attribute.Component<'custom.link', false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

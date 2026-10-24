@@ -189,21 +189,19 @@
               </span>
             </template>
 
-            <template v-if="resource.links?.length">
+            <template v-if="website">
               <span class="text-sm">
                 {{ $t('berlin_resource_website') }}
               </span>
 
               <span>
                 <NuxtLink
-                  :href="resource.links[0]?.url"
+                  :href="website.url"
                   class="text-base font-light lg:text-lg break-all hover:underline underline-offset-2 decoration-1"
                   external
+                  target="_blank"
                 >
-                  {{
-                    resource.links[0]?.url?.match(/^https?:\/\/[^/]+/)?.[0] ??
-                    resource.links[0]?.url
-                  }}
+                  {{ website.label }}
                 </NuxtLink>
               </span>
             </template>
@@ -307,6 +305,7 @@ import type {
   AvailabilitiesGetCalendarResponseData,
   Resource,
 } from '@depot/shared';
+import { getResourceWebsite } from '@depot/shared';
 import { format } from 'date-fns';
 import { marked } from 'marked';
 import { onMounted, onUnmounted, ref } from 'vue';
@@ -351,7 +350,9 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
       'address',
       'prices',
       'categories',
+      'links',
       'user',
+      'user.link',
     ],
   })
 );
@@ -373,6 +374,8 @@ const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
 const { documentId, title, description, images, categories, user } = resource;
 
 console.log(resource);
+
+const website = getResourceWebsite(resource);
 
 const defaultAvailability = resource.availabilities?.find(
   (availability) => availability.end === null
