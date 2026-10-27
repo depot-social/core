@@ -161,6 +161,7 @@ describe('booking lifecycle validation', () => {
     expect(findResource).not.toHaveBeenCalled();
     expect(findOne).not.toHaveBeenCalled();
     expect(data).toMatchObject({
+      bookingStatus: 'requested',
       customer: 946,
       resourceOwner: 17,
     });
@@ -231,13 +232,18 @@ describe('booking lifecycle validation', () => {
       end: existingBooking.end,
       bookedUnits: existingBooking.bookedUnits,
       resource: existingBooking.resource,
+      bookingStatus: 'confirmed',
       customer: 99,
       resourceOwner: 88,
     };
 
     await lifecycle.beforeCreate({ params: { data } });
 
-    expect(data).toMatchObject({ customer: 99, resourceOwner: 88 });
+    expect(data).toMatchObject({
+      customer: 99,
+      resourceOwner: 88,
+      bookingStatus: 'confirmed',
+    });
     expect(findResource).not.toHaveBeenCalled();
     expect(findResourceByDatabaseId).not.toHaveBeenCalled();
   });
@@ -264,6 +270,29 @@ describe('booking lifecycle validation', () => {
     expect(findResource).not.toHaveBeenCalled();
     expect(findResourceByDatabaseId).not.toHaveBeenCalled();
   });
+
+  test.each(['confirmed', 'cancelled'])(
+    'rejects the public initial status %s',
+    async (bookingStatus) => {
+      const { strapi, subscribe } = createStrapiMock();
+      await bookingApi.bootstrap({ strapi: strapi as unknown as Core.Strapi });
+      const lifecycle = subscribe.mock
+        .calls[0][0] as BookingLifecycleSubscriber;
+      await expect(
+        lifecycle.beforeCreate({
+          params: {
+            data: {
+              start: existingBooking.start,
+              end: existingBooking.end,
+              bookedUnits: 1,
+              resource: existingBooking.resource,
+              bookingStatus,
+            },
+          },
+        })
+      ).rejects.toMatchObject({ status: 400 });
+    }
+  );
 
   test('requires an authenticated user for content API writes', async () => {
     const { strapi, subscribe } = createStrapiMock();

@@ -27,6 +27,18 @@
     "bookingRequestBody": {
       "type": "text"
     },
+    "bookingConfirmedTitle": {
+      "type": "string"
+    },
+    "bookingConfirmedBody": {
+      "type": "text"
+    },
+    "bookingCancelledTitle": {
+      "type": "string"
+    },
+    "bookingCancelledBody": {
+      "type": "text"
+    },
     "resourceAwaitsActivationTitle": {
       "type": "string"
     },

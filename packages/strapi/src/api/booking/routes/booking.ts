@@ -9,8 +9,9 @@ export default factories.createCoreRouter('api::booking.booking', {
     create: {
       policies: ['global::bookingHasAvailableUnitsPolicy'],
     },
-    update: {
-      policies: ['global::bookingHasAvailableUnitsPolicy'],
+    findOne: {
+      policies: ['global::isBookingPartyPolicy'],
     },
+    // "update": Check for "isBookingPartyPolicy" located inside service
   },
 });

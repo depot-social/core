@@ -15,10 +15,16 @@ import {
 import type { Core } from '@strapi/strapi';
 import { format } from 'date-fns';
 import template from 'lodash/template';
+import escape from 'lodash/escape';
 import mjml2html from 'mjml';
 
 export interface EmailsService {
   sendBookingRequestMail(bookingDocumentId: string): Promise<boolean>;
+  sendBookingConfirmedMail(booking: Booking): Promise<boolean>;
+  sendBookingCancelledMail(
+    booking: Booking,
+    actor: BookingMailActor
+  ): Promise<boolean>;
   sendResourceAwaitsActivationMail(resourceId: string): Promise<boolean>;
   sendOrganizationAwaitsActivationMail(userId: number): Promise<boolean>;
   sendBerlinBookingEmail(berlinBooking: BerlinBooking): Promise<boolean>;
@@ -26,8 +32,12 @@ export interface EmailsService {
   syncAuthEmailTemplates(): Promise<void>;
 }
 
-const depotBaseUrl =
-  process.env.PUBLIC_DEPOT_BASE_URL || 'https://depot.social';
+export interface BookingMailActor {
+  name: string;
+  role: 'customer' | 'resourceOwner';
+}
+
+const depotBaseUrl = process.env.PUBLIC_DEPOT_BASE_URL || '';
 
 /**
  * Wraps each line of "text" in a <p></p>, if wrapped
@@ -174,7 +184,117 @@ const authEmailPlaceholders = {
   USER: { username: '<%= USER.username %>', email: '<%= USER.email %>' },
 };
 
+const statusMailDefaults = {
+  confirmed: {
+    title: 'Deine Buchung wurde bestätigt',
+    body: '<mj-text>Hallo {{ customerName }}, deine Buchung wurde bestätigt.</mj-text>',
+  },
+  cancelled: {
+    title: 'Deine Buchung wurde storniert',
+    body: '<mj-text>Die Buchung wurde von {{ actorName }} ({{ actorRole }}) storniert.</mj-text>',
+  },
+};
+
+const statusMailDetails = `<mj-text>{{ resourceTitle }}: {{ start }} – {{ ende }}<br />Stückzahl: {{ bookedUnits }}</mj-text>
+{{ #if priceText }}<mj-text>{{ priceText }}</mj-text>{{ /if }}
+<mj-button href="{{ bookingUrl }}">Buchung ansehen</mj-button>`;
+
+const sendBookingStatusEmails = async (
+  strapi: Core.Strapi,
+  booking: Booking,
+  type: 'confirmed' | 'cancelled',
+  actor?: BookingMailActor
+): Promise<boolean> => {
+  const emailTemplate = await getEmailTemplateSingleType(strapi);
+  const defaults = statusMailDefaults[type];
+  const title =
+    type === 'confirmed'
+      ? emailTemplate?.bookingConfirmedTitle
+      : emailTemplate?.bookingCancelledTitle;
+  const body =
+    type === 'confirmed'
+      ? emailTemplate?.bookingConfirmedBody
+      : emailTemplate?.bookingCancelledBody;
+  const layout =
+    emailTemplate?.layout?.trim() ||
+    '<mjml><mj-body><mj-section><mj-column><mj-text>{{ headline }}</mj-text>{{ content }}</mj-column></mj-section></mj-body></mjml>';
+  const name = (user: Booking['customer']) =>
+    escape([user?.firstName, user?.lastName].filter(Boolean).join(' '));
+  const recipients =
+    type === 'confirmed'
+      ? [{ role: 'customer', user: booking.customer }]
+      : [
+          { role: 'customer', user: booking.customer },
+          { role: 'resourceOwner', user: booking.resourceOwner },
+        ];
+
+  const results = await Promise.all(
+    recipients.map(async ({ role, user }) => {
+      try {
+        if (!user?.email) throw new Error('Recipient has no email address.');
+        const data = {
+          customerName: name(booking.customer),
+          resourceOwnerName: name(booking.resourceOwner),
+          resourceTitle: escape(booking.resource?.title || booking.title),
+          start: format(new Date(booking.start), 'dd.MM.yyyy, HH:mm') + ' Uhr',
+          ende: format(new Date(booking.end), 'dd.MM.yyyy, HH:mm') + ' Uhr',
+          bookedUnits: booking.bookedUnits,
+          bookingUrl: `${depotBaseUrl}/bookings/${encodeURIComponent(
+            booking.documentId
+          )}`,
+          actorName: escape(actor?.name || ''),
+          actorRole:
+            actor?.role === 'resourceOwner' ? 'Verleiher:in' : 'Ausleiher:in',
+          priceText: '',
+          ...getBookingRequestPriceTemplateData(booking.price),
+        };
+        const compiledTitle = compileTemplate(
+          title?.trim() || defaults.title,
+          data
+        );
+        const compiledBody = compileTemplate(
+          body?.trim() || defaults.body + statusMailDetails,
+          data
+        );
+        const mail = mjml2html(
+          compileTemplate(layout, {
+            headline: compiledTitle,
+            content: compiledBody,
+          }),
+          {
+            validationLevel: 'strict',
+          }
+        );
+        if (mail.errors.length)
+          throw new Error('Invalid booking status email MJML.');
+        await strapi.plugins['email'].services.email.sendTemplatedEmail(
+          { to: user.email },
+          {
+            subject: compiledTitle,
+            text: compiledBody.replace(/<[^>]*>/g, ''),
+            html: mail.html,
+          }
+        );
+        return true;
+      } catch (error) {
+        strapi.log.error(
+          `Booking mail failed: booking=${booking.documentId}, type=${type}, recipientRole=${role}`,
+          error
+        );
+        return false;
+      }
+    })
+  );
+  return results.every(Boolean);
+};
+
 export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
+  sendBookingConfirmedMail(booking) {
+    return sendBookingStatusEmails(strapi, booking, 'confirmed');
+  },
+  sendBookingCancelledMail(booking, actor) {
+    return sendBookingStatusEmails(strapi, booking, 'cancelled', actor);
+  },
   async sendBookingRequestMail(bookingDocumentId) {
     const pricesEnabled = readBooleanEnv(
       process.env.STRAPI_PLUGIN_PRICES,
@@ -204,8 +324,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
       const bookingUrl = `${depotBaseUrl}/bookings/${booking.documentId}`; // @todo Use getBookingPath(documentId) from @depot/nuxt
       const start =
         format(new Date(booking.start), 'dd.MM.yyyy, HH:mm') + ` Uhr`;
-      const ende =
-        format(new Date(booking.start), 'dd.MM.yyyy, HH:mm') + ` Uhr`;
+      const ende = format(new Date(booking.end), 'dd.MM.yyyy, HH:mm') + ` Uhr`;
       const templateData = {
         customerName,
         commentCustomer,
@@ -276,6 +395,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
         },
         emailTemplateData
       );
+      return true;
     } catch (err) {
       console.log('Error sending email', err);
       return false;

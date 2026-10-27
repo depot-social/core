@@ -5,6 +5,18 @@ export const PAGE_NOT_FOUND = 'Page not found';
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
+export const getStrapiErrorStatus = (error: unknown): number | undefined => {
+  if (!isRecord(error)) return;
+  if (isRecord(error.error) && typeof error.error.status === 'number')
+    return error.error.status;
+  if (isRecord(error.data)) {
+    const nested = getStrapiErrorStatus(error.data);
+    if (nested !== undefined) return nested;
+  }
+  if (typeof error.statusCode === 'number') return error.statusCode;
+  if (typeof error.status === 'number') return error.status;
+};
+
 export const getStrapiErrorMessage = (
   error: unknown,
   fallback: string
