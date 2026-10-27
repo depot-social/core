@@ -136,6 +136,32 @@ export const getResourceType = (
     (resourceType) => resourceType.__component === componentId
   );
 
+// Keep in sync with custom.link's URL validation in Strapi.
+export const WEBSITE_URL_PATTERN =
+  /^(https?:\/\/)?[-a-zA-Z0-9._]{2,256}\.[a-z]{2,6}(:[0-9]+)?([/?#][-a-zA-Z0-9@:%_+.~#?&/=]*)?$/;
+
+export const normalizeWebsiteUrl = (value: string): string | undefined => {
+  const trimmed = value.trim();
+
+  if (!WEBSITE_URL_PATTERN.test(trimmed)) {
+    return undefined;
+  }
+
+  const url =
+    trimmed.startsWith('http://') || trimmed.startsWith('https://')
+      ? trimmed
+      : `https://${trimmed}`;
+
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+      ? url
+      : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 /**
  * Resolves the website shown on a resource detail page: the resource's own
  * link wins, the provider's profile link is the fallback. The link title
@@ -145,17 +171,15 @@ export const getResourceWebsite = (resource: {
   links?: Pick<Link, 'url' | 'title'>[] | null;
   user?: { link?: Pick<Link, 'url' | 'title'> | null } | null;
 }): { url: string; label: string } | undefined => {
-  const link = [resource.links?.[0], resource.user?.link].find((candidate) =>
-    candidate?.url?.trim()
-  );
+  for (const link of [resource.links?.[0], resource.user?.link]) {
+    const url = normalizeWebsiteUrl(link?.url ?? '');
 
-  if (!link) {
-    return undefined;
+    if (url) {
+      return { url, label: link?.title?.trim() || url };
+    }
   }
 
-  const url = link.url.trim();
-
-  return { url, label: link.title?.trim() || url };
+  return undefined;
 };
 
 export const getAccessibilityText = (
