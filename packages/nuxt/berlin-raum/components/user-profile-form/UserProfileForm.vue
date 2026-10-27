@@ -87,7 +87,7 @@
       <UFormField :label="$t('berlin_profile_linkUrl')" name="link.url">
         <UInput
           v-model="state.link.url"
-          type="url"
+          type="text"
           inputmode="url"
           variant="soft"
           placeholder="https://"
@@ -180,6 +180,7 @@
 </template>
 
 <script setup lang="ts">
+import { normalizeWebsiteUrl } from '@depot/shared';
 import * as v from 'valibot';
 import { defineEmits, defineProps, withDefaults } from 'vue';
 import type {
@@ -245,10 +246,14 @@ const schema = computed(() =>
       ),
       organizationName: v.pipe(v.string()),
       link: v.object({
-        url: v.union([
-          v.literal(''),
-          v.pipe(v.string(), v.trim(), v.url($t('validation_invalidUrl'))),
-        ]),
+        url: v.pipe(
+          v.string(),
+          v.trim(),
+          v.check(
+            (value) => value === '' || normalizeWebsiteUrl(value) !== undefined,
+            $t('validation_invalidUrl')
+          )
+        ),
         title: v.pipe(v.string(), v.trim()),
       }),
       salutation: v.optional(v.picklist(['mrs', 'mr', 'na'])),
@@ -362,7 +367,7 @@ const onSubmit = (event: Event) => {
     payload.organizationName = organizationName;
   }
 
-  const linkUrl = state.link.url.trim();
+  const linkUrl = normalizeWebsiteUrl(state.link.url);
   if (linkUrl) {
     payload.link = {
       url: linkUrl,

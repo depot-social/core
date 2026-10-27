@@ -41,7 +41,11 @@
 
 <script setup lang="ts">
 import type { Category, District, Resource } from '@depot/shared';
-import { EmptyResource, PriceTariffType } from '@depot/shared';
+import {
+  EmptyResource,
+  PriceTariffType,
+  normalizeWebsiteUrl,
+} from '@depot/shared';
 import { reactive, ref } from 'vue';
 import type { ResourceFormSubmitPayload } from '~/berlin-ausleihe/components/resource-form/types';
 
@@ -87,7 +91,12 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
       description: payload.description,
       availableUnits: payload.availableUnits,
       links: payload.website
-        ? [{ url: payload.website, title: payload.websiteTitle }]
+        ? [
+            {
+              url: normalizeWebsiteUrl(payload.website),
+              title: payload.websiteTitle,
+            },
+          ]
         : [],
       images: payload.images,
       categories: payload.categoryIds.map((id) => ({ id })),

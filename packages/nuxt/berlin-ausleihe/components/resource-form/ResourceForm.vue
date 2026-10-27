@@ -82,7 +82,7 @@
           <UFormField :label="$t('berlin_resource_website')" name="website">
             <UInput
               v-model="state.website"
-              type="url"
+              type="text"
               inputmode="url"
               placeholder="https://"
             />
@@ -358,7 +358,11 @@
 
 <script setup lang="ts">
 import type { Category, District, GeoData, Resource } from '@depot/shared';
-import { PriceTariffType, getPriceByPriceTariff } from '@depot/shared';
+import {
+  PriceTariffType,
+  getPriceByPriceTariff,
+  normalizeWebsiteUrl,
+} from '@depot/shared';
 import * as v from 'valibot';
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import type { ResourceFormSubmitPayload } from './types';
@@ -406,10 +410,14 @@ const schema = v.object({
     v.minLength(5, $t('resourceForm_titleMinLength'))
   ),
   description: v.string(),
-  website: v.union([
-    v.literal(''),
-    v.pipe(v.string(), v.trim(), v.url($t('validation_invalidUrl'))),
-  ]),
+  website: v.pipe(
+    v.string(),
+    v.trim(),
+    v.check(
+      (value) => value === '' || normalizeWebsiteUrl(value) !== undefined,
+      $t('validation_invalidUrl')
+    )
+  ),
   websiteTitle: v.pipe(v.string(), v.trim()),
   availableUnits: v.pipe(
     v.number(),
@@ -674,6 +682,7 @@ const onSubmit = async (event: Event) => {
     const payload: ResourceFormSubmitPayload = {
       title: state.title,
       description: state.description,
+      // Keep the entered URL for edit change detection; normalize in the page.
       website: state.website.trim() || null,
       websiteTitle: state.websiteTitle.trim() || null,
       availableUnits: state.availableUnits,
