@@ -5,7 +5,7 @@ export default defineAppConfig({
       slots: {
         body: 'flex flex-col gap-8 pt-4 sm:flex-row sm:space-x-0',
         headingLabel: 'font-normal text-base',
-        cell: 'w-full py-0.5',
+        cell: 'w-full py-0.5 has-[[data-unavailable]:not([data-outside-view])]:cursor-not-allowed',
       },
       variants: {
         view: {
@@ -22,7 +22,7 @@ export default defineAppConfig({
           class: {
             headCell: 'text-black font-normal',
             cellTrigger:
-              'm-0 h-9 w-full rounded-none text-black data-selected:bg-orange-300 data-selected:text-black data-selection-start:rounded-l-full data-selection-end:rounded-r-full data-highlighted:bg-orange-100 data-highlighted-start:rounded-l-full data-highlighted-end:rounded-r-full data-today:not-data-selected:text-orange-700 hover:not-data-selected:bg-orange-100 hover:not-data-selected:rounded-full data-outside-view:invisible',
+              'm-0 h-9 w-full cursor-pointer rounded-none text-black data-selected:bg-orange-300 data-selected:text-black data-selection-start:rounded-l-full data-selection-end:rounded-r-full data-highlighted:bg-orange-100 data-highlighted-start:rounded-l-full data-highlighted-end:rounded-r-full data-today:not-data-selected:text-orange-700 hover:not-data-selected:bg-transparent hover:not-data-selected:not-data-disabled:not-data-unavailable:bg-orange-100 hover:not-data-selected:not-data-disabled:not-data-unavailable:rounded-full data-disabled:cursor-not-allowed data-outside-view:invisible',
           },
         },
       ],
