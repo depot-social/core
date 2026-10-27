@@ -439,8 +439,6 @@ if (
 const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
 const { title, images, resourceTypes } = resource;
 
-console.log('resource', resource);
-
 const website = getResourceWebsite(resource);
 
 const berlinResourceType = getResourceType(

@@ -357,8 +357,6 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
   })
 );
 
-console.log('resourceResponse', resourceResponse.data);
-
 if (
   !resourceResponse.data ||
   !resourceResponse.data.value ||
@@ -372,8 +370,6 @@ if (
 
 const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
 const { documentId, title, description, images, categories, user } = resource;
-
-console.log(resource);
 
 const website = getResourceWebsite(resource);
 

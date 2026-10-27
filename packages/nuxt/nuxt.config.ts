@@ -45,6 +45,13 @@ export default defineNuxtConfig({
   // app: {
   //   pageTransition: { name: 'page', mode: 'out-in' },
   // },
+  experimental: {
+    // Prerendered routes are only added in the `prerender:routes` hook, so the
+    // client bundle is built with payload extraction off and never loads the
+    // extracted `_payload.json`. Inline the payload instead to avoid hydration
+    // mismatches (and a 404) on prerendered resource pages.
+    payloadExtraction: false,
+  },
   runtimeConfig: {
     public: {
       activeLayer,
