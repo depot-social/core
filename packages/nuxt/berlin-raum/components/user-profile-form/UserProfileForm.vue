@@ -83,6 +83,31 @@
       <UInput v-model="state.organizationName" variant="soft" />
     </UFormField>
 
+    <div class="flex flex-col gap-2.5 md:flex-row *:flex-1">
+      <UFormField :label="$t('berlin_profile_linkUrl')" name="link.url">
+        <UInput
+          v-model="state.link.url"
+          type="text"
+          inputmode="url"
+          variant="soft"
+          placeholder="https://"
+          autocomplete="url"
+        />
+
+        <template #help>
+          {{ $t('berlin_profile_linkUrlHelp') }}
+        </template>
+      </UFormField>
+
+      <UFormField :label="$t('berlin_profile_linkTitle')" name="link.title">
+        <UInput v-model="state.link.title" variant="soft" />
+
+        <template #help>
+          {{ $t('berlin_profile_linkTitleHelp') }}
+        </template>
+      </UFormField>
+    </div>
+
     <UFormField :label="$t('profile_phone')" name="phone">
       <UInput
         v-model="state.phone"
@@ -155,6 +180,7 @@
 </template>
 
 <script setup lang="ts">
+import { normalizeWebsiteUrl } from '@depot/shared';
 import * as v from 'valibot';
 import { defineEmits, defineProps, withDefaults } from 'vue';
 import type {
@@ -219,6 +245,17 @@ const schema = computed(() =>
         v.maxLength(36, $t('validation_maxLength36'))
       ),
       organizationName: v.pipe(v.string()),
+      link: v.object({
+        url: v.pipe(
+          v.string(),
+          v.trim(),
+          v.check(
+            (value) => value === '' || normalizeWebsiteUrl(value) !== undefined,
+            $t('validation_invalidUrl')
+          )
+        ),
+        title: v.pipe(v.string(), v.trim()),
+      }),
       salutation: v.optional(v.picklist(['mrs', 'mr', 'na'])),
       phone: v.pipe(
         v.optional(v.string()),
@@ -272,6 +309,10 @@ const buildInitialState = (
   lastName: initialData?.lastName ?? '',
   salutation: initialData?.salutation as UserSalutation | undefined,
   organizationName: initialData?.organizationName ?? '',
+  link: {
+    url: initialData?.link?.url ?? '',
+    title: initialData?.link?.title ?? '',
+  },
   phone: initialData?.phone ?? '',
   address: {
     street: initialData?.address?.street ?? '',
@@ -324,6 +365,14 @@ const onSubmit = (event: Event) => {
   const organizationName = state.organizationName?.trim();
   if (organizationName) {
     payload.organizationName = organizationName;
+  }
+
+  const linkUrl = normalizeWebsiteUrl(state.link.url);
+  if (linkUrl) {
+    payload.link = {
+      url: linkUrl,
+      title: state.link.title.trim() || undefined,
+    };
   }
 
   const password = state.password?.trim();

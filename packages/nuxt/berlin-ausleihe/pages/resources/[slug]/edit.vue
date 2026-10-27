@@ -49,6 +49,7 @@ import { EmptyResource, PriceTariffType } from '@depot/shared';
 import type { Ref } from 'vue';
 import { reactive, ref } from 'vue';
 import type { ResourceFormSubmitPayload } from '~/berlin-ausleihe/components/resource-form/types';
+import { getResourceLinksUpdate } from '~/berlin-ausleihe/components/resource-form/links';
 import { AUTHORIZATION_ERROR, PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 useHead({
@@ -99,6 +100,7 @@ const resourceResponse = await useAsyncData(`resource-edit-${slug}`, () =>
       'categories',
       'district',
       'images',
+      'links',
       'user',
       ...(pricesEnabled.value ? ['prices'] : []),
     ],
@@ -156,6 +158,15 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
         longitude: payload.geoData?.longitude ?? null,
       },
     };
+
+    const links = getResourceLinksUpdate(
+      fetchedResource.links,
+      payload.website,
+      payload.websiteTitle
+    );
+    if (links !== undefined) {
+      requestBody.links = links;
+    }
 
     // The form only holds newly uploaded images, so append them to the existing ones
     if (payload.images.length > 0) {

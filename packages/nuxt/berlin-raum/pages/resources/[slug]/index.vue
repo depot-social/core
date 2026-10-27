@@ -147,21 +147,19 @@
               </span>
             </template>
 
-            <template v-if="resource.links?.length">
+            <template v-if="website">
               <span class="text-sm">
                 {{ $t('berlin_resource_website') }}
               </span>
 
               <span>
                 <NuxtLink
-                  :href="resource.links[0]?.url"
+                  :href="website.url"
                   class="text-base font-light lg:text-lg break-all hover:underline underline-offset-2 decoration-1"
                   external
+                  target="_blank"
                 >
-                  {{
-                    resource.links[0]?.url?.match(/^https?:\/\/[^/]+/)?.[0] ??
-                    resource.links[0]?.url
-                  }}
+                  {{ website.label }}
                 </NuxtLink>
               </span>
             </template>
@@ -351,6 +349,7 @@ import type { BerlinResourceType, Resource } from '@depot/shared';
 import {
   getAccessibilityText,
   getResourceType,
+  getResourceWebsite,
   ResourceTypeComponent,
 } from '@depot/shared';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
@@ -418,6 +417,8 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
       'address',
       'prices',
       'categories',
+      'user',
+      'user.link',
       // 'resourceTypes.berlinResourceType',
       // 'resourceTypes.contingentResourceType',
     ],
@@ -437,6 +438,8 @@ if (
 
 const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
 const { title, images, resourceTypes } = resource;
+
+const website = getResourceWebsite(resource);
 
 const berlinResourceType = getResourceType(
   resourceTypes ?? [],
