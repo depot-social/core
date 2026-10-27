@@ -308,6 +308,7 @@ export interface Attribute extends StrapiBaseEntity {
 }
 
 export interface Link {
+  id?: number;
   url: string;
   title: string;
 }

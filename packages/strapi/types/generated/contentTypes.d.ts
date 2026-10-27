@@ -1151,6 +1151,10 @@ export interface PluginEmailsEmailTemplate extends Struct.SingleTypeSchema {
     berlinBookingBody: Schema.Attribute.Text;
     berlinBookingTitle: Schema.Attribute.String;
     berlinBookingTitleCopy: Schema.Attribute.String;
+    bookingCancelledBody: Schema.Attribute.Text;
+    bookingCancelledTitle: Schema.Attribute.String;
+    bookingConfirmedBody: Schema.Attribute.Text;
+    bookingConfirmedTitle: Schema.Attribute.String;
     bookingRequestBody: Schema.Attribute.Text;
     bookingRequestTitle: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
