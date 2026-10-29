@@ -51,17 +51,24 @@
             />
           </svg>
 
-          <h2
-            lang="de"
-            class="leading-[1.1]! text-xl mt-3! hyphens-auto text-black font-semibold"
+          <UTooltip
+            :text="title"
+            :disabled="!isTitleTruncated"
+            :content="{ side: 'top' }"
+            :ui="{
+              content: 'h-auto max-w-(--reka-tooltip-trigger-width)',
+              text: 'whitespace-normal',
+            }"
           >
-            <span v-if="isLayer('berlin-raum') && berlinResourceType?.roomName">
-              {{ berlinResourceType.roomName }}
-            </span>
-            <span v-else>
-              {{ resource.title }}
-            </span>
-          </h2>
+            <h2
+              ref="titleEl"
+              lang="de"
+              class="leading-[1.1]! text-xl mt-3! hyphens-auto text-black font-semibold title-clamp overflow-hidden"
+              :class="{ 'fade-last-line': isTitleTruncated }"
+            >
+              {{ title }}
+            </h2>
+          </UTooltip>
         </header>
 
         <footer class="flex flex-col gap-4 h-full">
@@ -80,10 +87,6 @@
                 Personen
               </span>
 
-              <span v-if="isPaid">
-                {{ $t('berlin_resource_isPaid') }}
-              </span>
-
               <span v-if="accessibilityText">
                 {{ accessibilityText }}
               </span>
@@ -100,7 +103,8 @@
             >
               <p
                 ref="truncatedTextEl"
-                class="text-base leading-tight font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
+                class="text-base leading-tight font-light text-balance md:whitespace-nowrap md:overflow-hidden mt-auto [--fade-line:100%]"
+                :class="{ 'fade-last-line': isTextTruncated }"
               >
                 {{ berlinResourceType.provider }}
               </p>
@@ -118,7 +122,8 @@
             >
               <p
                 ref="truncatedTextEl"
-                class="text-base leading-tight font-light text-balance md:whitespace-nowrap md:overflow-hidden md:text-ellipsis mt-auto"
+                class="text-base leading-tight font-light text-balance md:whitespace-nowrap md:overflow-hidden mt-auto [--fade-line:100%]"
+                :class="{ 'fade-last-line': isTextTruncated }"
               >
                 {{ organizationName }}
               </p>
@@ -166,12 +171,12 @@ const berlinResourceType = computed(() => {
   ) as BerlinResourceType | undefined;
 });
 
-const isPaid = computed(() => {
-  return (
-    props.resource.attributes?.some(
-      (attr) => attr?.attribute?.slug === 'is-paid'
-    ) ?? false
-  );
+const title = computed(() => {
+  if (isLayer('berlin-raum') && berlinResourceType.value?.roomName) {
+    return berlinResourceType.value.roomName;
+  }
+
+  return props.resource.title;
 });
 
 const organizationName = computed(() => {
@@ -184,20 +189,76 @@ const accessibilityText = computed(() => {
   return getAccessibilityText(berlinResourceType.value?.accessibilityState);
 });
 
+const titleEl = ref<HTMLElement | null>(null);
+const isTitleTruncated = ref(false);
+
 const truncatedTextEl = ref<HTMLElement | null>(null);
 const isTextTruncated = ref(false);
+
+const updateTitleTruncated = () => {
+  const el = titleEl.value;
+  if (!el) return;
+
+  // The tight line-height lets glyphs overflow the clamped box by a few
+  // pixels, so only count it as truncated when at least half a line is hidden.
+  const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 0;
+  isTitleTruncated.value = el.scrollHeight - el.clientHeight > lineHeight / 2;
+};
+
+const updateTextTruncated = () => {
+  const el = truncatedTextEl.value;
+  isTextTruncated.value = !!el && el.scrollWidth > el.clientWidth;
+};
 
 let resizeObserver: ResizeObserver | undefined;
 
 onMounted(() => {
-  if (!truncatedTextEl.value) return;
-
   resizeObserver = new ResizeObserver(() => {
-    const el = truncatedTextEl.value;
-    isTextTruncated.value = !!el && el.scrollWidth > el.clientWidth;
+    updateTitleTruncated();
+    updateTextTruncated();
   });
-  resizeObserver.observe(truncatedTextEl.value);
+
+  if (titleEl.value) resizeObserver.observe(titleEl.value);
+  if (truncatedTextEl.value) resizeObserver.observe(truncatedTextEl.value);
+
+  // Web fonts change the wrapping without necessarily resizing the clamped
+  // title, so measure again once they are loaded.
+  document.fonts?.ready.then(() => {
+    updateTitleTruncated();
+    updateTextTruncated();
+  });
 });
 
 onBeforeUnmount(() => resizeObserver?.disconnect());
 </script>
+
+<style scoped>
+/* Three lines at `leading-[1.1]`; `3lh` wins where the unit is supported */
+.title-clamp {
+  max-height: 3.3em;
+  max-height: 3lh;
+}
+
+/*
+ * Fade out the end of the last visible line of truncated text
+ * (@see https://css-tricks.com/line-clampin/#aa-the-fade-out-way).
+ * Uses a mask instead of a background-colored overlay, so it works on any
+ * card background: the lines above stay fully visible, the last line fades
+ * out towards the right. Single-line elements set `--fade-line: 100%`.
+ */
+.fade-last-line {
+  --fade-mask: linear-gradient(#000 0 0) top / 100%
+      calc(100% - var(--fade-line, 1lh)) no-repeat,
+    linear-gradient(to right, #000 50%, transparent) bottom / 100%
+      var(--fade-line, 1lh) no-repeat;
+  -webkit-mask: var(--fade-mask);
+  mask: var(--fade-mask);
+}
+
+/* Without `lh` support, derive the line height from the title's leading */
+@supports not (height: 1lh) {
+  .title-clamp {
+    --fade-line: 1.1em;
+  }
+}
+</style>
