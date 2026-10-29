@@ -153,5 +153,11 @@ export default defineAppConfig({
         content: 'text-sm py-2 px-1.5',
       },
     },
+    dropdownMenu: {
+      slots: {
+        item: 'items-center text-black font-semibold',
+        itemLeadingIcon: 'text-primary size-5!',
+      },
+    },
   },
 });
