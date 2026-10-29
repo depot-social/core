@@ -140,7 +140,7 @@ strong {
 }
 
 .no-resources-map {
-  @apply block sm:grid place-items-center self-center order-2 rounded-[30px] w-full h-160! max-h-[calc(100dvh-100px)] bg-neutral-50 border-2 border-dashed border-neutral-200;
+  @apply block sm:grid place-items-center basis-full sm:basis-auto order-2 rounded-[30px]  sm:sticky! sm:top-[20px] w-full min-h-auto! h-128! sm:h-dvh! max-h-[calc(100dvh-40px)] bg-neutral-50 border-2 border-dashed border-neutral-200;
 }
 
 .resources-search-input {
