@@ -29,8 +29,8 @@
           <p class="text-sm">{{ $t('lender') }}:</p>
           <div class="flex flex-col">
             <p class="font-bold!">
-              <template v-if="isOrganization">
-                {{ organizationName }}
+              <template v-if="resource?.user?.organizationName">
+                {{ resource.user.organizationName }}
               </template>
               <template v-else>
                 {{ booking.resourceOwner?.firstName }}
@@ -121,7 +121,7 @@
 
 <script setup lang="ts">
 import type { Booking, Resource } from '@depot/shared';
-import { getUsernameFromUser, priceToString } from '@depot/shared';
+import { priceToString } from '@depot/shared';
 import { format, parseISO } from 'date-fns';
 import { fetchResourcePrice } from '~/base/utils/prices';
 
@@ -202,15 +202,5 @@ const priceDurationLabel = computed(() => {
       : 'days';
 
   return `${price.value.duration} ${$t(translationKey)}`;
-});
-
-const isOrganization = computed(() => {
-  return !!props.resource?.user?.organization;
-});
-
-const organizationName = computed(() => {
-  return props.resource?.user
-    ? getUsernameFromUser(props.resource.user)
-    : undefined;
 });
 </script>
