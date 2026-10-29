@@ -168,24 +168,23 @@
               </span>
             </template>
 
-            <!-- TODO: Show Adress only :when: -->
-            <template v-if="resource.address?.street">
+            <template v-if="displayAddress?.street">
               <span class="text-sm">
                 {{ $t('berlin_resource_address') }}
               </span>
 
               <span class="text-base lg:text-lg">
-                {{ resource.address.street }}
+                {{ displayAddress.street }}
               </span>
             </template>
 
-            <template v-if="resource.address?.zip">
+            <template v-if="displayAddress?.zip">
               <span class="text-sm">
                 {{ $t('berlin_resource_zip') }}
               </span>
 
               <span class="text-base lg:text-lg">
-                {{ resource.address.zip }}
+                {{ displayAddress.zip }}
               </span>
             </template>
 
@@ -302,6 +301,7 @@
 
 <script setup lang="ts">
 import type {
+  Address,
   AvailabilitiesGetCalendarResponseData,
   Resource,
 } from '@depot/shared';
@@ -309,12 +309,10 @@ import { getResourceWebsite } from '@depot/shared';
 import { format } from 'date-fns';
 import { marked } from 'marked';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { useDateFormat } from '~/base/composables/useDateFormat';
 import { PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 const imageGrid = ref<HTMLElement | null>(null); // Create a ref to link to your element
 const clientWidth = ref(0);
-const { formatDate } = useDateFormat();
 
 let resizeObserver: ResizeObserver | null = null;
 
@@ -353,6 +351,7 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
       'links',
       'user',
       'user.link',
+      'user.address',
     ],
   })
 );
@@ -372,6 +371,13 @@ const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
 const { documentId, title, description, images, categories, user } = resource;
 
 const website = getResourceWebsite(resource);
+
+const hasAddressData = (address?: Address | null): address is Address =>
+  !!(address?.street || address?.zip || address?.place);
+
+const displayAddress = hasAddressData(resource.address)
+  ? resource.address
+  : user?.address;
 
 const defaultAvailability = resource.availabilities?.find(
   (availability) => availability.end === null
