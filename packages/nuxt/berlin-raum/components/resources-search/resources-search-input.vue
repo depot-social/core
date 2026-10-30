@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-full">
+  <div class="relative">
     <input
       ref="inputRef"
       :aria-expanded="open ? 'true' : 'false'"
@@ -41,8 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
 import { random } from 'lodash-es';
+import { ref, watch } from 'vue';
 
 interface Props {
   query: string;
