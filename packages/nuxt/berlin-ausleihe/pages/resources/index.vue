@@ -63,31 +63,31 @@
                   ? $t('berlin_resources_result')
                   : categoryValue.length > 0 ||
                     districtsValue.length > 0 ||
-                    state.searchQuery
+                    activeSearchQuery
                   ? $t('berlin_resources_results')
                   : $t('berlin_resources_initialResults')
               }}
             </span>
 
-            <template v-if="state.searchQuery">
+            <template v-if="activeSearchQuery">
               {{ $t('berlin_with') }}
 
               <span
                 class="ml-1.5 font-semibold text-black inline-flex items-center mx-2 bg-very-bright-gray px-1.5 py-0.5 rounded"
               >
-                „{{ state.searchQuery }}“
+                „{{ activeSearchQuery }}“
               </span>
             </template>
 
             <template
               v-if="categoryValue.length > 0 || districtsValue.length > 0"
             >
-              <template v-if="state.searchQuery">
+              <template v-if="activeSearchQuery">
                 <span>&</span>
               </template>
 
               <template v-if="categoryValue.length > 0">
-                <template v-if="!state.searchQuery">
+                <template v-if="!activeSearchQuery">
                   {{ $t('berlin_for') }}
                 </template>
 
@@ -298,6 +298,7 @@ const paginationMeta = resourcesResponse.meta?.pagination;
 const {
   state,
   mapResources,
+  activeSearchQuery,
   setPage,
   setSearchQuery,
   setSelectedCategories,

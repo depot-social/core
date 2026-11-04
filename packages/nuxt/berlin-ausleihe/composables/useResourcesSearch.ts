@@ -1,5 +1,5 @@
 import type { Category, District, Resource } from '@depot/shared';
-import { readonly, ref, watch } from 'vue';
+import { computed, readonly, ref, watch } from 'vue';
 
 export interface ResourcesSearchState {
   resources: Resource[];
@@ -77,6 +77,13 @@ export const useResourcesSearch = async (
 
   const { find } = useStrapi();
 
+  // The free-text term only counts once it reaches the minimum length;
+  // anything shorter behaves like an empty search.
+  const getEffectiveQuery = () => {
+    const query = state.value.searchQuery.trim();
+    return query.length >= MIN_SEARCH_LENGTH ? query : '';
+  };
+
   // Facet selections are applied as DB-level Strapi filters; the free-text term
   // filters the hidden `searchIndex` field (filled by the search plugin on save).
   const buildFilters = () => {
@@ -94,8 +101,8 @@ export const useResourcesSearch = async (
       };
     }
 
-    const query = state.value.searchQuery.trim();
-    if (query.length >= MIN_SEARCH_LENGTH) {
+    const query = getEffectiveQuery();
+    if (query) {
       filters.searchIndex = { $containsi: query };
     }
 
@@ -192,16 +199,9 @@ export const useResourcesSearch = async (
     { deep: true }
   );
 
-  // The free-text search only fires once the term reaches the minimum length,
-  // or when it is cleared (to reset back to the filter-only result set).
-  watch(
-    () => state.value.searchQuery,
-    (query) => {
-      const trimmed = query.trim();
-      if (trimmed.length > 0 && trimmed.length < MIN_SEARCH_LENGTH) return;
-      applyFilterChange();
-    }
-  );
+  // Fires only when the effective query changes, so dropping below the
+  // minimum length resets back to the filter-only result set.
+  watch(getEffectiveQuery, applyFilterChange);
 
   // Watch for changes in activePage
   watch(activePage, (newPage) => {
@@ -300,6 +300,7 @@ export const useResourcesSearch = async (
     state: readonly(state),
     activePage: readonly(activePage),
     mapResources: readonly(mapResources),
+    activeSearchQuery: computed(getEffectiveQuery),
     setSearchQuery,
     setSelectedCategories,
     setSelectedDistricts,
