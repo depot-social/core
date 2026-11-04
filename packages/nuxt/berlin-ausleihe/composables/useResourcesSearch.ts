@@ -94,6 +94,11 @@ export const useResourcesSearch = async (
       };
     }
 
+    const query = state.value.searchQuery.trim();
+    if (query.length >= MIN_SEARCH_LENGTH) {
+      filters.searchIndex = { $containsi: query };
+    }
+
     return filters;
   };
 
@@ -101,19 +106,12 @@ export const useResourcesSearch = async (
     page: number;
     pageSize: number;
   }) => {
-    const trimmedQuery = state.value.searchQuery.trim();
-    const q =
-      trimmedQuery.length >= MIN_SEARCH_LENGTH ? trimmedQuery : undefined;
-
     const response = await find<Resource>('resources', {
       // @ts-expect-error - Strapi supports component and nested populate but types don't reflect it
       populate: RESOURCE_POPULATE,
       // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
       sort: sortParams,
-      filters: {
-        ...buildFilters(),
-        ...(q && { searchIndex: { $containsi: q } }),
-      } as Record<string, unknown>,
+      filters: buildFilters(),
       pagination,
     });
 
@@ -135,13 +133,21 @@ export const useResourcesSearch = async (
   // ignoring the pagination of the result list
   const fetchMapResources = async () => {
     try {
-      const response = await searchResources({
-        page: 1,
-        pageSize: MAP_PAGE_SIZE,
+      const response = await find<Resource>('resources', {
+        // Only what the map markers need
+        fields: ['title', 'slug'],
+        populate: ['address'],
+        // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
+        sort: sortParams,
+        filters: buildFilters(),
+        pagination: {
+          pageSize: MAP_PAGE_SIZE,
+          page: 1,
+        },
       });
 
-      if (response?.results) {
-        mapResources.value = response.results;
+      if (response?.data) {
+        mapResources.value = response.data;
       }
     } catch (error) {
       console.error('Error fetching map resources:', error);
