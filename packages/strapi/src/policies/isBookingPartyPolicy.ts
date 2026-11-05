@@ -1,4 +1,4 @@
-const { ForbiddenError } = require('@strapi/utils').errors;
+const { ForbiddenError, NotFoundError } = require('@strapi/utils').errors;
 import type { Core } from '@strapi/strapi';
 import { Booking } from '@depot/shared';
 
@@ -40,7 +40,7 @@ export default async (
     })) as unknown as Booking;
 
   if (!booking) {
-    throw new ForbiddenError('Booking not found');
+    throw new NotFoundError('Booking not found');
   }
 
   const userId = Number(user.id);

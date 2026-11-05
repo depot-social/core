@@ -78,6 +78,15 @@
     "phone": {
       "type": "string"
     },
+    "organizationName": {
+      "type": "string",
+      "unique": true
+    },
+    "link": {
+      "type": "component",
+      "component": "custom.link",
+      "repeatable": false
+    },
     "organization": {
       "type": "component",
       "component": "custom.organization",
@@ -91,10 +100,6 @@
         "mr",
         "na"
       ]
-    },
-    "legacyId": {
-      "type": "integer",
-      "private": true
     },
     "resources": {
       "type": "relation",

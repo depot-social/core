@@ -65,7 +65,7 @@ import {
   MISSING_PARAMETERS_ERROR,
   PAGE_NOT_FOUND,
 } from '~/base/utils/errors';
-import { getBookingPath, getResourcePath } from '~/base/utils/paths';
+import { getBookingPath } from '~/base/utils/paths';
 
 useHead({
   title: $t('bookingRequest_pageTitle'),
@@ -76,6 +76,7 @@ definePageMeta({
 });
 
 const route = useRoute();
+const localePath = useLocalePath();
 const { findOne, create } = useStrapi();
 
 // Get query parameters
@@ -157,7 +158,12 @@ if (maxAvailableUnits.value === 0) {
     description: $t('noUnitsAvailableDescription'),
   });
 
-  await navigateTo(getResourcePath(resource.value?.slug || ''));
+  await navigateTo(
+    localePath({
+      name: 'resources-slug',
+      params: { slug: resource.value?.slug || '' },
+    })
+  );
 }
 
 // Adjust units if more requested than available

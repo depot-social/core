@@ -1,11 +1,12 @@
 import { readBooleanEnv } from '@depot/shared';
+import { mutateBookingDocumentation } from './booking-documentation';
 
 export default ({ env }) => ({
     'users-permissions': {
         enabled: true,
         config: {
             register: {
-                allowedFields: ["firstName", "lastName", "address", "phone", "salutation"],
+                allowedFields: ["firstName", "lastName", "address", "phone", "salutation", "organizationName", "link"],
             },
         }
     },
@@ -64,6 +65,7 @@ export default ({ env }) => ({
             providerOptions: {
                 host: env('SMTP_HOST'),
                 port: env('SMTP_PORT', 587),
+                // requireTLS: true,
                 auth: {
                     user: env('SMTP_USERNAME'),
                     pass: env('SMTP_PASSWORD')
@@ -94,6 +96,7 @@ export default ({ env }) => ({
                 },
             },
             'x-strapi-config': {
+                mutateDocumentation: mutateBookingDocumentation,
                 // Add plugins to create documentation for
                 // @todo Make @depot/availabilities applicable (requires content-types)
                 plugins: ["upload", "users-permissions", /*'@depot/availabilities'*/],

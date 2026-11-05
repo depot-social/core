@@ -1,24 +1,27 @@
 <template>
-  <button
+  <hr class="mb-10 text-secondary" />
+
+  <UButton
     v-if="userIsLoggedIn"
     type="submit"
-    class="btn btn-primary self-end"
-    @click="onSubmit"
+    variant="outline"
+    :class="'justify-self-center sm:justify-self-auto'"
     :disabled="!canSubmit || isRedirecting"
+    @click="onSubmit"
   >
     <span v-if="isRedirecting" class="loading loading-spinner"></span>
     <span v-else>{{ $t('requestBooking') }}</span>
-  </button>
-  <a v-else href="/user/login" class="btn btn-primary self-end">
+  </UButton>
+  <UButton v-else variant="outline" href="/user/login">
     <span v-if="isRedirecting" class="loading loading-spinner"></span>
     <span v-else>{{ $t('loginAndRequestBooking') }}</span>
-  </a>
+  </UButton>
 </template>
 
 <script setup lang="ts">
 import type { User } from '@depot/shared';
-import { computed, ref, type Ref } from 'vue';
-import type { CalendarActiveSelection } from '../calendar/calendar.props';
+import { computed, defineProps, ref, type Ref } from 'vue';
+import type { CalendarActiveSelection } from '~/base/components/calendar/calendar.props';
 
 interface Props {
   selection: CalendarActiveSelection;

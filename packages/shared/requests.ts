@@ -18,7 +18,7 @@ import type {
   StrapiLoginResponse,
   StrapiResponse,
   User,
-} from './';
+} from './types';
 import { format } from 'date-fns';
 import { union } from 'lodash-es';
 

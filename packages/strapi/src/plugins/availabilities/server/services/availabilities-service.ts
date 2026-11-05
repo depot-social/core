@@ -147,6 +147,11 @@ export default ({
 
   async getDashboardByUserId(userId) {
     const resourceFields = ['documentId', 'title'];
+    const userFields = ['firstName', 'lastName'];
+    const bookingResource = {
+      select: resourceFields,
+      populate: { images: { select: ['url', 'alternativeText'] } },
+    };
 
     const user = await strapi.db
       .query('plugin::users-permissions.user')
@@ -173,16 +178,14 @@ export default ({
           },
           bookingsResourceOwner: {
             populate: {
-              resource: {
-                fields: resourceFields,
-              },
+              resource: bookingResource,
+              customer: { select: userFields },
             },
           },
           bookingsCustomer: {
             populate: {
-              resource: {
-                fields: resourceFields,
-              },
+              resource: bookingResource,
+              resourceOwner: { select: userFields },
             },
           },
         },

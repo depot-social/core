@@ -78,6 +78,35 @@
           />
         </UFormField>
 
+        <div class="flex flex-col gap-2.5 md:flex-row *:flex-1">
+          <UFormField :label="$t('berlin_resource_website')" name="website">
+            <UInput
+              v-model="state.website"
+              type="text"
+              inputmode="url"
+              placeholder="https://"
+            />
+
+            <template #help>
+              {{ $t('berlin_resource_form_websiteHelp') }}
+            </template>
+          </UFormField>
+
+          <UFormField
+            :label="$t('berlin_resource_form_websiteTitle')"
+            name="websiteTitle"
+          >
+            <UInput
+              v-model="state.websiteTitle"
+              :placeholder="$t('berlin_resource_form_websiteTitlePlaceholder')"
+            />
+
+            <template #help>
+              {{ $t('berlin_resource_form_websiteTitleHelp') }}
+            </template>
+          </UFormField>
+        </div>
+
         <UFormField :label="$t('berlin_resource_form_images')" name="images">
           <BerlinResourceFormImagesUpload v-model="state.images" />
         </UFormField>
@@ -329,7 +358,11 @@
 
 <script setup lang="ts">
 import type { Category, District, GeoData, Resource } from '@depot/shared';
-import { PriceTariffType, getPriceByPriceTariff } from '@depot/shared';
+import {
+  PriceTariffType,
+  getPriceByPriceTariff,
+  normalizeWebsiteUrl,
+} from '@depot/shared';
 import * as v from 'valibot';
 import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 import type { ResourceFormSubmitPayload } from './types';
@@ -377,6 +410,15 @@ const schema = v.object({
     v.minLength(5, $t('resourceForm_titleMinLength'))
   ),
   description: v.string(),
+  website: v.pipe(
+    v.string(),
+    v.trim(),
+    v.check(
+      (value) => value === '' || normalizeWebsiteUrl(value) !== undefined,
+      $t('validation_invalidUrl')
+    )
+  ),
+  websiteTitle: v.pipe(v.string(), v.trim()),
   availableUnits: v.pipe(
     v.number(),
     v.integer($t('resourceForm_availableUnitsInteger')),
@@ -502,6 +544,8 @@ const buildInitialState = (resource?: Resource): ResourceFormState => ({
   },
   title: resource?.title ?? '',
   description: resource?.description ?? '',
+  website: resource?.links?.[0]?.url ?? '',
+  websiteTitle: resource?.links?.[0]?.title ?? '',
   availableUnits:
     resource?.availabilities?.find((availability) => availability.end === null)
       ?.availableUnits ?? 1,
@@ -638,6 +682,9 @@ const onSubmit = async (event: Event) => {
     const payload: ResourceFormSubmitPayload = {
       title: state.title,
       description: state.description,
+      // Keep the entered URL for edit change detection; normalize in the page.
+      website: state.website.trim() || null,
+      websiteTitle: state.websiteTitle.trim() || null,
       availableUnits: state.availableUnits,
       districtId: state.district as number,
       ...(pricesEnabled.value

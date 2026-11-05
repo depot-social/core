@@ -1,10 +1,10 @@
 <template>
   <footer class="bg-background-300">
     <div
-      class="flex flex-col xl:container sm:relative px-6 pb-[3.35rem] xl:pb-[4.75rem] min-h-[390px]"
+      class="flex flex-col xl:container relative px-6 pb-0 xl:pb-20 min-h-[390px]"
     >
       <div
-        class="flex flex-col gap-8 md:gap-0 sm:flex-row py-6 xl:pt-14 sm:mb-28 md:mb-28 xl:mb-40"
+        class="flex flex-col gap-8 md:gap-0 sm:flex-row py-6 xl:pt-14 xl:mb-24"
       >
         <header class="sm:basis-1/2 mt-8 sm:mt-0 hidden">
           <h2 class="text-xl 2xl:text-[63px] font-bold mb-8">
@@ -118,17 +118,10 @@
             </ul>
           </div>
         </nav>
-
-        <svg
-          class="mt-auto static sm:absolute z-10 sm:bottom-36 md:bottom-0 sm:left-6 md:left-8 xl:left-14 w-[135px] md:w-[195px] xl:w-[277px] aspect-[318/309]"
-          aria-hidden="true"
-        >
-          <use href="/illustrations/engagiertes-e.svg#fragment" />
-        </svg>
       </div>
 
       <div
-        class="lg:w-1/2 md:self-end grid grid-cols-2 md:grid-cols-[1fr_180px] gap-8 mt-8"
+        class="lg:w-1/2 md:self-end grid grid-cols-2 md:grid-cols-[1fr_180px] gap-8 mt-6 mb-12 sm:mb-48 md:mb-16 lg:mb-0"
       >
         <!-- logo row -->
         <div class="flex flex-col gap-4">
@@ -163,7 +156,7 @@
           </span>
 
           <NuxtLink
-            class="flex h-full items-center"
+            class="flex h-full items-start"
             to="https://depot.social/?mtm_campaign=raum.engagiertes.berlin"
             aria-label="depot.social"
             external
@@ -178,6 +171,13 @@
           </NuxtLink>
         </div>
       </div>
+
+      <svg
+        class="mt-auto static sm:absolute z-10 sm:bottom-0 md:bottom-0 sm:left-6 md:left-8 xl:left-14 w-[160px] md:w-[195px] xl:w-[277px] aspect-[318/309]"
+        aria-hidden="true"
+      >
+        <use href="/illustrations/engagiertes-e.svg#fragment" />
+      </svg>
     </div>
   </footer>
 </template>

@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, useId } from 'vue';
 
 type ItemType = string | Record<string, unknown>;
 
@@ -102,6 +102,9 @@ const emit = defineEmits<{
 const isOpen = ref(false);
 const dropdownRef = ref<HTMLElement | null>(null);
 const announcement = ref('');
+
+// Unique name for radio group (for single select mode)
+const radioGroupName = `radio-group-${useId()}`;
 
 // Check if there's any selection
 const hasSelection = computed(() => props.modelValue.length > 0);

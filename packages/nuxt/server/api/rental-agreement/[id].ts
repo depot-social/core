@@ -17,10 +17,14 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing booking id' });
   }
 
-  // Forward response buffer to client
-  return $fetch(`${config.strapi.url}/api/bookings/${id}/rental-agreement`, {
-    headers: {
-      Authorization: `Bearer ${strapi_jwt}`,
-    },
-  });
+  // Preserve the PDF stream, download headers and upstream error responses.
+  return sendProxy(
+    event,
+    `${config.strapi.url}/api/bookings/${id}/rental-agreement`,
+    {
+      headers: {
+        Authorization: `Bearer ${strapi_jwt}`,
+      },
+    }
+  );
 });

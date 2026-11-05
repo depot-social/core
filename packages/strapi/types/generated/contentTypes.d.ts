@@ -974,7 +974,6 @@ export interface ApiResourceResource extends Struct.CollectionTypeSchema {
     district: Schema.Attribute.Relation<'oneToOne', 'api::district.district'>;
     images: Schema.Attribute.Media<'images' | 'videos', true>;
     isPinned: Schema.Attribute.Boolean;
-    legacyId: Schema.Attribute.Integer;
     links: Schema.Attribute.Component<'custom.link', true>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -1153,6 +1152,10 @@ export interface PluginEmailsEmailTemplate extends Struct.SingleTypeSchema {
     berlinBookingBody: Schema.Attribute.Text;
     berlinBookingTitle: Schema.Attribute.String;
     berlinBookingTitleCopy: Schema.Attribute.String;
+    bookingCancelledBody: Schema.Attribute.Text;
+    bookingCancelledTitle: Schema.Attribute.String;
+    bookingConfirmedBody: Schema.Attribute.Text;
+    bookingConfirmedTitle: Schema.Attribute.String;
     bookingRequestBody: Schema.Attribute.Text;
     bookingRequestTitle: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
@@ -1571,7 +1574,7 @@ export interface PluginUsersPermissionsUser
       }>;
     firstName: Schema.Attribute.String;
     lastName: Schema.Attribute.String;
-    legacyId: Schema.Attribute.Integer & Schema.Attribute.Private;
+    link: Schema.Attribute.Component<'custom.link', false>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -1579,6 +1582,7 @@ export interface PluginUsersPermissionsUser
     > &
       Schema.Attribute.Private;
     organization: Schema.Attribute.Component<'custom.organization', false>;
+    organizationName: Schema.Attribute.String & Schema.Attribute.Unique;
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{

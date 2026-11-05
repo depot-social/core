@@ -60,14 +60,14 @@ type BookingWritableFields = Pick<
   | 'commentCustomer'
 >;
 
-export type UpdateBookingRequest = Omit<
-  Partial<BookingWritableFields>,
-  'resource'
-> & {
-  resource?: ResourceRelationInput;
-};
+export interface UpdateBookingRequest {
+  bookingStatus: 'confirmed' | 'cancelled';
+}
 
-export type CreateBookingRequest = UpdateBookingRequest & {
+export type CreateBookingRequest = Partial<
+  Pick<BookingWritableFields, 'title' | 'customerAddress' | 'commentCustomer'>
+> & {
+  bookingStatus?: 'requested';
   start: string;
   end: string;
   bookedUnits: number;
@@ -162,6 +162,8 @@ export interface User extends StrapiBaseEntity {
   firstName: string;
   lastName: string;
   phone: string;
+  organizationName: string;
+  link?: Link | null;
   salutation?: string;
   address?: Address;
   resources?: Resource[];
@@ -306,6 +308,7 @@ export interface Attribute extends StrapiBaseEntity {
 }
 
 export interface Link {
+  id?: number;
   url: string;
   title: string;
 }
@@ -332,7 +335,6 @@ export interface Resource extends StrapiBaseEntity {
   availabilities?: Availability[];
   attributes?: ResourceAttribute[];
   user: User;
-  legacyId?: number; // This HAS to stay here until migration to v3 finished
 }
 
 export const EmptyAddress = (): Address => ({
@@ -586,6 +588,10 @@ export interface SingleTypeEmailTemplate extends StrapiBaseEntity {
   layout: string;
   bookingRequestTitle: string;
   bookingRequestBody: string;
+  bookingConfirmedTitle?: string;
+  bookingConfirmedBody?: string;
+  bookingCancelledTitle?: string;
+  bookingCancelledBody?: string;
   resourceAwaitsActivationTitle: string;
   resourceAwaitsActivationBody: string;
   organizationAwaitsActivationTitle: string;
@@ -596,4 +602,8 @@ export interface SingleTypeEmailTemplate extends StrapiBaseEntity {
   raffleEntryTitle: string;
   raffleEntryTitleCopy: string;
   raffleEntryBody: string;
+  emailConfirmationTitle: string;
+  emailConfirmationBody: string;
+  resetPasswordTitle: string;
+  resetPasswordBody: string;
 }

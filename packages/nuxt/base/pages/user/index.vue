@@ -32,6 +32,10 @@
       </div>
       <div class="bg-white rounded-3xl mt-4 pt-8 flex flex-col">
         <BaseProfileResourceList :resources="resources || []" />
+        <BaseProfileBookingList
+          :dashboard="dashboard"
+          class="container px-10 mt-6"
+        />
         <div class="bg-orange-200 mt-6 rounded-2xl py-20">
           <DashboardCalendar :dashboard="dashboard" />
         </div>

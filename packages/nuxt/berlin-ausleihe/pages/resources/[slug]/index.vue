@@ -48,7 +48,7 @@
       <div class="grid grid-cols-12 gap-5">
         <!-- Resource quick information and map -->
         <div
-          class="col-span-12 md:col-span-6 lg:col-span-5 md:sticky md:top-[20px] self-start mb-8 space-y-6"
+          class="col-span-12 lg:col-span-5 lg:sticky lg:top-[20px] self-start mb-8 space-y-6"
         >
           <h1
             v-if="resource?.title"
@@ -126,37 +126,6 @@
             </div>
           </div>
 
-          <div v-if="resource.user" class="flex flex-col">
-            <span class="text-base font-medium">{{
-              $t('resource_provider')
-            }}</span>
-            <div class="flex items-start mt-3 gap-3">
-              <div class="avatar avatar-placeholder">
-                <div class="bg-primary text-white rounded-full w-18">
-                  <span>
-                    {{ getUsernameAbbreviationFromUser(user) }}
-                  </span>
-                </div>
-              </div>
-              <div class="flex flex-col">
-                <p class="font-sans">
-                  {{ getUsernameFromUser(user) }}
-                </p>
-                <p class="text-gray-800">
-                  {{ $t('resource_memberSince') }}
-                  {{ formatDate(user.createdAt, 'MMM yyyy') }}
-                </p>
-                <!-- <ul class="flex gap-2 mt-4 text-base">
-                <li class="badge badge-sm border-0">4 Ressourcen</li>
-                <li class="badge badge-sm badge-accent">
-                  <i class="ph ph-checks mr-2"></i>
-                  Gemeinwohl Akteur
-                </li>
-              </ul> -->
-              </div>
-            </div>
-          </div>
-
           <div v-if="resource.address">
             <BaseResourceMap
               class="m-0!"
@@ -171,7 +140,7 @@
         </div>
 
         <!-- Resource information -->
-        <div class="col-span-12 md:col-span-6 md:col-start-7">
+        <div class="col-span-12 lg:col-span-6 lg:col-start-7">
           <h2 class="font-semibold text-xl mt-6 mb-5 sm:mb-7">
             {{ $t('berlin_resource_title') }}
           </h2>
@@ -179,6 +148,16 @@
           <div
             class="grid sm:grid-cols-[200px_1fr] md:grid-cols-[100px_1fr] lg:grid-cols-[155px_1fr] *:leading-snug *:even:mb-5 sm:*:even:mb-0 *:font-light sm:*:flex sm:*:items-start sm:*:py-[1.15rem] sm:*:border-b *:border-b-secondary gap-x-6"
           >
+            <template v-if="resource.user?.organizationName">
+              <span class="text-sm">
+                {{ $t('berlin_resource_provider') }}
+              </span>
+
+              <span class="text-base lg:text-lg">
+                {{ resource.user.organizationName }}
+              </span>
+            </template>
+
             <template v-if="resource.district">
               <span class="text-sm">
                 {{ $t('berlin_resource_district') }}
@@ -189,42 +168,39 @@
               </span>
             </template>
 
-            <!-- TODO: Show Adress only :when: -->
-            <template v-if="resource.address?.street">
+            <template v-if="displayAddress?.street">
               <span class="text-sm">
                 {{ $t('berlin_resource_address') }}
               </span>
 
               <span class="text-base lg:text-lg">
-                {{ resource.address.street }}
+                {{ displayAddress.street }}
               </span>
             </template>
 
-            <template v-if="resource.address?.zip">
+            <template v-if="displayAddress?.zip">
               <span class="text-sm">
                 {{ $t('berlin_resource_zip') }}
               </span>
 
               <span class="text-base lg:text-lg">
-                {{ resource.address.zip }}
+                {{ displayAddress.zip }}
               </span>
             </template>
 
-            <template v-if="resource.links?.length">
+            <template v-if="website">
               <span class="text-sm">
                 {{ $t('berlin_resource_website') }}
               </span>
 
               <span>
                 <NuxtLink
-                  :href="resource.links[0]?.url"
+                  :href="website.url"
                   class="text-base font-light lg:text-lg break-all hover:underline underline-offset-2 decoration-1"
                   external
+                  target="_blank"
                 >
-                  {{
-                    resource.links[0]?.url?.match(/^https?:\/\/[^/]+/)?.[0] ??
-                    resource.links[0]?.url
-                  }}
+                  {{ website.label }}
                 </NuxtLink>
               </span>
             </template>
@@ -238,44 +214,49 @@
           </div>
         </div>
       </div>
-
-      <section
-        v-if="similarResources && similarResources.length >= 1"
-        class="bg-orange-100 py-8"
-      >
-        <div class="container bg-white rounded-2xl py-5 lg:py-12">
-          <div class="container">
-            <h3 class="text-2lg font-medium text-black text-center">
-              {{ $t('resource_moreResourcesFromCategory') }}
-              <span class="marker">
-                {{ similarResourcesCategory && similarResourcesCategory.title }}
-              </span>
-              :
-            </h3>
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-base mt-10"
-            >
-              <BaseResourceCard
-                v-for="resource in similarResources"
-                :key="resource.id"
-                :resource="resource"
-              />
-            </div>
-            <div
-              v-if="similarResources.length >= 3"
-              class="w-full text-center mt-5 md:mt-8"
-            >
-              <NuxtLinkLocale
-                :to="{ name: 'resources' }"
-                class="btn btn-primary btn-lg shadow-xl"
-              >
-                {{ $t('resource_allResourcesFromCategory') }}
-              </NuxtLinkLocale>
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
+    <section
+      v-if="similarResources && similarResources.length >= 1"
+      class="py-8 col-span-12 xl:col-span-10 xl:col-start-2"
+    >
+      <div class="py-5 lg:py-12 px-0">
+        <h3 class="text-2lg font-medium text-black text-center">
+          {{ $t('resource_moreResourcesFromCategory') }}
+          <span class="marker">
+            {{ similarResourcesCategory && similarResourcesCategory.title }}
+          </span>
+          :
+        </h3>
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-base mt-10"
+        >
+          <BerlinResourceCard
+            v-for="resource in similarResources"
+            :key="resource.id"
+            :resource="resource"
+            :class="'justify-self-center'"
+          />
+        </div>
+        <div
+          v-if="similarResources.length >= 3"
+          class="w-full text-center mt-5 md:mt-8"
+        >
+          <UButton
+            :to="
+              localePath({
+                name: 'resources',
+                query: similarResourcesCategory
+                  ? { categories: similarResourcesCategory.title }
+                  : undefined,
+              })
+            "
+            class="mx-auto"
+          >
+            {{ $t('resource_allResourcesFromCategory') }}
+          </UButton>
+        </div>
+      </div>
+    </section>
 
     <dialog
       ref="imageModal"
@@ -320,27 +301,24 @@
 
 <script setup lang="ts">
 import type {
+  Address,
   AvailabilitiesGetCalendarResponseData,
   Resource,
 } from '@depot/shared';
-import {
-  getUsernameAbbreviationFromUser,
-  getUsernameFromUser,
-} from '@depot/shared';
+import { getResourceWebsite } from '@depot/shared';
 import { format } from 'date-fns';
 import { marked } from 'marked';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { useDateFormat } from '~/base/composables/useDateFormat';
 import { PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 const imageGrid = ref<HTMLElement | null>(null); // Create a ref to link to your element
 const clientWidth = ref(0);
-const { formatDate } = useDateFormat();
 
 let resizeObserver: ResizeObserver | null = null;
 
 // Get route params
 const route = useRoute();
+const localePath = useLocalePath();
 const slug = route.params.slug as string;
 
 if (!slug) {
@@ -370,7 +348,10 @@ const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
       'address',
       'prices',
       'categories',
+      'links',
       'user',
+      'user.link',
+      'user.address',
     ],
   })
 );
@@ -388,6 +369,15 @@ if (
 
 const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
 const { documentId, title, description, images, categories, user } = resource;
+
+const website = getResourceWebsite(resource);
+
+const hasAddressData = (address?: Address | null): address is Address =>
+  !!(address?.street || address?.zip || address?.place);
+
+const displayAddress = hasAddressData(resource.address)
+  ? resource.address
+  : user?.address;
 
 const defaultAvailability = resource.availabilities?.find(
   (availability) => availability.end === null
@@ -451,8 +441,12 @@ const calendarResponse = await useAsyncData('calendar', () =>
   )
 );
 
-const availabilities = calendarResponse.data
-  .value as unknown as AvailabilitiesGetCalendarResponseData;
+// The calendar endpoint wraps its payload in `data` like every Strapi response
+const availabilities = (
+  calendarResponse.data.value as unknown as {
+    data: AvailabilitiesGetCalendarResponseData;
+  } | null
+)?.data;
 
 // Use pricing composable
 const {

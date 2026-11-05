@@ -15,18 +15,29 @@ import {
 import type { Core } from '@strapi/strapi';
 import { format } from 'date-fns';
 import template from 'lodash/template';
+import escape from 'lodash/escape';
 import mjml2html from 'mjml';
 
 export interface EmailsService {
   sendBookingRequestMail(bookingDocumentId: string): Promise<boolean>;
+  sendBookingConfirmedMail(booking: Booking): Promise<boolean>;
+  sendBookingCancelledMail(
+    booking: Booking,
+    actor: BookingMailActor
+  ): Promise<boolean>;
   sendResourceAwaitsActivationMail(resourceId: string): Promise<boolean>;
   sendOrganizationAwaitsActivationMail(userId: number): Promise<boolean>;
   sendBerlinBookingEmail(berlinBooking: BerlinBooking): Promise<boolean>;
   sendBerlinRaffleEntryEmail(raffleEntry: BerlinRaffleEntry): Promise<boolean>;
+  syncAuthEmailTemplates(): Promise<void>;
 }
 
-const depotBaseUrl =
-  process.env.PUBLIC_DEPOT_BASE_URL || 'https://depot.social';
+export interface BookingMailActor {
+  name: string;
+  role: 'customer' | 'resourceOwner';
+}
+
+const depotBaseUrl = process.env.PUBLIC_DEPOT_BASE_URL || '';
 
 /**
  * Wraps each line of "text" in a <p></p>, if wrapped
@@ -152,7 +163,138 @@ const compileTemplate = (
   return compiled(data);
 };
 
+/**
+ * Registration and reset password emails are sent by users-permissions.
+ * Maps users-permissions store keys to the singleType title/body fields.
+ */
+const authEmailFields = {
+  email_confirmation: ['emailConfirmationTitle', 'emailConfirmationBody'],
+  reset_password: ['resetPasswordTitle', 'resetPasswordBody'],
+} as const;
+
+/**
+ * {{ URL }} becomes <%= URL %>, which users-permissions replaces when sending
+ */
+const authEmailPlaceholders = {
+  URL: '<%= URL %>',
+  CODE: '<%= CODE %>',
+  TOKEN: '<%= TOKEN %>',
+  SERVER_URL: '<%= SERVER_URL %>',
+  ADMIN_URL: '<%= ADMIN_URL %>',
+  USER: { username: '<%= USER.username %>', email: '<%= USER.email %>' },
+};
+
+const statusMailDefaults = {
+  confirmed: {
+    title: 'Deine Buchung wurde bestätigt',
+    body: '<mj-text>Hallo {{ customerName }}, deine Buchung wurde bestätigt.</mj-text>',
+  },
+  cancelled: {
+    title: 'Deine Buchung wurde storniert',
+    body: '<mj-text>Die Buchung wurde von {{ actorName }} ({{ actorRole }}) storniert.</mj-text>',
+  },
+};
+
+const statusMailDetails = `<mj-text>{{ resourceTitle }}: {{ start }} – {{ ende }}<br />Stückzahl: {{ bookedUnits }}</mj-text>
+{{ #if priceText }}<mj-text>{{ priceText }}</mj-text>{{ /if }}
+<mj-button href="{{ bookingUrl }}">Buchung ansehen</mj-button>`;
+
+const sendBookingStatusEmails = async (
+  strapi: Core.Strapi,
+  booking: Booking,
+  type: 'confirmed' | 'cancelled',
+  actor?: BookingMailActor
+): Promise<boolean> => {
+  const emailTemplate = await getEmailTemplateSingleType(strapi);
+  const defaults = statusMailDefaults[type];
+  const title =
+    type === 'confirmed'
+      ? emailTemplate?.bookingConfirmedTitle
+      : emailTemplate?.bookingCancelledTitle;
+  const body =
+    type === 'confirmed'
+      ? emailTemplate?.bookingConfirmedBody
+      : emailTemplate?.bookingCancelledBody;
+  const layout =
+    emailTemplate?.layout?.trim() ||
+    '<mjml><mj-body><mj-section><mj-column><mj-text>{{ headline }}</mj-text>{{ content }}</mj-column></mj-section></mj-body></mjml>';
+  const name = (user: Booking['customer']) =>
+    escape([user?.firstName, user?.lastName].filter(Boolean).join(' '));
+  const recipients =
+    type === 'confirmed'
+      ? [{ role: 'customer', user: booking.customer }]
+      : [
+          { role: 'customer', user: booking.customer },
+          { role: 'resourceOwner', user: booking.resourceOwner },
+        ];
+
+  const results = await Promise.all(
+    recipients.map(async ({ role, user }) => {
+      try {
+        if (!user?.email) throw new Error('Recipient has no email address.');
+        const data = {
+          customerName: name(booking.customer),
+          resourceOwnerName: name(booking.resourceOwner),
+          resourceTitle: escape(booking.resource?.title || booking.title),
+          start: format(new Date(booking.start), 'dd.MM.yyyy, HH:mm') + ' Uhr',
+          ende: format(new Date(booking.end), 'dd.MM.yyyy, HH:mm') + ' Uhr',
+          bookedUnits: booking.bookedUnits,
+          bookingUrl: `${depotBaseUrl}/bookings/${encodeURIComponent(
+            booking.documentId
+          )}`,
+          actorName: escape(actor?.name || ''),
+          actorRole:
+            actor?.role === 'resourceOwner' ? 'Verleiher:in' : 'Ausleiher:in',
+          priceText: '',
+          ...getBookingRequestPriceTemplateData(booking.price),
+        };
+        const compiledTitle = compileTemplate(
+          title?.trim() || defaults.title,
+          data
+        );
+        const compiledBody = compileTemplate(
+          body?.trim() || defaults.body + statusMailDetails,
+          data
+        );
+        const mail = mjml2html(
+          compileTemplate(layout, {
+            headline: compiledTitle,
+            content: compiledBody,
+          }),
+          {
+            validationLevel: 'strict',
+          }
+        );
+        if (mail.errors.length)
+          throw new Error('Invalid booking status email MJML.');
+        await strapi.plugins['email'].services.email.sendTemplatedEmail(
+          { to: user.email },
+          {
+            subject: compiledTitle,
+            text: compiledBody.replace(/<[^>]*>/g, ''),
+            html: mail.html,
+          }
+        );
+        return true;
+      } catch (error) {
+        strapi.log.error(
+          `Booking mail failed: booking=${booking.documentId}, type=${type}, recipientRole=${role}`,
+          error
+        );
+        return false;
+      }
+    })
+  );
+  return results.every(Boolean);
+};
+
 export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
+  sendBookingConfirmedMail(booking) {
+    return sendBookingStatusEmails(strapi, booking, 'confirmed');
+  },
+  sendBookingCancelledMail(booking, actor) {
+    return sendBookingStatusEmails(strapi, booking, 'cancelled', actor);
+  },
   async sendBookingRequestMail(bookingDocumentId) {
     const pricesEnabled = readBooleanEnv(
       process.env.STRAPI_PLUGIN_PRICES,
@@ -182,8 +324,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
       const bookingUrl = `${depotBaseUrl}/bookings/${booking.documentId}`; // @todo Use getBookingPath(documentId) from @depot/nuxt
       const start =
         format(new Date(booking.start), 'dd.MM.yyyy, HH:mm') + ` Uhr`;
-      const ende =
-        format(new Date(booking.start), 'dd.MM.yyyy, HH:mm') + ` Uhr`;
+      const ende = format(new Date(booking.end), 'dd.MM.yyyy, HH:mm') + ` Uhr`;
       const templateData = {
         customerName,
         commentCustomer,
@@ -254,6 +395,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
         },
         emailTemplateData
       );
+      return true;
     } catch (err) {
       console.log('Error sending email', err);
       return false;
@@ -641,6 +783,67 @@ export default ({ strapi }: { strapi: Core.Strapi }): EmailsService => ({
     } catch (err) {
       console.error('Error sending raffle entry email:', err);
       return false;
+    }
+  },
+
+  /**
+   * Renders the registration and reset password emails from the singleType
+   * into the users-permissions store. Emails without title or body keep
+   * their current template.
+   */
+  async syncAuthEmailTemplates() {
+    try {
+      const emailTemplate = await getEmailTemplateSingleType(strapi);
+      const pluginStore = strapi.store({
+        type: 'plugin',
+        name: 'users-permissions',
+      });
+      const emailSettings = (await pluginStore.get({ key: 'email' })) as Record<
+        string,
+        { options: Record<string, unknown> }
+      > | null;
+
+      if (!emailTemplate?.layout || !emailSettings) {
+        return;
+      }
+
+      for (const [key, [titleField, bodyField]] of Object.entries(
+        authEmailFields
+      )) {
+        if (!emailTemplate[titleField] || !emailTemplate[bodyField]) {
+          continue;
+        }
+
+        const compiledTitle = compileTemplate(
+          emailTemplate[titleField],
+          authEmailPlaceholders
+        );
+        const compiledBody = compileTemplate(
+          emailTemplate[bodyField],
+          authEmailPlaceholders
+        );
+        const compiledLayout = compileTemplate(emailTemplate.layout, {
+          headline: compiledTitle,
+          content: compiledBody,
+        });
+
+        const mail = mjml2html(compiledLayout, {
+          validationLevel:
+            process.env.NODE_ENV === 'production' ? 'skip' : 'strict',
+        });
+
+        if (mail.errors && mail.errors.length >= 1) {
+          console.error(`Auth email "${key}": MJML errors:`, mail.errors);
+          continue;
+        }
+
+        emailSettings[key].options.object = compiledTitle;
+        emailSettings[key].options.message = mail.html;
+      }
+
+      await pluginStore.set({ key: 'email', value: emailSettings });
+    } catch (err) {
+      console.error('Error syncing auth email templates:', err);
     }
   },
 });

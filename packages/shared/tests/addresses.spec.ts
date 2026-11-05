@@ -1,46 +1,50 @@
 /// <reference types="vitest" />
-import { test, describe, assert, expect, vi, MockInstance } from 'vitest';
+import { test, describe, assert, expect, vi, afterEach } from 'vitest';
 import { geocodeAddress, obfuscateGeodata } from '../functions';
 
-global.fetch = vi.fn();
-
-const createFetchResponse = (data) => ({
-  json: () => new Promise((resolve) => resolve(data)),
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 describe('geocodeAddress', () => {
-  test('geocodeAddress should return correct geocode data for a German address', async () => {
-    const geocodeAddressResponse = {
-      features: [
-        {
-          center: [13.404954, 52.520008],
-        },
-      ],
-    };
+  test.skipIf(!process.env.PUBLIC_MAPBOX_TOKEN)(
+    'geocodeAddress should return correct geocode data for a German address',
+    async () => {
+      const geocodeAddressResponse = {
+        features: [
+          {
+            center: [13.404954, 52.520008],
+          },
+        ],
+      };
 
-    (fetch as unknown as MockInstance).mockResolvedValueOnce(
-      createFetchResponse(geocodeAddressResponse)
-    );
+      vi.stubGlobal(
+        'fetch',
+        vi
+          .fn()
+          .mockResolvedValueOnce({ json: async () => geocodeAddressResponse })
+      );
 
-    const address = {
-      street: 'Unter den Linden',
-      zip: '10117',
-      place: 'Berlin',
-    };
+      const address = {
+        street: 'Unter den Linden',
+        zip: '10117',
+        place: 'Berlin',
+      };
 
-    const expected = {
-      latitude: 13.404954,
-      longitude: 52.520008,
-    };
+      const expected = {
+        latitude: 52.520008,
+        longitude: 13.404954,
+      };
 
-    const result = await geocodeAddress(address);
+      const result = await geocodeAddress(address);
 
-    expect(fetch).toHaveBeenCalledWith(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${address.street}%20${address.zip}%20${address.place}.json?access_token=${process.env.PUBLIC_MAPBOX_TOKEN}&limit=1&autocomplete=false`
-    );
+      expect(fetch).toHaveBeenCalledWith(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${address.street}%20${address.zip}%20${address.place}.json?access_token=${process.env.PUBLIC_MAPBOX_TOKEN}&limit=1&autocomplete=false`
+      );
 
-    assert.deepEqual(result, expected);
-  });
+      assert.deepEqual(result, expected);
+    }
+  );
 });
 
 describe('obfuscateGeodata', () => {

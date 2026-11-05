@@ -50,6 +50,7 @@ import { random } from 'lodash-es';
 import {
   add,
   eachDayOfInterval,
+  format,
   isAfter,
   isBefore,
   set,
@@ -97,7 +98,7 @@ const datesAreSelectable = (start: Date, end: Date): boolean => {
   if (props.availabilities) {
     const interval = eachDayOfInterval({ start, end });
     return !interval.some((date) => {
-      const formattedDate = date.toISOString().split('T')[0];
+      const formattedDate = format(date, 'yyyy-MM-dd');
       const availabilityForDate = props.availabilities!.find(
         (availability) =>
           availability.day === formattedDate &&

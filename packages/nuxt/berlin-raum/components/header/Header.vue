@@ -11,8 +11,10 @@
           <use href="/illustrations/raum.svg#fragment" />
         </svg>
 
-        <span class="text-2lg font-normal hidden sm:inline">
-          raum<span class="font-semibold">.engagiertes.berlin</span>
+        <span class="text-2lg font-normal">
+          raum.<span class="font-semibold hidden sm:inline"
+            >engagiertes.berlin</span
+          >
         </span>
       </div>
     </NuxtLinkLocale>
@@ -20,7 +22,7 @@
     <div class="flex items-center gap-5 ml-auto">
       <NuxtLink
         to="https://engagiertes.berlin"
-        class="hidden md:block text-[16px] font-light no-underline"
+        class="hidden sm:block text-[16px] font-light no-underline"
         target="_blank"
         external
       >
@@ -37,7 +39,7 @@
             ? localePath('resources-add')
             : 'https://engagiertes.berlin/de/einreichen/raum/'
         "
-        class="text-[16px] font-semibold no-underline flex items-center gap-2"
+        class="hidden lg:flex text-[16px] font-semibold no-underline flex-nowrap! items-center gap-2"
       >
         {{ $t('berlin_resources_addRoom') }}
 
