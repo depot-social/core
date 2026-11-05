@@ -1,5 +1,5 @@
 import type { Category, District, Resource } from '@depot/shared';
-import { readonly, ref, watch } from 'vue';
+import { computed, readonly, ref, watch } from 'vue';
 
 export interface ResourcesSearchState {
   resources: Resource[];
@@ -18,8 +18,25 @@ export interface ResourcesSearchState {
   };
 }
 
+const RESOURCE_POPULATE = [
+  'address',
+  'resourceTypes',
+  'images',
+  'prices',
+  'district',
+  'user',
+  'user.organization',
+  'purposes',
+  'categories',
+  'attributes',
+  'attributes.attribute',
+];
+
 // Strapi's `maxLimit`, see packages/strapi/config/api.ts
 const MAP_PAGE_SIZE = 1000;
+
+// Only send a free-text query once it is long enough to be meaningful.
+const MIN_SEARCH_LENGTH = 3;
 
 export const useResourcesSearch = async (
   initialResources: Resource[] = [],
@@ -60,43 +77,71 @@ export const useResourcesSearch = async (
 
   const { find } = useStrapi();
 
-  const buildFilters = () =>
-    ({
-      $or: state.value.searchQuery
-        ? [
-            {
-              title: {
-                $contains: state.value.searchQuery,
-              },
-            },
-            {
-              description: {
-                $contains: state.value.searchQuery,
-              },
-            },
-          ]
-        : undefined,
-      categories: state.value.selectedCategories?.length
-        ? {
-            id: {
-              $in: state.value.selectedCategories.map((p) => p.id),
-            },
-          }
-        : undefined,
-      district: state.value.selectedDistricts?.length
-        ? {
-            id: {
-              $in: state.value.selectedDistricts.map((d) => d.id),
-            },
-          }
-        : undefined,
-    } as Record<string, unknown>);
+  // The free-text term only counts once it reaches the minimum length;
+  // anything shorter behaves like an empty search.
+  const getEffectiveQuery = () => {
+    const query = state.value.searchQuery.trim();
+    return query.length >= MIN_SEARCH_LENGTH ? query : '';
+  };
+
+  // Facet selections are applied as DB-level Strapi filters; the free-text term
+  // filters the hidden `searchIndex` field (filled by the search plugin on save).
+  const buildFilters = () => {
+    const filters: Record<string, unknown> = {};
+
+    if (state.value.selectedCategories?.length) {
+      filters.categories = {
+        id: { $in: state.value.selectedCategories.map((c) => c.id) },
+      };
+    }
+
+    if (state.value.selectedDistricts?.length) {
+      filters.district = {
+        id: { $in: state.value.selectedDistricts.map((d) => d.id) },
+      };
+    }
+
+    const query = getEffectiveQuery();
+    if (query) {
+      filters.searchIndex = { $containsi: query };
+    }
+
+    return filters;
+  };
+
+  const searchResources = async (pagination: {
+    page: number;
+    pageSize: number;
+  }) => {
+    const response = await find<Resource>('resources', {
+      // @ts-expect-error - Strapi supports component and nested populate but types don't reflect it
+      populate: RESOURCE_POPULATE,
+      // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
+      sort: sortParams,
+      filters: buildFilters(),
+      pagination,
+    });
+
+    const meta = response.meta?.pagination;
+
+    return {
+      results: response.data,
+      pagination: {
+        page: meta && 'page' in meta ? meta.page : pagination.page,
+        pageSize:
+          meta && 'pageSize' in meta ? meta.pageSize : pagination.pageSize,
+        pageCount: meta && 'pageCount' in meta ? meta.pageCount : 1,
+        total: meta?.total ?? 0,
+      },
+    };
+  };
 
   // Fetches all resources matching the current filters for the map,
   // ignoring the pagination of the result list
   const fetchMapResources = async () => {
     try {
       const response = await find<Resource>('resources', {
+        // Only what the map markers need
         fields: ['title', 'slug'],
         populate: ['address'],
         // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
@@ -121,39 +166,11 @@ export const useResourcesSearch = async (
       state.value.loading = true;
       state.value.error = null;
 
-      const response = await find<Resource>('resources', {
-        populate: [
-          'categories',
-          'images',
-          'address',
-          'prices',
-          'user',
-          'user.organization',
-          'resourceTypes',
-        ],
-        // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
-        sort: sortParams,
-        filters: buildFilters(),
-        pagination: {
-          pageSize: maxPageSize,
-          page: page,
-        },
-      });
+      const response = await searchResources({ page, pageSize: maxPageSize });
 
-      if (response?.data) {
-        state.value.resources = response.data;
-
-        // Update pagination state from response
-        if (response.meta?.pagination) {
-          const pagination = response.meta.pagination;
-          state.value.pagination = {
-            page: 'page' in pagination ? pagination.page : 1,
-            pageSize:
-              'pageSize' in pagination ? pagination.pageSize : maxPageSize,
-            pageCount: 'pageCount' in pagination ? pagination.pageCount : 1,
-            total: pagination.total || 0,
-          };
-        }
+      if (response?.results) {
+        state.value.resources = response.results;
+        state.value.pagination = { ...response.pagination };
       }
     } catch (error) {
       console.error('Error fetching resources:', error);
@@ -163,26 +180,28 @@ export const useResourcesSearch = async (
     }
   };
 
-  // Watch for changes in search query or selected filters
+  const applyFilterChange = async () => {
+    activePage.value = 1; // Reset to first page when filters change
+
+    // Update URL with all current filter state
+    if (syncWithUrl && import.meta.client) {
+      await updateFiltersInUrl();
+    }
+
+    fetchResources(1);
+    fetchMapResources();
+  };
+
+  // Filter changes always trigger a fetch.
   watch(
-    [
-      () => state.value.searchQuery,
-      () => state.value.selectedCategories,
-      () => state.value.selectedDistricts,
-    ],
-    async () => {
-      activePage.value = 1; // Reset to first page when filters change
-
-      // Update URL with all current filter state
-      if (syncWithUrl && import.meta.client) {
-        await updateFiltersInUrl();
-      }
-
-      fetchResources(1);
-      fetchMapResources();
-    },
+    [() => state.value.selectedCategories, () => state.value.selectedDistricts],
+    applyFilterChange,
     { deep: true }
   );
+
+  // Fires only when the effective query changes, so dropping below the
+  // minimum length resets back to the filter-only result set.
+  watch(getEffectiveQuery, applyFilterChange);
 
   // Watch for changes in activePage
   watch(activePage, (newPage) => {
@@ -281,6 +300,7 @@ export const useResourcesSearch = async (
     state: readonly(state),
     activePage: readonly(activePage),
     mapResources: readonly(mapResources),
+    activeSearchQuery: computed(getEffectiveQuery),
     setSearchQuery,
     setSelectedCategories,
     setSelectedDistricts,

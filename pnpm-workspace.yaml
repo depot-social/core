@@ -15,3 +15,5 @@ allowBuilds:
   sharp: false
   unrs-resolver: false
   vue-demi: false
+overrides:
+  '@types/node': ^20.19.11

@@ -990,6 +990,7 @@ export interface ApiResourceResource extends Struct.CollectionTypeSchema {
         'resource-types.berlin-resource-type',
       ]
     >;
+    searchIndex: Schema.Attribute.Text;
     slug: Schema.Attribute.UID<'title'> & Schema.Attribute.Required;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;

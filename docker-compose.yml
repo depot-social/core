@@ -1,0 +1,24 @@
+# Local-only MySQL 8 for development (Strapi v5 requires MySQL >= 8.0).
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: depot-mysql
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:3307:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: depot_berlin_strapi_ausleihe
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - depot-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-uroot', '-proot']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  depot-mysql-data:

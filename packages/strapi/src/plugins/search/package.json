@@ -1,0 +1,29 @@
+{
+  "name": "@depot/search",
+  "version": "0.1.0",
+  "description": "Generic, reusable search across any content-type (full-text + facets)",
+  "strapi": {
+    "name": "@depot/search",
+    "description": "Generic, reusable search across any content-type (full-text + facets)",
+    "kind": "plugin"
+  },
+  "devDependencies": {
+    "@depot/shared": "workspace:^",
+    "@strapi/typescript-utils": "^5.22.0"
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^5.0.0"
+  },
+  "author": "depot dev",
+  "maintainers": [
+    {
+      "name": "depot dev"
+    }
+  ],
+  "scripts": {
+    "develop": "tsc -p tsconfig.server.json -w",
+    "build": "tsc -p tsconfig.server.json"
+  },
+  "license": "MIT",
+  "main": "strapi-server.js"
+}

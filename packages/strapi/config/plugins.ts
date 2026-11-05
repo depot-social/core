@@ -31,6 +31,29 @@ export default ({ env }) => ({
         enabled: env('STRAPI_PLUGIN_RENTAL_AGREEMENT', true),
         resolve: './src/plugins/rental-agreement'
     },
+    search: {
+        enabled: env('STRAPI_PLUGIN_SEARCH', true),
+        resolve: './src/plugins/search',
+        config: {
+            contentTypes: {
+                'api::resource.resource': {
+                    // PDP fields Ausleihe + Raum, concatenated into the hidden `searchIndex` on save.
+                    searchFields: [
+                        'title',
+                        'description',
+                        'address.street',
+                        'resourceTypes.provider',
+                        'resourceTypes.facilities',
+                        'resourceTypes.facilitiesAdditionalInfo',
+                    ],
+                    populate: {
+                        address: true,
+                        resourceTypes: true,
+                    },
+                },
+            },
+        },
+    },
     seo: {
         enabled: true
     },
