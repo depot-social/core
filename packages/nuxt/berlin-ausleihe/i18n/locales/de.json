@@ -66,6 +66,7 @@
     "berlin_resource_form_submissionError": "Fehler beim Anlegen des Ausleihangebots. Bitte versuche es erneut.",
     "berlin_resource_form_submit": "Ausleihangebot einstellen",
     "berlin_resource_form_successDescription": "Wir prüfen dein Ausleihangebot und melden uns bei dir.",
+    "berlin_resource_form_successDescriptionPublished": "Dein Ausleihangebot ist jetzt veröffentlicht.",
     "berlin_resource_form_successTitle": "Ausleihangebot erstellt",
     "berlin_resource_form_termsLabel": "Ich stimme den Nutzungsbedingungen zu und bin berechtigt, dieses Ausleihangebot einzustellen.",
     "berlin_resource_form_usageDetailsDescription": "Informationen zu Nutzungszeiten und Kosten.",

@@ -124,6 +124,7 @@ if (!user.value || fetchedResource.user?.id !== user.value.id) {
 Object.assign(resourceFormData, fetchedResource);
 
 const toast = useToast();
+const resourceAutoPublish = useResourceAutoPublish();
 const submitting = ref(false);
 const errorMessage = ref('');
 
@@ -188,7 +189,9 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
 
     toast.add({
       title: $t('resourceForm_successTitle'),
-      description: $t('resourceForm_successDescription'),
+      description: resourceAutoPublish.value
+        ? $t('resourceForm_successDescriptionPublished')
+        : $t('resourceForm_successDescription'),
     });
 
     const updatedSlug = response?.data?.slug ?? resourceFormData.slug;

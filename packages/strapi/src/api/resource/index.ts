@@ -7,7 +7,14 @@ import {
   obfuscateGeodata,
 } from '@depot/shared';
 import { EmailsService } from '../../plugins/emails/server/services/emails-service';
-import { isAdminOrBackofficeRequest } from '../../utils';
+import { isAdminOrBackofficeRequest, readBooleanEnv } from '../../utils';
+
+/**
+ * When enabled, resources created or edited by authenticated users through the
+ * Content API stay published instead of being moved to draft for moderation.
+ */
+const isResourceAutoPublishEnabled = (): boolean =>
+  readBooleanEnv(process.env.RESOURCE_AUTO_PUBLISH, false);
 
 type LifecycleEvent = {
   params: {
@@ -26,14 +33,14 @@ type ResourceRequestContext = {
 };
 
 const getSubmittedAvailableUnits = (
-  ctx: ResourceRequestContext | undefined,
+  ctx: ResourceRequestContext | undefined
 ): number | undefined => {
   return ctx?.state?.resourceDefaultAvailableUnits;
 };
 
 const updateAddressGeocode = async (
   strapi: Core.Strapi,
-  address: Address,
+  address: Address
 ): Promise<void> => {
   const geocodedAddress = await geocodeAddress(address);
 
@@ -46,7 +53,7 @@ const updateAddressGeocode = async (
   if (geocodedAddress.latitude && geocodedAddress.longitude) {
     obfuscatedAddress = obfuscateGeodata(
       geocodedAddress.latitude,
-      geocodedAddress.longitude,
+      geocodedAddress.longitude
     );
   }
 
@@ -72,10 +79,10 @@ export default {
 
     const ensureDefaultAvailability = async (
       resource: Resource,
-      availableUnits = DEFAULT_AVAILABLE_UNITS,
+      availableUnits = DEFAULT_AVAILABLE_UNITS
     ) => {
       const existingDefaultAvailability = await findDefaultAvailability(
-        resource.documentId,
+        resource.documentId
       );
 
       if (existingDefaultAvailability) {
@@ -213,10 +220,10 @@ export default {
 
         if (resource) {
           const defaultAvailability = await findDefaultAvailability(
-            resource.documentId,
+            resource.documentId
           );
           const submittedAvailableUnits = getSubmittedAvailableUnits(
-            strapi.requestContext.get() as ResourceRequestContext | undefined,
+            strapi.requestContext.get() as ResourceRequestContext | undefined
           );
 
           if (defaultAvailability) {
@@ -229,7 +236,7 @@ export default {
           } else {
             await ensureDefaultAvailability(
               resource,
-              submittedAvailableUnits ?? DEFAULT_AVAILABLE_UNITS,
+              submittedAvailableUnits ?? DEFAULT_AVAILABLE_UNITS
             );
           }
         }
@@ -240,6 +247,12 @@ export default {
      * After creating a resource:
      * - Set resource status to "draft" (if coming from API request)
      * - Send notification email to admin about created resource
+     *
+     * Note: publishing an edited resource also creates a new published entry,
+     * so this runs for Content API updates as well.
+     *
+     * Both steps are skipped for authenticated users when RESOURCE_AUTO_PUBLISH
+     * is enabled, so their resources go live without moderation.
      */
     const afterCreateResource = async (event: any) => {
       const { result } = event;
@@ -250,11 +263,15 @@ export default {
       await ensureDefaultAvailability(
         resource,
         getSubmittedAvailableUnits(ctx as ResourceRequestContext | undefined) ??
-          DEFAULT_AVAILABLE_UNITS,
+          DEFAULT_AVAILABLE_UNITS
       );
 
       if (!ctx || isAdminOrBackofficeRequest(ctx)) {
         // e.g. when called from Strapi UI
+        return;
+      }
+
+      if (isResourceAutoPublishEnabled() && ctx.state?.user) {
         return;
       }
 
@@ -270,8 +287,9 @@ export default {
         return;
       }
 
-      const emailsService: EmailsService =
-        await emailsPlugin.service('emailsService');
+      const emailsService: EmailsService = await emailsPlugin.service(
+        'emailsService'
+      );
 
       await emailsService.sendResourceAwaitsActivationMail(resource.documentId);
     };
