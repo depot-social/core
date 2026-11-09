@@ -95,6 +95,7 @@
   "resourceForm_saveChanges": "Änderungen speichern",
   "resourceForm_successTitle": "Ressource erstellt",
   "resourceForm_successDescription": "Wir prüfen Deine Ressource und melden uns bei Dir.",
+  "resourceForm_successDescriptionPublished": "Deine Ressource ist jetzt veröffentlicht.",
   "resourceForm_submissionError": "Fehler beim Anlegen der Ressource. Bitte versuche es erneut.",
   "resourceForm_priceTitle": "Preis",
   "resourceForm_priceDescription": "Lege fest, zu welchen Konditionen die Ressource verliehen wird.",

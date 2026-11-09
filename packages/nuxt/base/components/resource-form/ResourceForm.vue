@@ -329,7 +329,7 @@
         </template>
       </UFormField>
 
-      <p class="text-sm text-gray-700">
+      <p v-if="!resourceAutoPublish" class="text-sm text-gray-700">
         {{ $t('resourceForm_reviewInfo') }}
       </p>
     </section>
@@ -387,6 +387,7 @@ const emit = defineEmits<{
 
 const categories = computed(() => props.categories);
 const isEditForm = computed(() => props.isEditForm);
+const resourceAutoPublish = useResourceAutoPublish();
 const isLoading = computed(() => props.loading);
 const categoriesHintId = 'resource-form-categories-hint';
 const categoriesErrorId = 'resource-form-categories-error';

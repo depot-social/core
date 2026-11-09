@@ -74,6 +74,7 @@ const categories = categoriesResponse.data || [];
 const resourceFormData = reactive<Resource>(EmptyResource());
 
 const toast = useToast();
+const resourceAutoPublish = useResourceAutoPublish();
 const submitting = ref(false);
 const errorMessage = ref('');
 
@@ -130,7 +131,9 @@ const onSubmit = async (payload: ResourceFormSubmitPayload) => {
 
     toast.add({
       title: $t('resourceForm_successTitle'),
-      description: $t('resourceForm_successDescription'),
+      description: resourceAutoPublish.value
+        ? $t('resourceForm_successDescriptionPublished')
+        : $t('resourceForm_successDescription'),
     });
 
     const slug = response?.data?.slug;

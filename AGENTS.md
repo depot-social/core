@@ -16,7 +16,7 @@ See https://agents.md/.
 - Root `.env` exists (with `.env.example`) and is loaded by both Strapi and Nuxt.
 - Common vars used:
   - Frontend: `PUBLIC_STRAPI_URL`, `PUBLIC_MAPBOX_TOKEN`, `PUBLIC_RANDOM_LOCATION_RADIUS`.
-  - Strapi: `HOST`, `PORT`, `APP_KEYS`, `ADMIN_JWT_SECRET`, `REDACT_PRECISE_RESOURCE_LOCATION`.
+  - Strapi: `HOST`, `PORT`, `APP_KEYS`, `ADMIN_JWT_SECRET`, `REDACT_PRECISE_RESOURCE_LOCATION`, `RESOURCE_AUTO_PUBLISH` (also read by Nuxt; `true` skips resource moderation).
   - DB: `DATABASE_TYPE` (sqlite/mysql), and related connection vars.
   - Email: `SMTP_*`, `ADMIN_EMAIL`, `REPLY_EMAIL`.
   - Plugin toggles: `STRAPI_PLUGIN_*` (set to `false` to disable).
