@@ -62,6 +62,10 @@ export default defineNuxtConfig({
       mapboxToken: process.env.PUBLIC_MAPBOX_TOKEN || '',
       randomLocationRadius: process.env.PUBLIC_RANDOM_LOCATION_RADIUS || '200',
       pricesEnabled: readBooleanEnv(process.env.STRAPI_PLUGIN_PRICES, true),
+      resourceAutoPublish: readBooleanEnv(
+        process.env.RESOURCE_AUTO_PUBLISH,
+        false
+      ),
     },
   },
   i18n: {

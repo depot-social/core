@@ -329,7 +329,10 @@
     </section>
 
     <div class="flex flex-col gap-4 w-full">
-      <p v-if="!isEditForm" class="font-light text-lg text-black">
+      <p
+        v-if="!isEditForm && !resourceAutoPublish"
+        class="font-light text-lg text-black"
+      >
         {{ $t('berlin_resource_form_reviewInfo') }}
       </p>
 
@@ -388,6 +391,7 @@ const emit = defineEmits<{
 const district = computed(() => props.district);
 const categories = computed(() => props.categories);
 const isEditForm = computed(() => props.isEditForm);
+const resourceAutoPublish = useResourceAutoPublish();
 const isLoading = computed(() => props.loading);
 const pricesEnabled = usePricesEnabled();
 const durationTypeItems = [

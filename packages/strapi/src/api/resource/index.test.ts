@@ -80,11 +80,69 @@ const createStrapiMock = (user: { documentId: string } | null) => {
     ctx,
     generateUIDField,
     resourceFindOne,
+    resourceUnpublish,
     strapi,
     subscribe,
     userFindOne,
   };
 };
+
+describe('resource lifecycle moderation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.unstubAllEnvs();
+  });
+
+  test('moves resources created by users to draft by default', async () => {
+    const { resourceUnpublish, strapi, subscribe } = createStrapiMock({
+      documentId: 'authenticated-user-document-id',
+    });
+
+    await resourceApi.bootstrap({ strapi: strapi as unknown as Core.Strapi });
+    const lifecycle = subscribe.mock.calls[0][0] as ResourceLifecycleSubscriber;
+
+    await lifecycle.afterCreate({
+      result: { documentId: 'resource-document-id' },
+    });
+
+    expect(resourceUnpublish).toHaveBeenCalledWith({
+      documentId: 'resource-document-id',
+      locale: '*',
+    });
+    expect(strapi.plugin).toHaveBeenCalledWith('emails');
+  });
+
+  test('keeps user resources published and skips the admin mail when RESOURCE_AUTO_PUBLISH is enabled', async () => {
+    vi.stubEnv('RESOURCE_AUTO_PUBLISH', 'true');
+    const { resourceUnpublish, strapi, subscribe } = createStrapiMock({
+      documentId: 'authenticated-user-document-id',
+    });
+
+    await resourceApi.bootstrap({ strapi: strapi as unknown as Core.Strapi });
+    const lifecycle = subscribe.mock.calls[0][0] as ResourceLifecycleSubscriber;
+
+    await lifecycle.afterCreate({
+      result: { documentId: 'resource-document-id' },
+    });
+
+    expect(resourceUnpublish).not.toHaveBeenCalled();
+    expect(strapi.plugin).not.toHaveBeenCalled();
+  });
+
+  test('still moderates resources created without an authenticated user when RESOURCE_AUTO_PUBLISH is enabled', async () => {
+    vi.stubEnv('RESOURCE_AUTO_PUBLISH', 'true');
+    const { resourceUnpublish, strapi, subscribe } = createStrapiMock(null);
+
+    await resourceApi.bootstrap({ strapi: strapi as unknown as Core.Strapi });
+    const lifecycle = subscribe.mock.calls[0][0] as ResourceLifecycleSubscriber;
+
+    await lifecycle.afterCreate({
+      result: { documentId: 'resource-document-id' },
+    });
+
+    expect(resourceUnpublish).toHaveBeenCalledOnce();
+  });
+});
 
 describe('resource lifecycle ownership', () => {
   beforeEach(() => {
