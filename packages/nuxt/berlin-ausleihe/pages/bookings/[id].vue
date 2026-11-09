@@ -53,8 +53,10 @@
             </span>
             <NuxtLink
               :to="`/api/rental-agreement/${booking.documentId}`"
+              external
+              class="ml-2"
               v-if="booking?.bookingStatus === 'confirmed'"
-              >Verleihvertrag</NuxtLink
+              >{{ $t('rentalAgreement') }}</NuxtLink
             >
           </span>
         </div>

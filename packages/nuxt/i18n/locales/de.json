@@ -274,5 +274,6 @@
   "bookingStatusConflict": "Der Buchungsstatus hat sich zwischenzeitlich geändert. Die Ansicht wurde aktualisiert.",
   "bookingActionForbidden": "Du darfst diese Buchungsaktion nicht ausführen.",
   "bookingActionFailed": "Die Buchungsaktion konnte nicht ausgeführt werden. Bitte versuche es erneut.",
-  "bookingReloadFailed": "Die Aktion wurde gespeichert. Bitte lade die Seite neu, um alle Buchungsdetails zu aktualisieren."
+  "bookingReloadFailed": "Die Aktion wurde gespeichert. Bitte lade die Seite neu, um alle Buchungsdetails zu aktualisieren.",
+  "rentalAgreement": "Verleihvertrag"
 }
