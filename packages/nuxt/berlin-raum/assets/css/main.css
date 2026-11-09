@@ -10,6 +10,8 @@
   name: 'depot-berlin';
   default: true;
   color-scheme: light;
+  --color-primary: black;
+  --color-primary-content: white;
   --color-base-100: white;
   --color-secondary: var(--color-very-bright-gray);
   --radius-selector: 2rem;
