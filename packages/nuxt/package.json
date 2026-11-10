@@ -3,10 +3,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "pnpm -r --filter @depot/shared build && nuxt build --dotenv ../../.env",
-    "dev": "nuxt dev --dotenv ../../.env",
-    "generate": "nuxt generate --dotenv ../../.env",
-    "preview": "nuxt preview --dotenv ../../.env",
+    "build": "pnpm -r --filter @depot/shared build && nuxt build --dotenv \"${DEPOT_ENV_FILE:-../../.env}\"",
+    "dev": "nuxt dev --dotenv \"${DEPOT_ENV_FILE:-../../.env}\"",
+    "generate": "nuxt generate --dotenv \"${DEPOT_ENV_FILE:-../../.env}\"",
+    "preview": "nuxt preview --dotenv \"${DEPOT_ENV_FILE:-../../.env}\"",
     "postinstall": "pnpm --filter @depot/shared build && nuxt prepare"
   },
   "dependencies": {

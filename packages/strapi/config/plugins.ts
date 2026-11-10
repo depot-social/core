@@ -12,11 +12,11 @@ export default ({ env }) => ({
     },
     'plugin-availabilities': {
         // Important: keep prefix "plugin-" to avoid confusion with api::availabilities
-        enabled: env('STRAPI_PLUGIN_AVAILABILITIES', true),
+        enabled: readBooleanEnv(env('STRAPI_PLUGIN_AVAILABILITIES'), true),
         resolve: './src/plugins/availabilities'
     },
     'conversations': {
-        enabled: env('STRAPI_PLUGIN_CONVERSATIONS', true),
+        enabled: readBooleanEnv(env('STRAPI_PLUGIN_CONVERSATIONS'), true),
         resolve: './src/plugins/conversations'
     },
     'prices': {
@@ -24,15 +24,15 @@ export default ({ env }) => ({
         resolve: './src/plugins/prices'
     },
     'emails': {
-        enabled: env('STRAPI_PLUGIN_EMAILS', true),
+        enabled: readBooleanEnv(env('STRAPI_PLUGIN_EMAILS'), true),
         resolve: './src/plugins/emails'
     },
     'rental-agreement': {
-        enabled: env('STRAPI_PLUGIN_RENTAL_AGREEMENT', true),
+        enabled: readBooleanEnv(env('STRAPI_PLUGIN_RENTAL_AGREEMENT'), true),
         resolve: './src/plugins/rental-agreement'
     },
     search: {
-        enabled: env('STRAPI_PLUGIN_SEARCH', true),
+        enabled: readBooleanEnv(env('STRAPI_PLUGIN_SEARCH'), true),
         resolve: './src/plugins/search',
         config: {
             contentTypes: {
@@ -64,12 +64,14 @@ export default ({ env }) => ({
             provider: 'nodemailer',
             providerOptions: {
                 host: env('SMTP_HOST'),
-                port: env('SMTP_PORT', 587),
+                port: env.int('SMTP_PORT', 587),
                 // requireTLS: true,
-                auth: {
-                    user: env('SMTP_USERNAME'),
-                    pass: env('SMTP_PASSWORD')
-                }
+                ...(env('SMTP_USERNAME') && env('SMTP_PASSWORD') ? {
+                    auth: {
+                        user: env('SMTP_USERNAME'),
+                        pass: env('SMTP_PASSWORD')
+                    }
+                } : {})
             },
             settings: {
                 defaultFrom: env('ADMIN_EMAIL'),

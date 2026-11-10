@@ -1,0 +1,39 @@
+{
+  "public": [
+    "api::homepage.homepage.find",
+    "api::resources-search-page.resources-search-page.find",
+    "api::page.page.find",
+    "api::page.page.findOne",
+    "api::resource.resource.find",
+    "api::resource.resource.findOne",
+    "api::category.category.find",
+    "api::category.category.findOne",
+    "api::attribute.attribute.find",
+    "api::attribute.attribute.findOne",
+    "api::district.district.find",
+    "api::district.district.findOne",
+    "api::purpose.purpose.find",
+    "api::purpose.purpose.findOne",
+    "api::faq.faq.find",
+    "api::faq.faq.findOne",
+    "api::availability.availability.find",
+    "plugin::users-permissions.user.find"
+  ],
+  "authenticated": [
+    "plugin::users-permissions.user.me",
+    "plugin::users-permissions.user.updateMe",
+    "api::resource.resource.create",
+    "api::resource.resource.update",
+    "api::resource.resource.delete",
+    "api::booking.booking.create",
+    "api::booking.booking.findOne",
+    "api::booking.booking.update",
+    "api::availability.availability.findOne",
+    "api::availability.availability.create",
+    "api::availability.availability.update",
+    "api::availability.availability.delete",
+    "plugin::plugin-availabilities.availabilitiesController.getDashboard",
+    "plugin::rental-agreement.rentalAgreementController.getRentalAgreement",
+    "plugin::upload.content-api.upload"
+  ]
+}
