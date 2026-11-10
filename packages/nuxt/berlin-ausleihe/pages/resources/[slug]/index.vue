@@ -523,3 +523,11 @@ useHead({
   title: () => `${title} – ${$t('discoverResources')}`,
 });
 </script>
+
+<style scoped>
+/* Overrides the bottom positioning from berlin-raum, since centered 
+  object positioning is more sensible for images of objects. */
+.resource-image-grid img {
+  object-position: center;
+}
+</style>
