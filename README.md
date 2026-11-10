@@ -29,12 +29,28 @@ This monorepo uses [pnpm workspaces](https://pnpm.io/workspaces). Packages:
 
 ## Requirements
 
-- [Node](https://nodejs.org/en/download/) >=20
-- [pnpm](https://pnpm.io/)
+- [Node](https://nodejs.org/en/download/) 22 LTS
+- [pnpm](https://pnpm.io/) 11.20.0
 
 Optional for maps/geolocation: a Mapbox account/API token.
 
 ## Quick start
+
+### Development with Docker
+
+With Docker Engine/Desktop and Docker Compose installed, start the complete development environment:
+
+```bash
+docker compose up --build
+```
+
+- Frontend: http://127.0.0.1:3000
+- Strapi admin: http://127.0.0.1:1337/admin
+- Mailpit inbox: http://127.0.0.1:8025
+
+See [Docker development](docs/DOCKER.md) for details and [Installation and Strapi setup](docs/INSTALL.md) for the initial application configuration and content.
+
+### Development without Docker
 
 1) Install dependencies
 ```
@@ -43,6 +59,7 @@ pnpm install
 
 2) Copy `.env` from `.env.example` in the repository root and set required values.
 
+Alternatively, run `pnpm setup:env` to create the file and generate its missing secrets. Follow [Installation and Strapi setup](docs/INSTALL.md) for database, builds, permissions and content.
 
 3) Development
 - Start backend and frontend in parallel:

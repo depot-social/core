@@ -1,0 +1,10 @@
+.git
+.env*
+**/node_modules
+**/dist
+**/.nuxt
+**/.output
+**/.cache
+**/.tmp
+**/public/uploads
+*.log

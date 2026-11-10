@@ -1,5 +1,38 @@
-# Local-only MySQL 8 for development (Strapi v5 requires MySQL >= 8.0).
+# Complete local development environment.
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        LOCAL_UID: ${LOCAL_UID:-1000}
+        LOCAL_GID: ${LOCAL_GID:-1000}
+    init: true
+    env_file: .env.docker
+    ports:
+      - '127.0.0.1:1337:1337'
+      - '127.0.0.1:3000:3000'
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mailpit:
+        condition: service_healthy
+    volumes:
+      - .:/workspace
+      - ./.env.docker:/workspace/.env.docker:ro
+      - depot-pnpm-store:/pnpm/store
+      - depot-node-modules:/workspace/node_modules
+      - depot-nuxt-node-modules:/workspace/packages/nuxt/node_modules
+      - depot-shared-node-modules:/workspace/packages/shared/node_modules
+      - depot-strapi-node-modules:/workspace/packages/strapi/node_modules
+      - depot-availabilities-node-modules:/workspace/packages/strapi/src/plugins/availabilities/node_modules
+      - depot-conversations-node-modules:/workspace/packages/strapi/src/plugins/conversations/node_modules
+      - depot-emails-node-modules:/workspace/packages/strapi/src/plugins/emails/node_modules
+      - depot-prices-node-modules:/workspace/packages/strapi/src/plugins/prices/node_modules
+      - depot-rental-agreement-node-modules:/workspace/packages/strapi/src/plugins/rental-agreement/node_modules
+      - depot-search-node-modules:/workspace/packages/strapi/src/plugins/search/node_modules
+      - depot-nuxt-cache:/workspace/packages/nuxt/.nuxt
+
   mysql:
     image: mysql:8.0
     container_name: depot-mysql
@@ -20,5 +53,33 @@ services:
       timeout: 5s
       retries: 20
 
+  mailpit:
+    image: axllent/mailpit:v1.33
+    ports:
+      - '127.0.0.1:8025:8025'
+      - '127.0.0.1:1025:1025'
+    environment:
+      MP_DATABASE: /data/mailpit.db
+    volumes:
+      - depot-mailpit-data:/data
+    healthcheck:
+      test: ['CMD', '/mailpit', 'readyz']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
 volumes:
   depot-mysql-data:
+  depot-mailpit-data:
+  depot-pnpm-store:
+  depot-node-modules:
+  depot-nuxt-node-modules:
+  depot-shared-node-modules:
+  depot-strapi-node-modules:
+  depot-availabilities-node-modules:
+  depot-conversations-node-modules:
+  depot-emails-node-modules:
+  depot-prices-node-modules:
+  depot-rental-agreement-node-modules:
+  depot-search-node-modules:
+  depot-nuxt-cache:
