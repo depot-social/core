@@ -153,7 +153,10 @@ const onSubmit = async (event: Event) => {
 
     // Handle Strapi error response format
     const errorObj = error as Strapi5Error;
-    if (errorObj?.error?.message) {
+
+    if (errorObj?.error.status === 400) {
+      loginError.value = $t('login_errorInvalidInput');
+    } else if (errorObj?.error?.message) {
       loginError.value = errorObj.error.message;
     } else {
       loginError.value = $t('login_unknownError');

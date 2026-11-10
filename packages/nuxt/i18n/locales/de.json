@@ -118,6 +118,7 @@
   "login_emailOrUsername": "E-Mail",
   "login_password": "Passwort",
   "login_errorTitle": "Anmeldung fehlgeschlagen:",
+  "login_errorInvalidInput": "Ungültige E-Mail oder Passwort",
   "login_unknownError": "Ein unbekannter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
   "validation_required": "Pflichtfeld",
   "validation_minLength": "Mind. 6 Zeichen",
