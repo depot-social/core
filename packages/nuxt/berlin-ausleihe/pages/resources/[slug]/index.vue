@@ -7,7 +7,7 @@
         :to="{ name: 'resources' }"
         class="text-2lg font-light mb-6 block"
       >
-        {{ $t('berlin_resource_toOverview') }}
+        &larr; {{ $t('berlin_resource_toOverview') }}
       </NuxtLinkLocale>
 
       <div v-if="images && images.length > 0">
@@ -76,7 +76,7 @@
                 </li>
               </ul>
               <div class="stats py-2 mt-auto bg-transparent">
-                <div v-if="defaultAvailability" class="stat flex flex-col">
+                <div v-if="defaultAvailability" class="stat flex flex-col px-0">
                   <div class="stat-value text-2lg">
                     {{ defaultAvailability.availableUnits }}
                     {{ $t('pieces') }}

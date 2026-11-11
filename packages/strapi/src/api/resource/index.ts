@@ -1,13 +1,11 @@
 import type { Core } from '@strapi/strapi';
-import {
-  type Address,
-  type ObfuscatedGeoData,
-  type Resource,
-  geocodeAddress,
-  obfuscateGeodata,
-} from '@depot/shared';
+import type { Address, Resource } from '@depot/shared';
 import { EmailsService } from '../../plugins/emails/server/services/emails-service';
-import { isAdminOrBackofficeRequest, readBooleanEnv } from '../../utils';
+import {
+  isAdminOrBackofficeRequest,
+  readBooleanEnv,
+  updateAddressGeocode,
+} from '../../utils';
 
 /**
  * When enabled, resources created or edited by authenticated users through the
@@ -36,35 +34,6 @@ const getSubmittedAvailableUnits = (
   ctx: ResourceRequestContext | undefined
 ): number | undefined => {
   return ctx?.state?.resourceDefaultAvailableUnits;
-};
-
-const updateAddressGeocode = async (
-  strapi: Core.Strapi,
-  address: Address
-): Promise<void> => {
-  const geocodedAddress = await geocodeAddress(address);
-
-  if (!geocodedAddress) {
-    return;
-  }
-
-  let obfuscatedAddress: ObfuscatedGeoData | undefined;
-
-  if (geocodedAddress.latitude && geocodedAddress.longitude) {
-    obfuscatedAddress = obfuscateGeodata(
-      geocodedAddress.latitude,
-      geocodedAddress.longitude
-    );
-  }
-
-  await strapi.db.query('custom.address').update({
-    where: { id: address.id },
-    data: {
-      ...address,
-      ...obfuscatedAddress,
-      ...geocodedAddress,
-    },
-  });
 };
 
 export default {

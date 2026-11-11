@@ -7,7 +7,7 @@
         :to="{ name: 'resources' }"
         class="text-2lg font-light mb-6 block"
       >
-        {{ $t('berlin_resource_toOverview') }}
+        &larr; {{ $t('berlin_resource_toOverview') }}
       </NuxtLinkLocale>
 
       <div v-if="images && images.length > 0">
