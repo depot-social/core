@@ -5,27 +5,27 @@
       <h2 class="text-lg">{{ $t('contactData') }}</h2>
       <dl class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <dt>{{ $t('firstNameOrOrganization') }}</dt>
+          <dt class="font-bold">{{ $t('firstNameOrOrganization') }}</dt>
           <dd>{{ booking.customer?.firstName || '—' }}</dd>
         </div>
         <div>
-          <dt>{{ $t('lastName') }}</dt>
+          <dt class="font-bold">{{ $t('lastName') }}</dt>
           <dd>{{ booking.customer?.lastName || '—' }}</dd>
         </div>
         <div>
-          <dt>{{ $t('email') }}</dt>
+          <dt class="font-bold">{{ $t('email') }}</dt>
           <dd>{{ booking.customer?.email || '—' }}</dd>
         </div>
         <div>
-          <dt>{{ $t('streetAndNumber') }}</dt>
+          <dt class="font-bold">{{ $t('streetAndNumber') }}</dt>
           <dd>{{ booking.customerAddress?.street || '—' }}</dd>
         </div>
         <div>
-          <dt>{{ $t('postalCode') }}</dt>
+          <dt class="font-bold">{{ $t('postalCode') }}</dt>
           <dd>{{ booking.customerAddress?.zip || '—' }}</dd>
         </div>
         <div>
-          <dt>{{ $t('city') }}</dt>
+          <dt class="font-bold">{{ $t('city') }}</dt>
           <dd>{{ booking.customerAddress?.place || '—' }}</dd>
         </div>
       </dl>

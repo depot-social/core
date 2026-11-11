@@ -1,4 +1,11 @@
+import type { Core } from '@strapi/strapi';
 import type { Context } from 'koa';
+import {
+  type Address,
+  type ObfuscatedGeoData,
+  geocodeAddress,
+  obfuscateGeodata,
+} from '@depot/shared';
 export { readBooleanEnv } from '@depot/shared';
 
 type StrapiRequestContext = {
@@ -137,4 +144,37 @@ export const getRelationDatabaseId = (value: unknown): number | undefined => {
   }
 
   return undefined;
+};
+
+/**
+ * Resolves coordinates via Mapbox and stores precise + obfuscated
+ * coordinates on the given address component.
+ */
+export const updateAddressGeocode = async (
+  strapi: Core.Strapi,
+  address: Address
+): Promise<void> => {
+  const geocodedAddress = await geocodeAddress(address);
+
+  if (!geocodedAddress) {
+    return;
+  }
+
+  let obfuscatedAddress: ObfuscatedGeoData | undefined;
+
+  if (geocodedAddress.latitude && geocodedAddress.longitude) {
+    obfuscatedAddress = obfuscateGeodata(
+      geocodedAddress.latitude,
+      geocodedAddress.longitude
+    );
+  }
+
+  await strapi.db.query('custom.address').update({
+    where: { id: address.id },
+    data: {
+      ...address,
+      ...obfuscatedAddress,
+      ...geocodedAddress,
+    },
+  });
 };
