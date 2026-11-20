@@ -8,6 +8,9 @@
       variant="area"
       layout="list"
       class="raum-form-control w-full"
+      :ui="{
+        base: 'bg-white hover:bg-gray-50 data-[dragging=true]:bg-gray-50',
+      }"
       @update:model-value="onFilesChange"
     >
       <template #description>
