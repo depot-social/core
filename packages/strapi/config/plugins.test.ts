@@ -20,3 +20,18 @@ describe('Prices plugin configuration', () => {
     expect(configuration.prices.enabled).toBe(true);
   });
 });
+
+describe('Rental agreement plugin configuration', () => {
+  test('passes PDF branding from the environment to the plugin', () => {
+    const values: Record<string, string> = {
+      PDF_APP_NAME: 'Stadtteil-Verleih',
+      PDF_LOGO_PATH: 'branding/logo.svg',
+    };
+    const configuration = plugins({ env: (name: string) => values[name] });
+
+    expect(configuration['rental-agreement'].config).toEqual({
+      pdfAppName: 'Stadtteil-Verleih',
+      pdfLogoPath: 'branding/logo.svg',
+    });
+  });
+});

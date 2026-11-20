@@ -29,7 +29,11 @@ export default ({ env }) => ({
     },
     'rental-agreement': {
         enabled: env('STRAPI_PLUGIN_RENTAL_AGREEMENT', true),
-        resolve: './src/plugins/rental-agreement'
+        resolve: './src/plugins/rental-agreement',
+        config: {
+            pdfAppName: env('PDF_APP_NAME'),
+            pdfLogoPath: env('PDF_LOGO_PATH'),
+        },
     },
     search: {
         enabled: env('STRAPI_PLUGIN_SEARCH', true),

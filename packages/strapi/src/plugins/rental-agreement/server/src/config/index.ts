@@ -1,4 +1,7 @@
 export default {
-  default: {},
+  default: {
+    pdfAppName: 'depot.social',
+    pdfLogoPath: '',
+  },
   validator() {},
 };

@@ -12,6 +12,22 @@ The authenticated user's role must have the
 `rentalAgreementController.getRentalAgreement` permission enabled in Strapi's
 Users & Permissions settings.
 
+## PDF branding
+
+Set these variables in the repository root `.env` or in the Strapi environment.
+
+| Variable | Effect |
+| --- | --- |
+| `PDF_APP_NAME` | Name shown in the introduction and footer. Defaults to `depot.social`. |
+| `PDF_LOGO_PATH` | Optional local PNG or SVG path, such as `branding/logo.svg`. Relative paths start at the Strapi app root (`packages/strapi` in the monorepo). Absolute paths are also supported. |
+
+By default the header has no logo. To show one, place the file where Strapi can
+read it and set `PDF_LOGO_PATH`. If the file cannot be used, Strapi logs a warning
+and still generates the PDF without a logo.
+
+Restart Strapi after changing an environment variable. The logo file is read for
+each PDF, so replacing the file at the same path takes effect on the next download.
+
 ## Build and development
 
 Strapi loads this plugin from `dist/server/index.js`. If it has not been built,
