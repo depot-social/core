@@ -7,10 +7,31 @@ import {
   BookingStatusError,
   type BookingStatusService,
 } from '../utils/booking-status';
+import { loadBookingView } from '../utils/booking-view';
 
 export default factories.createCoreController(
   'api::booking.booking',
   ({ strapi }) => ({
+    async findOne(ctx) {
+      await this.validateQuery(ctx);
+      const view = await loadBookingView(
+        strapi,
+        ctx.params.id,
+        Number(ctx.state.user?.id),
+        (data) => this.sanitizeOutput(data, ctx)
+      );
+      return this.transformResponse(view);
+    },
+    async create(ctx) {
+      const response = await super.create(ctx);
+      const view = await loadBookingView(
+        strapi,
+        response.data.documentId,
+        Number(ctx.state.user?.id),
+        (data) => this.sanitizeOutput(data, ctx)
+      );
+      return this.transformResponse(view);
+    },
     async update(ctx) {
       try {
         const body = (
@@ -24,7 +45,13 @@ export default factories.createCoreController(
           Number(ctx.state.user?.id),
           body?.data
         );
-        return this.transformResponse(await this.sanitizeOutput(booking, ctx));
+        const view = await loadBookingView(
+          strapi,
+          booking.documentId,
+          Number(ctx.state.user?.id),
+          (data) => this.sanitizeOutput(data, ctx)
+        );
+        return this.transformResponse(view);
       } catch (error) {
         if (error instanceof BookingStatusError)
           ctx.throw(error.status, error.message);

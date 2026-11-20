@@ -39,7 +39,8 @@
   },
   "devDependencies": {
     "@depot/shared": "workspace:^",
-    "@nuxtjs/tailwindcss": "^6.14.0"
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@types/qs": "6.15.1"
   },
   "author": "Felix Sänger <felix@depot.social>"
 }

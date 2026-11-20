@@ -16,12 +16,12 @@
 </template>
 
 <script setup lang="ts">
-import type { Resource } from '@depot/shared';
+import type { ResourceContent } from '@depot/shared';
 import { getMarkerForResource } from '~/base/utils/map';
 
 const props = withDefaults(
   defineProps<{
-    resource: Resource;
+    resource: ResourceContent;
     withLink?: boolean;
   }>(),
   {

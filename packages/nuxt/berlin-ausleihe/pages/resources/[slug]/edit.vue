@@ -44,13 +44,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Category, District, Resource, User } from '@depot/shared';
+import type { Category, District, Resource } from '@depot/shared';
 import { EmptyResource, PriceTariffType } from '@depot/shared';
 import type { Ref } from 'vue';
 import { reactive, ref } from 'vue';
 import type { ResourceFormSubmitPayload } from '~/berlin-ausleihe/components/resource-form/types';
 import { getResourceLinksUpdate } from '~/berlin-ausleihe/components/resource-form/links';
-import { AUTHORIZATION_ERROR, PAGE_NOT_FOUND } from '~/base/utils/errors';
+import { PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 useHead({
   title: $t('resourceEdit_pageTitle'),
@@ -73,7 +73,7 @@ if (!slug) {
 
 const { find, update } = useStrapi();
 const pricesEnabled = usePricesEnabled();
-const user = useStrapiUser() as Ref<User | null>;
+const { assertOwnResource } = useOwnResourceOwnership();
 
 const districtsResponse = await find<District>('districts', {
   sort: ['name:asc'],
@@ -101,7 +101,6 @@ const resourceResponse = await useAsyncData(`resource-edit-${slug}`, () =>
       'district',
       'images',
       'links',
-      'user',
       ...(pricesEnabled.value ? ['prices'] : []),
     ],
   })
@@ -118,12 +117,7 @@ if (!resourceResponse.data || fetchedResources.length === 0) {
 
 const fetchedResource = fetchedResources[0] as unknown as Resource;
 
-if (!user.value || fetchedResource.user?.id !== user.value.id) {
-  throw createError({
-    statusCode: 403,
-    statusMessage: AUTHORIZATION_ERROR,
-  });
-}
+await assertOwnResource(fetchedResource.documentId);
 
 Object.assign(resourceFormData, fetchedResource);
 

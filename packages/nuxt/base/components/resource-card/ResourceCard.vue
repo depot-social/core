@@ -59,7 +59,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Resource } from '@depot/shared';
+import type { ResourceContent, PublicProvider } from '@depot/shared';
 import {
   PriceTariffType,
   getPriceByPriceTariff,
@@ -69,7 +69,7 @@ import { computed } from 'vue';
 import { getResourcePath } from '~/base/utils/paths';
 
 interface Props {
-  resource: Resource;
+  resource: ResourceContent & { provider?: PublicProvider | null };
   imageSize?: number;
 }
 
@@ -80,13 +80,9 @@ const props = withDefaults(defineProps<Props>(), {
 const resourceImages = computed(() => props.resource.images ?? []);
 const pricesEnabled = usePricesEnabled();
 
-const isOrganization = computed(() => {
-  return (
-    typeof props.resource.user !== 'undefined' &&
-    props.resource.user !== null &&
-    typeof props.resource.user.organization !== 'undefined'
-  );
-});
+const isOrganization = computed(
+  () => props.resource.provider?.isOrganization === true
+);
 
 const regularPrice = computed(() => {
   if (!pricesEnabled.value) {

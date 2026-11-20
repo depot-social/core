@@ -1,7 +1,9 @@
-import type { Resource } from '@depot/shared';
+import type { ResourceContent } from '@depot/shared';
 import type { Marker } from '~/base/models/map';
 
-export const getMarkerForResource = (resource: Resource): Marker | null => {
+export const getMarkerForResource = (
+  resource: ResourceContent
+): Marker | null => {
   const address = resource.address;
 
   if (!address) {

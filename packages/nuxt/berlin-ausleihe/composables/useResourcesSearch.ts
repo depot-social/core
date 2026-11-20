@@ -1,8 +1,14 @@
-import type { Category, District, Resource } from '@depot/shared';
+import type {
+  Category,
+  District,
+  Resource,
+  PublicResource,
+  ResourceContent,
+} from '@depot/shared';
 import { computed, readonly, ref, watch } from 'vue';
 
 export interface ResourcesSearchState {
-  resources: Resource[];
+  resources: PublicResource[];
   categories: Category[];
   districts: District[];
   selectedCategories: Category[] | null;
@@ -18,20 +24,6 @@ export interface ResourcesSearchState {
   };
 }
 
-const RESOURCE_POPULATE = [
-  'address',
-  'resourceTypes',
-  'images',
-  'prices',
-  'district',
-  'user',
-  'user.organization',
-  'purposes',
-  'categories',
-  'attributes',
-  'attributes.attribute',
-];
-
 // Strapi's `maxLimit`, see packages/strapi/config/api.ts
 const MAP_PAGE_SIZE = 1000;
 
@@ -39,7 +31,7 @@ const MAP_PAGE_SIZE = 1000;
 const MIN_SEARCH_LENGTH = 3;
 
 export const useResourcesSearch = async (
-  initialResources: Resource[] = [],
+  initialResources: PublicResource[] = [],
   maxPageSize: number = 16,
   initialPaginationMeta?: {
     page?: number;
@@ -73,9 +65,10 @@ export const useResourcesSearch = async (
 
   const activePage = ref(initialPage || 1);
 
-  const mapResources = ref<Resource[]>(initialResources);
+  const mapResources = ref<ResourceContent[]>(initialResources);
 
   const { find } = useStrapi();
+  const resourcesApi = useResourcesApi();
 
   // The free-text term only counts once it reaches the minimum length;
   // anything shorter behaves like an empty search.
@@ -113,13 +106,18 @@ export const useResourcesSearch = async (
     page: number;
     pageSize: number;
   }) => {
-    const response = await find<Resource>('resources', {
-      // @ts-expect-error - Strapi supports component and nested populate but types don't reflect it
-      populate: RESOURCE_POPULATE,
-      // @ts-expect-error - Strapi supports nested sorting but types don't reflect it
-      sort: sortParams,
-      filters: buildFilters(),
-      pagination,
+    const response = await resourcesApi.list({
+      q: getEffectiveQuery() || undefined,
+      categoryIds:
+        state.value.selectedCategories
+          ?.map((category) => category.id)
+          .join(',') || undefined,
+      districtIds:
+        state.value.selectedDistricts
+          ?.map((district) => district.id)
+          .join(',') || undefined,
+      sort: 'pinned-title',
+      ...pagination,
     });
 
     const meta = response.meta?.pagination;

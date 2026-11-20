@@ -41,12 +41,12 @@
 </template>
 
 <script setup lang="ts">
-import type { District, Purpose, Resource, User } from '@depot/shared';
+import type { District, Purpose, Resource } from '@depot/shared';
 import { EmptyResource } from '@depot/shared';
 import type { Ref } from 'vue';
 import { reactive, ref } from 'vue';
 import type { ResourceFormSubmitPayload } from '~/berlin-raum/components/resource-form/types';
-import { AUTHORIZATION_ERROR, PAGE_NOT_FOUND } from '~/base/utils/errors';
+import { PAGE_NOT_FOUND } from '~/base/utils/errors';
 
 useHead({
   title: $t('resourceEdit_pageTitle'),
@@ -68,7 +68,7 @@ if (!slug) {
 }
 
 const { find, update } = useStrapi();
-const user = useStrapiUser() as Ref<User | null>;
+const { assertOwnResource } = useOwnResourceOwnership();
 
 const districtsResponse = await find<District>('districts', {
   sort: ['name:asc'],
@@ -89,14 +89,7 @@ const resourceResponse = await useAsyncData(`resource-edit-${slug}`, () =>
         $eq: slug,
       },
     },
-    populate: [
-      'address',
-      'district',
-      'images',
-      'purposes',
-      'resourceTypes',
-      'user',
-    ],
+    populate: ['address', 'district', 'images', 'purposes', 'resourceTypes'],
   })
 );
 
@@ -111,12 +104,7 @@ if (!resourceResponse.data || fetchedResources.length === 0) {
 
 const fetchedResource = fetchedResources[0] as unknown as Resource;
 
-if (!user.value || fetchedResource.user?.id !== user.value.id) {
-  throw createError({
-    statusCode: 403,
-    statusMessage: AUTHORIZATION_ERROR,
-  });
-}
+await assertOwnResource(fetchedResource.documentId);
 
 Object.assign(resourceFormData, fetchedResource);
 

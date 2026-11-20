@@ -1,4 +1,4 @@
-import type { Booking, UpdateBookingRequest } from '@depot/shared';
+import type { BookingView, UpdateBookingRequest } from '@depot/shared';
 import { getBookingPermissions } from '../utils/bookingActions';
 import { getStrapiErrorStatus, PAGE_NOT_FOUND } from '../utils/errors';
 
@@ -14,24 +14,8 @@ export const useBookingDetails = async (documentId: string) => {
     refresh,
     error,
   } = await useAsyncData(`booking-${documentId}`, async () => {
-    const response = await client<{ data: Booking }>(
-      `/bookings/${encodeURIComponent(documentId)}`,
-      {
-        params: {
-          populate: [
-            'resource',
-            'resource.images',
-            'resource.prices',
-            'resource.address',
-            'resource.user',
-            'resource.user.organization',
-            'customer',
-            'customerAddress',
-            'resourceOwner',
-            'price',
-          ],
-        },
-      }
+    const response = await client<{ data: BookingView }>(
+      `/bookings/${encodeURIComponent(documentId)}`
     );
     if (!response?.data)
       throw createError({ statusCode: 404, statusMessage: PAGE_NOT_FOUND });
@@ -66,7 +50,7 @@ export const useBookingDetails = async (documentId: string) => {
       return;
     submitting.value = true;
     try {
-      const response = await update<Booking>('bookings', documentId, {
+      const response = await update<BookingView>('bookings', documentId, {
         bookingStatus,
       } satisfies UpdateBookingRequest);
       if (!response?.data) throw new Error('Missing booking response');

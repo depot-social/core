@@ -266,6 +266,7 @@ interface BaseResourceType {
 }
 
 export interface ContingentResourceType extends BaseResourceType {
+  __component: ResourceTypeComponent.CONTINGENT_RESOURCE_TYPE;
   availableUnits: number;
   minBookableUnits: number;
   generateRentContract: boolean;
@@ -335,6 +336,73 @@ export interface Resource extends StrapiBaseEntity {
   availabilities?: Availability[];
   attributes?: ResourceAttribute[];
   user: User;
+}
+
+/** Resource content used by views which do not need a user relation. */
+export type ResourceContent = Pick<
+  Resource,
+  | 'id'
+  | 'documentId'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'title'
+  | 'description'
+  | 'slug'
+  | 'address'
+  | 'prices'
+  | 'links'
+  | 'resourceTypes'
+> & {
+  images: (Pick<UploadedImage, 'id' | 'url'> &
+    Partial<
+      Pick<UploadedImage, 'documentId' | 'alternativeText' | 'width' | 'height'>
+    >)[];
+  categories: Pick<Category, 'id' | 'documentId' | 'title' | 'slug'>[];
+  purposes: Pick<Purpose, 'id' | 'documentId' | 'title' | 'slug'>[];
+  district: Pick<District, 'id' | 'documentId' | 'name' | 'slug'> | null;
+  availabilities?: Pick<
+    Availability,
+    'id' | 'documentId' | 'title' | 'start' | 'end' | 'availableUnits'
+  >[];
+  attributes?: ResourceAttribute[];
+};
+
+export interface PublicProvider {
+  displayName?: string;
+  initials?: string;
+  organizationName?: string;
+  isOrganization?: boolean;
+  memberSince?: string;
+  website?: { url: string; label: string };
+}
+
+export interface PublicResource extends ResourceContent {
+  provider: PublicProvider | null;
+  /** Text-only address for Ausleihe details; never used for map positioning. */
+  displayAddress?: Partial<Pick<Address, 'street' | 'zip'>> | null;
+}
+
+export type BookingParty = Pick<
+  User,
+  'id' | 'firstName' | 'lastName' | 'email' | 'organizationName'
+>;
+
+export interface BookingView
+  extends Omit<Booking, 'customer' | 'resourceOwner' | 'resource'> {
+  customer: BookingParty;
+  resourceOwner: BookingParty;
+  resource: ResourceContent;
+}
+
+export interface ResourcesQuery {
+  q?: string;
+  categoryIds?: string;
+  districtIds?: string;
+  purposeIds?: string;
+  excludeDocumentId?: string;
+  page?: number;
+  pageSize?: number;
+  sort?: 'default' | 'pinned-title';
 }
 
 export const EmptyAddress = (): Address => ({

@@ -308,14 +308,12 @@ describe('resource lifecycle ownership', () => {
     const {
       availabilityCreate,
       availabilityFindOne,
-      ctx,
       resourceFindOne,
       strapi,
       subscribe,
     } = createStrapiMock({ documentId: 'authenticated-user-document-id' });
     availabilityFindOne.mockResolvedValue(null);
     resourceFindOne.mockResolvedValue({ documentId: 'resource-document-id' });
-    ctx.state.resourceDefaultAvailableUnits = 42;
 
     await resourceApi.bootstrap({ strapi: strapi as unknown as Core.Strapi });
     const lifecycle = subscribe.mock.calls[0][0] as ResourceLifecycleSubscriber;

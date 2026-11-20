@@ -47,6 +47,13 @@ An authenticated user can receive a mixed list:
 
 The confirmed booking lookup is limited to the resource `documentId`s present in the current response page.
 
+List responses also include `meta.locationAccess.preciseLocationAllowedDocumentIds`.
+This lists only IDs from the current page for which the requesting user may see
+the precise location, including resources whose address is `null`. With redaction
+disabled, all IDs from the current page are included. Nuxt uses this decision for
+the separate text-address fallback in Ausleihe details and strips the metadata
+from its public response. The fallback never changes the resource's map address.
+
 ## Single Resource Responses
 
 For `GET /api/resources/:documentId`, the returned resource address is fully visible only if the authenticated user owns that resource or has a confirmed booking relationship with it. Otherwise, the address is redacted.

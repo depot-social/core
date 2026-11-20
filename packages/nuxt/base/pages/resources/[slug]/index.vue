@@ -107,7 +107,7 @@
       </div>
       <div class="container flex flex-col md:flex-row md:mt-12">
         <div class="lg:basis-5/12">
-          <div v-if="user">
+          <div v-if="provider">
             <span class="text-base font-medium">{{
               $t('resource_provider')
             }}</span>
@@ -115,17 +115,17 @@
               <div class="avatar avatar-placeholder">
                 <div class="bg-primary text-white rounded-full w-18">
                   <span>
-                    {{ getUsernameAbbreviationFromUser(user) }}
+                    {{ provider.initials }}
                   </span>
                 </div>
               </div>
               <div class="flex flex-col">
                 <p class="font-sans">
-                  {{ getUsernameFromUser(user) }}
+                  {{ provider.displayName }}
                 </p>
-                <p class="text-gray-800">
+                <p v-if="provider.memberSince" class="text-gray-800">
                   {{ $t('resource_memberSince') }}
-                  {{ formatDate(user.createdAt, 'MMM yyyy') }}
+                  {{ formatDate(provider.memberSince, 'MMM yyyy') }}
                 </p>
                 <!-- <ul class="flex gap-2 mt-4 text-base">
                   <li class="badge badge-sm border-0">4 Ressourcen</li>
@@ -240,14 +240,9 @@
 import type {
   AvailabilitiesGetCalendarResponseData,
   BerlinResourceType,
-  Resource,
+  PublicResource,
 } from '@depot/shared';
-import {
-  getResourceType,
-  getUsernameAbbreviationFromUser,
-  getUsernameFromUser,
-  ResourceTypeComponent,
-} from '@depot/shared';
+import { getResourceType, ResourceTypeComponent } from '@depot/shared';
 import { format } from 'date-fns';
 import { marked } from 'marked';
 import { computed, ref } from 'vue';
@@ -270,38 +265,22 @@ const { find } = useStrapi();
 const { formatDate } = useDateFormat();
 const pricesEnabled = usePricesEnabled();
 
-let similarResources: Resource[] = [];
+let similarResources: PublicResource[] = [];
 
 // Fetch resource by slug
+const resourcesApi = useResourcesApi();
 const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
-  find<Resource>('resources', {
-    filters: {
-      slug: {
-        $eq: slug,
-      },
-    },
-    populate: [
-      'images',
-      'resourceTypes',
-      'availabilities',
-      'address',
-      'prices',
-      'categories',
-      'user',
-      // 'resourceTypes.berlinResourceType',
-      // 'resourceTypes.contingentResourceType',
-    ],
-  })
+  resourcesApi.bySlug(slug)
 );
 
-if (!resourceResponse.data || resourceResponse.data.value?.data.length === 0) {
+if (!resourceResponse.data || !resourceResponse.data.value?.data) {
   throw createError({
     statusCode: 404,
     statusMessage: PAGE_NOT_FOUND,
   });
 }
 
-const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
+const resource = resourceResponse.data.value!.data;
 const {
   documentId,
   title,
@@ -309,7 +288,7 @@ const {
   images,
   resourceTypes,
   categories,
-  user,
+  provider,
 } = resource;
 
 const berlinResourceType = getResourceType(
@@ -341,28 +320,13 @@ if (simliarResourcesCategory) {
 
   if (categoryId) {
     const similarResourcesResponse = await useAsyncData(
-      'similarResources',
+      `similarResources-${slug}`,
       () =>
-        find<Resource>('resources', {
-          populate: ['images', 'user'],
-          filters: {
-            $and: [
-              {
-                categories: {
-                  $eq: categoryId,
-                },
-              },
-              {
-                id: {
-                  $ne: resource.id,
-                },
-              },
-            ],
-          },
-          pagination: {
-            pageSize: 3,
-            page: 1,
-          },
+        resourcesApi.list({
+          categoryIds: String(categoryId),
+          excludeDocumentId: resource.documentId,
+          pageSize: 3,
+          page: 1,
         })
     );
 

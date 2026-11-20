@@ -13,11 +13,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Resource } from '@depot/shared';
+import type { ResourceContent } from '@depot/shared';
 import { getMarkerForResource } from '~/base/utils/map';
 
 const props = defineProps<{
-  resources: Resource[];
+  resources: ResourceContent[];
 }>();
 
 const markerEntries = computed(() =>
