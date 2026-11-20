@@ -1,7 +1,7 @@
 <template>
   <footer class="bg-background-300">
     <div
-      class="flex flex-col xl:container relative px-6 pb-0 xl:pb-20 min-h-[390px]"
+      class="flex flex-col xl:container relative px-4 sm:px-6 pb-0 xl:pb-20 min-h-[390px]"
     >
       <div
         class="flex flex-col gap-8 md:gap-0 sm:flex-row py-6 xl:pt-14 xl:mb-24"
