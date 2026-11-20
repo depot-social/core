@@ -21,7 +21,8 @@
     "test:ts:back": "run -T tsc -p server/tsconfig.json"
   },
   "dependencies": {
-    "jspdf": "^4.2.0"
+    "jspdf": "^4.2.0",
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "@depot/shared": "workspace:^",
