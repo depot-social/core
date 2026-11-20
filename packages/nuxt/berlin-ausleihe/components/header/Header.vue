@@ -1,6 +1,6 @@
 <template>
   <header
-    class="relative z-20 w-full h-[70px] flex flex-wrap items-center justify-between px-6"
+    class="relative z-20 w-full h-[70px] flex flex-wrap items-center justify-between px-4 sm:px-6"
   >
     <NuxtLinkLocale :to="{ name: 'resources' }">
       <div class="flex items-center gap-2.5">
@@ -33,35 +33,11 @@
         FAQ
       </NuxtLink>
 
-      <NuxtLink
-        v-if="isEnabled('resourceEditing')"
-        :to="localePath('resources-add')"
-        class="hidden lg:flex text-[16px] font-semibold no-underline flex-nowrap! items-center gap-2"
-      >
-        {{ $t('berlin_resources_addResource') }}
-
-        <svg
-          class="flex-shrink-0 w-8 h-8"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 32 32"
-        >
-          <path
-            fill="#121212"
-            d="M28 27H4a2 2 0 0 1-2-2v-5h2v5h24v-5h2v5a2 2 0 0 1-2 2Z"
-          />
-          <path
-            fill="#121212"
-            d="M25 20H7v2h18v-2ZM25 15H7v2h18v-2ZM25 10H7v2h18v-2ZM25 5H7v2h18V5Z"
-          />
-        </svg>
-      </NuxtLink>
       <BerlinHeaderLogin v-if="isEnabled('login')" />
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-const localePath = useLocalePath();
 const { isEnabled } = useFeature();
 </script>

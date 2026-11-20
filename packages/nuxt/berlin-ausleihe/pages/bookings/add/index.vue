@@ -52,13 +52,11 @@
 
 <script setup lang="ts">
 // Booking form for "ContingentResourceType"
+import type { BookingView, CreateBookingRequest, User } from '@depot/shared';
 import type {
-  Booking,
-  CreateBookingRequest,
-  Resource,
-  User,
-} from '@depot/shared';
-import type { BookingFormValues } from '~/base/components/booking-form/schema';
+  BookingFormInitialData,
+  BookingFormValues,
+} from '~/base/components/booking-form/schema';
 import { fetchMaxAvailableUnits } from '~/base/utils/availabilities';
 import {
   getStrapiErrorMessage,
@@ -77,7 +75,8 @@ definePageMeta({
 
 const route = useRoute();
 const localePath = useLocalePath();
-const { findOne, create } = useStrapi();
+const { create } = useStrapi();
+const resourcesApi = useResourcesApi();
 
 // Get query parameters
 const resourceDocumentId = route.query.resource_id as string;
@@ -101,17 +100,7 @@ const user = useStrapiUser() as Ref<User>;
 // Fetch resource data
 const { data: resource, pending } = await useAsyncData('resource', async () => {
   try {
-    const response = await findOne<Resource>('resources', resourceDocumentId, {
-      populate: [
-        'images',
-        'resourceTypes',
-        'address',
-        'prices',
-        'categories',
-        'user',
-        'user.organization',
-      ],
-    });
+    const response = await resourcesApi.byId(resourceDocumentId);
 
     if (!response?.data) {
       throw createError({
@@ -120,7 +109,7 @@ const { data: resource, pending } = await useAsyncData('resource', async () => {
       });
     }
 
-    return response.data as Resource;
+    return response.data;
   } catch (e) {
     console.error('Error loading resource', e);
     throw createError({
@@ -170,16 +159,16 @@ if (maxAvailableUnits.value === 0) {
 const finalUnits = Math.min(units, maxAvailableUnits.value || 0);
 
 // Initialize booking form data
-const bookingFormData = reactive<Partial<Booking>>({
+const bookingFormData = reactive<
+  BookingFormInitialData & Partial<Omit<BookingView, 'customer'>>
+>({
   start,
   end,
   bookingStatus: 'requested',
   bookedUnits: finalUnits,
   title: '',
   resource: resource.value,
-  resourceOwner: resource.value?.user as User,
   customer: {
-    ...user.value,
     firstName: user.value.firstName || '',
     lastName: user.value.lastName || '',
     email: user.value.email || '',
@@ -211,7 +200,7 @@ const onSubmit = async (formData: BookingFormValues) => {
       commentCustomer: formData.commentCustomer,
     } satisfies CreateBookingRequest;
 
-    const response = await create<Booking>('bookings', bookingRequest);
+    const response = await create<BookingView>('bookings', bookingRequest);
 
     if (!response || !response.data) {
       throw new Error('Failed to create booking');

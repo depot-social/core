@@ -3,7 +3,9 @@
     id="faq"
     :class="isLayer('berlin-raum') ? 'bg-violet-100' : 'bg-secondary'"
   >
-    <div class="xl:container px-8 flex flex-wrap gap-8 md:gap-0 pt-12 pb-18">
+    <div
+      class="xl:container px-4 sm:px-6 flex flex-wrap gap-8 md:gap-0 pt-12 pb-18"
+    >
       <h2
         v-if="resourcesSearchPage.faqSectionHeadline"
         class="tracking-tight basis-full md:basis-1/2 text-[36px] 2xl:text-[63px] font-bold"

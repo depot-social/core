@@ -1,8 +1,8 @@
 import { ref, readonly, watch } from 'vue';
-import type { Resource, Category } from '@depot/shared';
+import type { PublicResource, Category } from '@depot/shared';
 
 export interface ResourcesSearchState {
-  resources: Resource[];
+  resources: PublicResource[];
   categories: Category[];
   selectedCategory: Category | null;
   searchQuery: string;
@@ -17,7 +17,7 @@ export interface ResourcesSearchState {
 }
 
 export const useResourcesSearch = async (
-  initialResources: Resource[] = [],
+  initialResources: PublicResource[] = [],
   maxPageSize: number = 16
 ) => {
   const state = ref<ResourcesSearchState>({
@@ -37,47 +37,20 @@ export const useResourcesSearch = async (
 
   const activePage = ref(1);
 
-  const { find } = useStrapi();
+  const resourcesApi = useResourcesApi();
 
   const fetchResources = async (page: number = activePage.value) => {
     try {
       state.value.loading = true;
       state.value.error = null;
 
-      const response = await find<Resource>('resources', {
-        populate: [
-          'categories',
-          'images',
-          'address',
-          'prices',
-          'user',
-          'user.organization',
-        ],
-        filters: {
-          $or: state.value.searchQuery
-            ? [
-                {
-                  title: {
-                    $contains: state.value.searchQuery,
-                  },
-                },
-                {
-                  description: {
-                    $contains: state.value.searchQuery,
-                  },
-                },
-              ]
-            : undefined,
-          categories: state.value.selectedCategory?.id
-            ? {
-                $contains: state.value.selectedCategory.id,
-              }
-            : undefined,
-        },
-        pagination: {
-          pageSize: maxPageSize,
-          page: page,
-        },
+      const response = await resourcesApi.list({
+        q: state.value.searchQuery || undefined,
+        categoryIds: state.value.selectedCategory?.id
+          ? String(state.value.selectedCategory.id)
+          : undefined,
+        pageSize: maxPageSize,
+        page,
       });
 
       if (response?.data) {

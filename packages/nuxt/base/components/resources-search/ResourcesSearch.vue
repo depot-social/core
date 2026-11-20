@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Resource } from '@depot/shared';
+import type { ResourceContent } from '@depot/shared';
 import { debounce, random } from 'lodash-es';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
@@ -30,7 +30,7 @@ const containerRef = useTemplateRef('container');
 
 const { state, setSearchQuery } = await useResourcesSearch([], 10);
 const resourcesForList = computed(
-  () => state.value.resources as unknown as readonly Resource[]
+  () => state.value.resources as unknown as readonly ResourceContent[]
 );
 
 const debouncedSetQuery = debounce((value: string) => {

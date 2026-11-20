@@ -40,6 +40,6 @@
 </template>
 
 <script setup lang="ts">
-import type { Booking } from '@depot/shared';
-defineProps<{ booking: Booking }>();
+import type { BookingView } from '@depot/shared';
+defineProps<{ booking: BookingView }>();
 </script>

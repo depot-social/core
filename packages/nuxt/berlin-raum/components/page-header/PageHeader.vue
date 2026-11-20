@@ -1,6 +1,6 @@
 <template>
   <section
-    class="relative z-10 flex flex-col px-6 py-6 md:py-8"
+    class="relative z-10 flex flex-col px-4 sm:px-6 py-6 md:py-8"
     :class="!backgroundColor && fallbackBackgroundClass"
     :style="backgroundColor ? { backgroundColor } : undefined"
   >

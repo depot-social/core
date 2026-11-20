@@ -8,6 +8,10 @@ import {
   ResourceType,
   ResourceTypeComponent,
   User,
+  Resource,
+  ResourceContent,
+  PublicProvider,
+  BookingParty,
 } from './types';
 
 /**
@@ -169,9 +173,17 @@ export const normalizeWebsiteUrl = (value: string): string | undefined => {
  */
 export const getResourceWebsite = (resource: {
   links?: Pick<Link, 'url' | 'title'>[] | null;
+  provider?: PublicProvider | null;
   user?: { link?: Pick<Link, 'url' | 'title'> | null } | null;
 }): { url: string; label: string } | undefined => {
-  for (const link of [resource.links?.[0], resource.user?.link]) {
+  const providerWebsite = resource.provider?.website;
+  const links = [
+    resource.links?.[0],
+    providerWebsite
+      ? { url: providerWebsite.url, title: providerWebsite.label }
+      : resource.user?.link,
+  ];
+  for (const link of links) {
     const url = normalizeWebsiteUrl(link?.url ?? '');
 
     if (url) {
@@ -181,6 +193,185 @@ export const getResourceWebsite = (resource: {
 
   return undefined;
 };
+
+/** Picks known fields rather than forwarding Strapi objects or future attributes. */
+export const pickFields = <T extends object, K extends keyof T>(
+  value: T,
+  keys: readonly K[]
+): Pick<T, K> =>
+  Object.fromEntries(keys.map((key) => [key, value[key]])) as Pick<T, K>;
+
+export const projectBookingParty = (user: BookingParty): BookingParty =>
+  pickFields(user, [
+    'id',
+    'firstName',
+    'lastName',
+    'email',
+    'organizationName',
+  ]);
+
+export const projectPublicProvider = (
+  user: User | null | undefined,
+  view: 'card' | 'detail' | 'booking',
+  layer: string
+): PublicProvider | null => {
+  if (!user) return null;
+  if (view === 'card') {
+    return layer === 'base'
+      ? { isOrganization: !!user.organization }
+      : { organizationName: user.organizationName || undefined };
+  }
+  if (view === 'booking') {
+    return {
+      displayName: [user.firstName, user.lastName].filter(Boolean).join(' '),
+      organizationName: user.organizationName || undefined,
+    };
+  }
+  const website = getResourceWebsite({ user });
+  if (layer !== 'base') {
+    return {
+      ...(layer === 'berlin-ausleihe'
+        ? { organizationName: user.organizationName || undefined }
+        : {}),
+      website,
+    };
+  }
+  const displayName =
+    user.organization?.title ||
+    [user.firstName, user.lastName].filter(Boolean).join(' ');
+  return {
+    displayName,
+    initials: displayName
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase(),
+    memberSince: /^\d{4}-\d{2}/.test(user.createdAt || '')
+      ? user.createdAt.slice(0, 7)
+      : undefined,
+    website,
+  };
+};
+
+/** Shared by the Nuxt public API and authorized booking responses. No user relations. */
+export const projectResourceContent = (
+  resource: Resource
+): ResourceContent => ({
+  ...pickFields(resource, [
+    'id',
+    'documentId',
+    'createdAt',
+    'updatedAt',
+    'title',
+    'description',
+    'slug',
+  ]),
+  address: resource.address
+    ? pickFields(resource.address, [
+        'id',
+        'street',
+        'zip',
+        'place',
+        'latitude',
+        'longitude',
+        'obfuscatedLatitude',
+        'obfuscatedLongitude',
+      ])
+    : null,
+  images: (resource.images || []).map((image) =>
+    pickFields(image, [
+      'id',
+      'documentId',
+      'url',
+      'alternativeText',
+      'width',
+      'height',
+    ])
+  ),
+  categories: (resource.categories || []).map((category) =>
+    pickFields(category, ['id', 'documentId', 'title', 'slug'])
+  ),
+  purposes: (resource.purposes || []).map((purpose) =>
+    pickFields(purpose, ['id', 'documentId', 'title', 'slug'])
+  ),
+  district: resource.district
+    ? pickFields(resource.district, ['id', 'documentId', 'name', 'slug'])
+    : null,
+  links: (resource.links || []).map((link) =>
+    pickFields(link, ['url', 'title'])
+  ),
+  prices: (resource.prices || []).map((price) =>
+    pickFields(price, [
+      'id',
+      'title',
+      'value',
+      'currency',
+      'duration',
+      'durationType',
+      'tariffType',
+      'vatValue',
+      'depositValue',
+      'resourceValue',
+    ])
+  ),
+  availabilities: (resource.availabilities || []).map((availability) =>
+    pickFields(availability, [
+      'id',
+      'documentId',
+      'title',
+      'start',
+      'end',
+      'availableUnits',
+    ])
+  ),
+  attributes: (resource.attributes || []).map((attribute) => ({
+    value: attribute.value,
+    attribute: attribute.attribute
+      ? pickFields(attribute.attribute, [
+          'id',
+          'documentId',
+          'createdAt',
+          'updatedAt',
+          'slug',
+          'value',
+          'recommended',
+        ])
+      : null,
+  })),
+  resourceTypes: (resource.resourceTypes || []).map((type) => {
+    if (type.__component === ResourceTypeComponent.CONTINGENT_RESOURCE_TYPE) {
+      return pickFields(type, [
+        '__component',
+        'availableUnits',
+        'minBookableUnits',
+        'generateRentContract',
+        'onlyNotForProfit',
+        'extraTextRentContract',
+        'extraTextBookingConfirmation',
+        'openingTimes',
+      ]);
+    }
+    return pickFields(type, [
+      '__component',
+      'provider',
+      'initialRoomName',
+      'roomName',
+      'maxCapacity',
+      'facilities',
+      'facilitiesAdditionalInfo',
+      'roomSizeSqm',
+      'accessibilityState',
+      'accessibilityInfo',
+      'usageHours',
+      'usageFeeDetails',
+      'contactPerson',
+      'contactEmail',
+      'contactPhone',
+      'offerPublishedAt',
+    ]);
+  }),
+});
 
 export const getAccessibilityText = (
   accessibilityState: AccessibilityState | undefined

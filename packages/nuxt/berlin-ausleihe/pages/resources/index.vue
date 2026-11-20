@@ -183,7 +183,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Category, District, Resource } from '@depot/shared';
+import type { Category, District, ResourceContent } from '@depot/shared';
 import { debounce } from 'lodash-es';
 import type { Marker } from '~/base/models/map';
 
@@ -252,7 +252,7 @@ if (initialDistricts.length > 0) {
 
 const redactResourceLocation = computed(() => {
   if (resources.length === 0) return false;
-  const resource = resources[0] as Resource;
+  const resource = resources[0] as ResourceContent;
 
   return (
     resource.address != null &&
@@ -261,35 +261,14 @@ const redactResourceLocation = computed(() => {
   );
 });
 
-const resourcesResponse = await find<Resource>('resources', {
-  populate: [
-    'categories',
-    'district',
-    'prices',
-    'images',
-    'resourceTypes',
-    'address',
-    'user',
-    'user.organization',
-    // @ts-expect-errors – nested populate
-    'attributes.attribute',
-  ],
-  filters: {
-    categories:
-      initialCategories.length > 0
-        ? { id: { $in: initialCategories.map((p) => p.id) } }
-        : undefined,
-    district:
-      initialDistricts.length > 0
-        ? { id: { $in: initialDistricts.map((d) => d.id) } }
-        : undefined,
-  } as Record<string, unknown>,
-  pagination: {
-    page: initialPage.value,
-    pageSize: 12,
-    withCount: true,
-  },
-  sort: ['isPinned:desc', 'title:asc'],
+const resourcesResponse = await useResourcesApi().list({
+  categoryIds:
+    initialCategories.map((category) => category.id).join(',') || undefined,
+  districtIds:
+    initialDistricts.map((district) => district.id).join(',') || undefined,
+  page: initialPage.value,
+  pageSize: 12,
+  sort: 'pinned-title',
 });
 
 const resources = resourcesResponse.data;
@@ -418,7 +397,7 @@ const mapRefreshKey = computed(() => {
   return mapResources.value.map((r) => r.id).join('-');
 });
 
-const resourceHasCoordinates = (resource: Resource): boolean => {
+const resourceHasCoordinates = (resource: ResourceContent): boolean => {
   if (!resource.address) return false;
   return redactResourceLocation.value
     ? !!(
@@ -431,7 +410,9 @@ const resourceHasCoordinates = (resource: Resource): boolean => {
 // The map is independent of the pagination: it shows every resource matching
 // the current filters.
 const resourcesWithAddress = computed(() =>
-  (mapResources.value as readonly Resource[]).filter(resourceHasCoordinates)
+  (mapResources.value as readonly ResourceContent[]).filter(
+    resourceHasCoordinates
+  )
 );
 
 const resourceMarkers = computed(() =>

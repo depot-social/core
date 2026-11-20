@@ -27,7 +27,7 @@ type ResourceRequest = {
 
 type FindResponse = {
   data: unknown[];
-  meta?: unknown;
+  meta?: Record<string, unknown>;
 };
 
 const getAuthenticatedUserId = (
@@ -112,38 +112,39 @@ export default factories.createCoreController(
           data: coreResponse.data.map(omitSearchIndex),
         };
 
-        if (
-          !resourceLocationRedaction.isRedactionEnabled() ||
-          isAdminOrBackofficeRequest(ctx)
-        ) {
-          return response;
-        }
-
         const userId = getAuthenticatedUserId(ctx);
-
-        if (typeof userId === 'undefined') {
-          return {
-            ...response,
-            data: resourceLocationRedaction.redactResourceLocations(
-              response.data
-            ),
-          };
-        }
-
         const resourceDocumentIdsInPage = response.data
           .map((resource) =>
             resourceLocationRedaction.getResourceDocumentIdFromEntity(resource)
           )
           .filter(isNonEmptyString);
 
-        const allowedResourceDocumentIds =
-          await resourceLocationRedaction.getAllowedResourceDocumentIds(
-            userId,
-            resourceDocumentIdsInPage
-          );
+        const redactionApplies =
+          resourceLocationRedaction.isRedactionEnabled() &&
+          !isAdminOrBackofficeRequest(ctx);
+        const allowedResourceDocumentIds = !redactionApplies
+          ? new Set(resourceDocumentIdsInPage)
+          : typeof userId === 'undefined'
+          ? new Set<string>()
+          : await resourceLocationRedaction.getAllowedResourceDocumentIds(
+              userId,
+              resourceDocumentIdsInPage
+            );
 
         return {
           ...response,
+          // Nuxt needs the same decision when a resource has no address and a
+          // text-only provider-address fallback is considered. Never infer this
+          // permission from an absent street or from service-token credentials.
+          meta: {
+            ...response.meta,
+            locationAccess: {
+              preciseLocationAllowedDocumentIds:
+                resourceDocumentIdsInPage.filter((documentId) =>
+                  allowedResourceDocumentIds.has(documentId)
+                ),
+            },
+          },
           data: response.data.map((resource) => {
             const resourceDocumentId =
               resourceLocationRedaction.getResourceDocumentIdFromEntity(
@@ -151,8 +152,9 @@ export default factories.createCoreController(
               );
 
             if (
-              resourceDocumentId &&
-              allowedResourceDocumentIds.has(resourceDocumentId)
+              !redactionApplies ||
+              (resourceDocumentId &&
+                allowedResourceDocumentIds.has(resourceDocumentId))
             ) {
               return resource;
             }

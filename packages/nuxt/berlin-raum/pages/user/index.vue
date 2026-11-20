@@ -17,7 +17,7 @@
       <p class="mt-4">{{ $t('loading') }}</p>
     </div>
 
-    <div class="xl:container px-8 pt-12 pb-18">
+    <div class="xl:container px-4 sm:px-6 pt-12 pb-18">
       <div class="flex justify-center mt-10 items-center">
         <span class="text-base font-medium text-primary mr-auto">{{
           $t('myProfile')

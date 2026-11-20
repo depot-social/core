@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Category, Resource, SingleTypeHomepage } from '@depot/shared';
+import type { Category, SingleTypeHomepage } from '@depot/shared';
 import { useResourcesSearch } from '~/base/composables/useResourcesSearch';
 
 const props = defineProps<{
@@ -64,21 +64,9 @@ const { find } = useStrapi();
 
 const pageSize = 8;
 
+const resourcesApi = useResourcesApi();
 const resourcesResponse = await useAsyncData('initialResources', () =>
-  find<Resource>('resources', {
-    populate: [
-      'categories',
-      'images',
-      'address',
-      'prices',
-      'user',
-      'user.organization',
-    ],
-    pagination: {
-      pageSize,
-      page: 1,
-    },
-  })
+  resourcesApi.list({ pageSize, page: 1 })
 );
 
 const categoriesResponse = await useAsyncData('categories', () =>
@@ -87,7 +75,7 @@ const categoriesResponse = await useAsyncData('categories', () =>
 const categories = categoriesResponse.data.value?.data;
 
 const { state: searchState, setSelectedCategory } = await useResourcesSearch(
-  resourcesResponse.data.value?.data as unknown as Resource[],
+  resourcesResponse.data.value?.data || [],
   pageSize
 );
 

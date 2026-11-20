@@ -1,6 +1,6 @@
 <template>
   <header
-    class="w-full h-[70px] flex flex-wrap items-center justify-between px-6"
+    class="w-full h-[70px] flex flex-wrap items-center justify-between px-4 sm:px-6"
   >
     <NuxtLinkLocale :to="{ name: 'resources' }">
       <div class="flex items-center gap-2.5">

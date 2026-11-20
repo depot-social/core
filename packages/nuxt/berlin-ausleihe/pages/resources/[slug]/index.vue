@@ -148,13 +148,13 @@
           <div
             class="grid sm:grid-cols-[200px_1fr] md:grid-cols-[100px_1fr] lg:grid-cols-[155px_1fr] *:leading-snug *:even:mb-5 sm:*:even:mb-0 *:font-light sm:*:flex sm:*:items-start sm:*:py-[1.15rem] sm:*:border-b *:border-b-secondary gap-x-6"
           >
-            <template v-if="resource.user?.organizationName">
+            <template v-if="resource.provider?.organizationName">
               <span class="text-sm">
                 {{ $t('berlin_resource_provider') }}
               </span>
 
               <span class="text-base lg:text-lg">
-                {{ resource.user.organizationName }}
+                {{ resource.provider.organizationName }}
               </span>
             </template>
 
@@ -310,9 +310,8 @@
 
 <script setup lang="ts">
 import type {
-  Address,
   AvailabilitiesGetCalendarResponseData,
-  Resource,
+  PublicResource,
 } from '@depot/shared';
 import { getResourceWebsite } from '@depot/shared';
 import { format } from 'date-fns';
@@ -340,35 +339,18 @@ if (!slug) {
 const { find } = useStrapi();
 const pricesEnabled = usePricesEnabled();
 
-let similarResources: Resource[] = [];
+let similarResources: PublicResource[] = [];
 
 // Fetch resource by slug
+const resourcesApi = useResourcesApi();
 const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
-  find<Resource>('resources', {
-    filters: {
-      slug: {
-        $eq: slug,
-      },
-    },
-    populate: [
-      'images',
-      'availabilities',
-      'district',
-      'address',
-      'prices',
-      'categories',
-      'links',
-      'user',
-      'user.link',
-      'user.address',
-    ],
-  })
+  resourcesApi.bySlug(slug)
 );
 
 if (
   !resourceResponse.data ||
   !resourceResponse.data.value ||
-  resourceResponse.data.value?.data.length === 0
+  !resourceResponse.data.value?.data
 ) {
   throw createError({
     statusCode: 404,
@@ -376,17 +358,12 @@ if (
   });
 }
 
-const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
-const { documentId, title, description, images, categories, user } = resource;
+const resource = resourceResponse.data.value!.data;
+const { documentId, title, description, images, categories } = resource;
 
 const website = getResourceWebsite(resource);
 
-const hasAddressData = (address?: Address | null): address is Address =>
-  !!(address?.street || address?.zip || address?.place);
-
-const displayAddress = hasAddressData(resource.address)
-  ? resource.address
-  : user?.address;
+const displayAddress = resource.displayAddress;
 
 const defaultAvailability = resource.availabilities?.find(
   (availability) => availability.end === null
@@ -405,28 +382,13 @@ if (similarResourcesCategory) {
 
   if (categoryId) {
     const similarResourcesResponse = await useAsyncData(
-      'similarResources',
+      `similarResources-${slug}`,
       () =>
-        find<Resource>('resources', {
-          populate: ['images', 'user'],
-          filters: {
-            $and: [
-              {
-                categories: {
-                  $eq: categoryId,
-                },
-              },
-              {
-                id: {
-                  $ne: resource.id,
-                },
-              },
-            ],
-          },
-          pagination: {
-            pageSize: 3,
-            page: 1,
-          },
+        resourcesApi.list({
+          categoryIds: String(categoryId),
+          excludeDocumentId: resource.documentId,
+          pageSize: 3,
+          page: 1,
         })
     );
 

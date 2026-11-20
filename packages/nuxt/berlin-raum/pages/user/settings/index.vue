@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="xl:container px-8 pt-12 pb-18">
+    <div class="xl:container px-4 sm:px-6 pt-12 pb-18">
       <div class="flex justify-center mt-10 items-center">
         <span class="text-base font-medium text-primary mr-auto">{{
           $t('myProfile')
@@ -19,7 +19,7 @@
         </div>
       </div>
 
-      <div class="px-8 mt-4 py-8 flex flex-col">
+      <div class="mt-4 py-8 flex flex-col">
         <BerlinUserProfileForm
           class="w-full"
           :is-edit-form="true"

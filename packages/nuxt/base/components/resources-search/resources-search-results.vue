@@ -30,12 +30,12 @@
 </template>
 
 <script setup lang="ts">
-import type { Resource } from '@depot/shared';
+import type { ResourceContent } from '@depot/shared';
 import { getResourcePath } from '~/base/utils/paths';
 
 interface Props {
   id: string;
-  resources: readonly Resource[];
+  resources: readonly ResourceContent[];
   loading: boolean;
   error: string | null;
   containerClass?: string;

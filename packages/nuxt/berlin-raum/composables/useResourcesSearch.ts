@@ -32,8 +32,6 @@ const RESOURCE_POPULATE = [
   'images',
   'prices',
   'district',
-  'user',
-  'user.organization',
   'purposes',
   'categories',
   'attributes',

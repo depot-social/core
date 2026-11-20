@@ -58,11 +58,22 @@
         :resource-id="resource.documentId"
       />
     </div>
-    <div class="mt-10 w-full">
+
+    <hr class="w-full my-10 text-secondary" />
+
+    <div class="flex justify-between flex-wrap gap-6">
       <BerlinResourceCalendarSubmit
         :resource-id="resource.documentId"
         :selection="activeSelection"
       />
+
+      <NuxtLink
+        class="underline external-link flex h-max"
+        to="https://engagiertes.berlin/de/einreichen/melden/"
+        external
+      >
+        {{ $t('reportIllegalContent') }}
+      </NuxtLink>
     </div>
   </div>
 </template>
@@ -70,7 +81,7 @@
 <script setup lang="ts">
 import type {
   AvailabilitiesGetCalendarResponseData,
-  Resource,
+  ResourceContent,
 } from '@depot/shared';
 import {
   getLocalTimeZone,
@@ -88,7 +99,7 @@ import { useDateFormat } from '~/base/composables/useDateFormat';
 import { fetchMaxAvailableUnits } from '~/base/utils/availabilities';
 
 const props = defineProps<{
-  resource: Resource;
+  resource: ResourceContent;
   availabilities?: AvailabilitiesGetCalendarResponseData;
 }>();
 

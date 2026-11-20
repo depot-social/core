@@ -24,8 +24,7 @@
           <p>{{ $t('lender') }}:</p>
           <div class="flex flex-col items-end">
             <p class="font-bold pt-1">
-              {{ booking.resourceOwner?.firstName }}
-              {{ booking.resourceOwner?.lastName }}
+              {{ providerName }}
             </p>
             <p>
               {{
@@ -108,18 +107,32 @@
 </template>
 
 <script setup lang="ts">
-import type { Resource, Booking } from '@depot/shared';
+import type {
+  ResourceContent,
+  PublicProvider,
+  BookingView,
+} from '@depot/shared';
 import { priceToString } from '@depot/shared';
 import { format, parseISO } from 'date-fns';
 import { fetchResourcePrice } from '~/base/utils/prices';
 
 interface Props {
-  booking: Partial<Booking>;
-  resource?: Resource;
+  booking: Partial<Omit<BookingView, 'customer'>>;
+  resource?: ResourceContent & { provider?: PublicProvider | null };
   storedPrice?: boolean;
 }
 
 const props = defineProps<Props>();
+const providerName = computed(() =>
+  props.booking.resourceOwner
+    ? [
+        props.booking.resourceOwner.firstName,
+        props.booking.resourceOwner.lastName,
+      ]
+        .filter(Boolean)
+        .join(' ')
+    : props.resource?.provider?.displayName || ''
+);
 const pricesEnabled = usePricesEnabled();
 
 // Format date helper

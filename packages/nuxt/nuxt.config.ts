@@ -53,6 +53,7 @@ export default defineNuxtConfig({
     payloadExtraction: false,
   },
   runtimeConfig: {
+    strapiReadToken: '',
     public: {
       activeLayer,
       strapiUrl: process.env.PUBLIC_STRAPI_URL,
@@ -80,8 +81,6 @@ export default defineNuxtConfig({
         'link',
         'organization',
         'resources',
-        'resources.user',
-        'resources.user.organization',
         'resources.images',
         'resources.prices',
       ],

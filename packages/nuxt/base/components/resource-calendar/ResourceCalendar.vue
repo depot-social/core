@@ -32,7 +32,7 @@
 import { reactive } from 'vue';
 import { differenceInCalendarDays } from 'date-fns';
 import type {
-  Resource,
+  ResourceContent,
   AvailabilitiesGetCalendarResponseData,
 } from '@depot/shared';
 import type {
@@ -42,7 +42,7 @@ import type {
 import { fetchMaxAvailableUnits } from '~/base/utils/availabilities';
 
 const props = defineProps<{
-  resource: Resource;
+  resource: ResourceContent;
   availabilities: AvailabilitiesGetCalendarResponseData;
 }>();
 
