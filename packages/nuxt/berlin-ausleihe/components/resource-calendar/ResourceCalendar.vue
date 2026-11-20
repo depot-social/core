@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import type {
   AvailabilitiesGetCalendarResponseData,
-  Resource,
+  ResourceContent,
 } from '@depot/shared';
 import {
   getLocalTimeZone,
@@ -97,7 +97,7 @@ import { useDateFormat } from '~/base/composables/useDateFormat';
 import { fetchMaxAvailableUnits } from '~/base/utils/availabilities';
 
 const props = defineProps<{
-  resource: Resource;
+  resource: ResourceContent;
   availabilities?: AvailabilitiesGetCalendarResponseData;
 }>();
 

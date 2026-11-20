@@ -49,11 +49,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Category, Resource, User } from '@depot/shared';
+import type { Category, Resource } from '@depot/shared';
 import { EmptyResource, PriceTariffType } from '@depot/shared';
 import type { Ref } from 'vue';
 import { reactive, ref } from 'vue';
-import { AUTHORIZATION_ERROR, PAGE_NOT_FOUND } from '~/base/utils/errors';
+import { PAGE_NOT_FOUND } from '~/base/utils/errors';
 import { getResourcePath, getResourcesPath } from '~/base/utils/paths';
 import type { ResourceFormSubmitPayload } from '~/base/components/resource-form/types';
 
@@ -77,7 +77,7 @@ if (!slug) {
 
 const { find, update } = useStrapi();
 const pricesEnabled = usePricesEnabled();
-const user = useStrapiUser() as Ref<User | null>;
+const { assertOwnResource } = useOwnResourceOwnership();
 
 const categoriesResponse = await find<Category>('categories', {
   sort: ['title:asc'],
@@ -97,7 +97,6 @@ const resourceResponse = await useAsyncData(`resource-edit-${slug}`, () =>
       'address',
       'availabilities',
       'categories',
-      'user',
       ...(pricesEnabled.value ? ['prices'] : []),
     ],
   })
@@ -114,12 +113,7 @@ if (!resourceResponse.data || fetchedResources.length === 0) {
 
 const fetchedResource = fetchedResources[0] as unknown as Resource;
 
-if (!user.value || fetchedResource.user?.id !== user.value.id) {
-  throw createError({
-    statusCode: 403,
-    statusMessage: AUTHORIZATION_ERROR,
-  });
-}
+await assertOwnResource(fetchedResource.documentId);
 
 Object.assign(resourceFormData, fetchedResource);
 

@@ -17,10 +17,10 @@
 </template>
 
 <script lang="ts" setup>
-import type { Resource } from '@depot/shared';
+import type { ResourceContent } from '@depot/shared';
 
 type Props = {
-  resource: Resource;
+  resource: ResourceContent;
   withLink?: boolean;
 };
 

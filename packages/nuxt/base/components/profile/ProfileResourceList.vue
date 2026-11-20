@@ -11,14 +11,17 @@
         </NuxtLink>
       </div>
       <div v-for="resource in resources" :key="resource.id" class="w-[260px]">
-        <BaseResourceCard :resource="resource" :image-size="260" />
+        <BaseResourceCard
+          :resource="{ ...resource, provider: ownProvider }"
+          :image-size="260"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { Resource } from '@depot/shared';
+import { projectPublicProvider, type Resource, type User } from '@depot/shared';
 import { getResourcesAddPath } from '~/base/utils/paths';
 
 interface Props {
@@ -26,4 +29,8 @@ interface Props {
 }
 
 defineProps<Props>();
+const ownUser = useStrapiUser() as Ref<User | null>;
+const ownProvider = computed(() =>
+  projectPublicProvider(ownUser.value, 'card', 'base')
+);
 </script>

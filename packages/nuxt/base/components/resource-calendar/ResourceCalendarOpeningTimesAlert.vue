@@ -27,11 +27,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Resource, ContingentResourceType } from '@depot/shared';
+import type { ResourceContent, ContingentResourceType } from '@depot/shared';
 import { getResourceType, ResourceTypeComponent } from '@depot/shared';
 
 const props = defineProps<{
-  resource: Resource;
+  resource: ResourceContent;
 }>();
 
 const contingentResourceType = getResourceType(

@@ -383,6 +383,9 @@ importers:
       '@nuxtjs/tailwindcss':
         specifier: ^6.14.0
         version: 6.14.0(magicast@0.5.5)(supports-color@10.2.2)(yaml@2.9.1)
+      '@types/qs':
+        specifier: 6.15.1
+        version: 6.15.1
 
   packages/shared:
     dependencies:

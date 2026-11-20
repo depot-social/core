@@ -1,4 +1,4 @@
-import type { Booking } from '@depot/shared';
+import type { BookingStatus } from '@depot/shared';
 
 export interface BookingPermissions {
   isCustomer: boolean;
@@ -9,7 +9,14 @@ export interface BookingPermissions {
 
 /** Returns the current user's role and available booking actions. */
 export const getBookingPermissions = (
-  booking: Booking | null | undefined,
+  booking:
+    | {
+        bookingStatus: BookingStatus;
+        customer?: { id: number };
+        resourceOwner?: { id: number };
+      }
+    | null
+    | undefined,
   userId?: number
 ): BookingPermissions => {
   const isCustomer = !!userId && Number(booking?.customer?.id) === userId;

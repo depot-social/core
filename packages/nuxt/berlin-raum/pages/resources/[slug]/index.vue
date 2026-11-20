@@ -345,7 +345,7 @@
 </template>
 
 <script setup lang="ts">
-import type { BerlinResourceType, Resource } from '@depot/shared';
+import type { BerlinResourceType, PublicResource } from '@depot/shared';
 import {
   getAccessibilityText,
   getResourceType,
@@ -401,34 +401,15 @@ const { find } = useStrapi();
 // Fetch data immediately
 
 // Fetch resource by slug
+const resourcesApi = useResourcesApi();
 const resourceResponse = await useAsyncData(`resource-${slug}`, () =>
-  find<Resource>('resources', {
-    filters: {
-      slug: {
-        $eq: slug,
-      },
-    },
-    populate: [
-      'images',
-      'district',
-      'purposes',
-      'links',
-      'resourceTypes',
-      'address',
-      'prices',
-      'categories',
-      'user',
-      'user.link',
-      // 'resourceTypes.berlinResourceType',
-      // 'resourceTypes.contingentResourceType',
-    ],
-  })
+  resourcesApi.bySlug(slug)
 );
 
 if (
   !resourceResponse.data ||
   !resourceResponse.data.value ||
-  resourceResponse.data.value?.data.length === 0
+  !resourceResponse.data.value?.data
 ) {
   throw createError({
     statusCode: 404,
@@ -436,7 +417,7 @@ if (
   });
 }
 
-const resource = resourceResponse.data.value?.data[0] as unknown as Resource;
+const resource = resourceResponse.data.value!.data;
 const { title, images, resourceTypes } = resource;
 
 const website = getResourceWebsite(resource);

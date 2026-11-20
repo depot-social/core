@@ -136,7 +136,11 @@
 </template>
 
 <script setup lang="ts">
-import type { BerlinResourceType, Resource } from '@depot/shared';
+import type {
+  BerlinResourceType,
+  ResourceContent,
+  PublicProvider,
+} from '@depot/shared';
 import {
   getAccessibilityText,
   getResourceType,
@@ -152,7 +156,7 @@ import {
 } from 'vue';
 
 interface Props {
-  resource: Resource;
+  resource: ResourceContent & { provider?: PublicProvider | null };
   imageSize?: number;
 }
 
@@ -179,11 +183,9 @@ const title = computed(() => {
   return props.resource.title;
 });
 
-const organizationName = computed(() => {
-  return props.resource.user
-    ? props.resource.user?.organizationName
-    : undefined;
-});
+const organizationName = computed(
+  () => props.resource.provider?.organizationName
+);
 
 const accessibilityText = computed(() => {
   return getAccessibilityText(berlinResourceType.value?.accessibilityState);

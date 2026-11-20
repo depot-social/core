@@ -99,19 +99,9 @@ const addressResourcesResponse = await find<Resource>('resources', {
 
 const addressResources = addressResourcesResponse.data;
 
-const resourcesResponse = await find<Resource>('resources', {
-  populate: [
-    'categories',
-    'prices',
-    'images',
-    'resourceTypes',
-    'user',
-    'address',
-  ],
-  pagination: {
-    page: 1,
-    pageSize: 16,
-  },
+const resourcesResponse = await useResourcesApi().list({
+  page: 1,
+  pageSize: 16,
 });
 
 const resources = resourcesResponse.data;

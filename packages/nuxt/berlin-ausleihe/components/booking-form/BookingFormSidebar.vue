@@ -29,12 +29,19 @@
           <p class="text-sm">{{ $t('lender') }}:</p>
           <div class="flex flex-col">
             <p class="font-bold!">
-              <template v-if="resource?.user?.organizationName">
-                {{ resource.user.organizationName }}
+              <template
+                v-if="
+                  booking.resourceOwner?.organizationName ||
+                  resource?.provider?.organizationName
+                "
+              >
+                {{
+                  booking.resourceOwner?.organizationName ||
+                  resource?.provider?.organizationName
+                }}
               </template>
               <template v-else>
-                {{ booking.resourceOwner?.firstName }}
-                {{ booking.resourceOwner?.lastName }}
+                {{ providerName }}
               </template>
             </p>
             <p>
@@ -120,18 +127,32 @@
 </template>
 
 <script setup lang="ts">
-import type { Booking, Resource } from '@depot/shared';
+import type {
+  BookingView,
+  ResourceContent,
+  PublicProvider,
+} from '@depot/shared';
 import { priceToString } from '@depot/shared';
 import { format, parseISO } from 'date-fns';
 import { fetchResourcePrice } from '~/base/utils/prices';
 
 interface Props {
-  booking: Partial<Booking>;
-  resource?: Resource;
+  booking: Partial<Omit<BookingView, 'customer'>>;
+  resource?: ResourceContent & { provider?: PublicProvider | null };
   storedPrice?: boolean;
 }
 
 const props = defineProps<Props>();
+const providerName = computed(() =>
+  props.booking.resourceOwner
+    ? [
+        props.booking.resourceOwner.firstName,
+        props.booking.resourceOwner.lastName,
+      ]
+        .filter(Boolean)
+        .join(' ')
+    : props.resource?.provider?.displayName || ''
+);
 const pricesEnabled = usePricesEnabled();
 
 // Format date helper

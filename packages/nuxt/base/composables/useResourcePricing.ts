@@ -1,12 +1,12 @@
 import { computed } from 'vue';
-import type { Resource } from '@depot/shared';
+import type { ResourceContent } from '@depot/shared';
 import {
   PriceTariffType,
   getPriceByPriceTariff,
   priceToString,
 } from '@depot/shared';
 
-export const useResourcePricing = (resource: Resource) => {
+export const useResourcePricing = (resource: ResourceContent) => {
   const pricesEnabled = usePricesEnabled();
 
   const regularPrice = computed(() => {
