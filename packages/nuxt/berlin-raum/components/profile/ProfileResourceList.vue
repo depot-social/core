@@ -130,15 +130,19 @@
         class="relative"
       >
         <BerlinResourceCardSmall :resource="resource" />
-        <UButton
-          icon="i-lucide-pencil"
-          size="lg"
-          color="primary"
-          variant="solid"
-          class="absolute bottom-12 right-4 z-10 p-2.5 h-max"
-          :aria-label="$t('resourceEdit_title')"
-          :to="getEditPath(resource)"
-        />
+        <div
+          class="pointer-events-none absolute inset-x-0 top-0 z-10 aspect-square"
+        >
+          <UButton
+            icon="i-lucide-pencil"
+            size="lg"
+            color="primary"
+            variant="solid"
+            class="pointer-events-auto absolute bottom-4 right-4 p-2.5 h-max"
+            :aria-label="$t('resourceEdit_title')"
+            :to="getEditPath(resource)"
+          />
+        </div>
       </div>
     </div>
   </div>
