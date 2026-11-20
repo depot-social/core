@@ -7,7 +7,7 @@
         class="basis-full lg:basis-2/3 flex flex-col items-start gap-8 px-8 xl:px-24 py-12"
       >
         <button class="link no-underline" @click="$router.back()">
-          <i class="ph ph-arrow-left" /> {{ $t('backToPreviousPage') }}
+          &larr; {{ $t('backToPreviousPage') }}
         </button>
         <h1 class="text-xl">
           <template v-if="userIsCustomer">

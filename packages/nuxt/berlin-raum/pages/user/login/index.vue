@@ -59,13 +59,6 @@
         {{ $t('login_signIn') }}
       </UButton>
     </UForm>
-
-    <!-- <div class="divider font-text">{{ $t('login_orSignInVia') }}</div>
-
-    <div class="flex gap-2 items-start">
-      <UButton variant="outline" class="badge badge-primary">Facebook</UButton>
-      <UButton variant="outline" class="badge badge-primary">Apple</UButton>
-    </div> -->
   </div>
 </template>
 
@@ -90,16 +83,8 @@ const toast = useToast();
 
 const schema = v.pipe(
   v.object({
-    username: v.pipe(v.string(), v.minLength(6, $t('validation_minLength'))),
-    password: v.pipe(
-      v.string(),
-      v.nonEmpty($t('validation_required')),
-      v.minLength(6, $t('validation_minLength')),
-      v.maxLength(30, $t('validation_maxLength')),
-      v.regex(/[a-z]/, $t('validation_passwordLowercase')),
-      v.regex(/[A-Z]/, $t('validation_passwordUppercase')),
-      v.regex(/[0-9]/, $t('validation_passwordNumber'))
-    ),
+    username: v.pipe(v.string(), v.nonEmpty($t('validation_required'))),
+    password: v.pipe(v.string(), v.nonEmpty($t('validation_required'))),
   })
 );
 

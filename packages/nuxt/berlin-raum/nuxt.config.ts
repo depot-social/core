@@ -6,6 +6,18 @@ const extendNuxtLayers = NUXT_LAYERS.split(',').map((layer) => layer.trim());
 const resourceBasePath = '/raeume';
 
 export default defineNuxtConfig({
+  app: {
+    head: {
+      link: [
+        {
+          key: 'favicon',
+          rel: 'icon',
+          type: 'image/svg+xml',
+          href: '/favicon.svg',
+        },
+      ],
+    },
+  },
   css: ['~/berlin-raum/assets/css/main.css'],
   components: [{ path: './components', prefix: 'Berlin' }],
   runtimeConfig: {

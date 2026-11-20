@@ -7,7 +7,7 @@
         :to="{ name: 'resources' }"
         class="text-2lg font-light mb-6 block"
       >
-        {{ $t('berlin_resource_toOverview') }}
+        &larr; {{ $t('berlin_resource_toOverview') }}
       </NuxtLinkLocale>
 
       <div v-if="images && images.length > 0">
@@ -76,7 +76,7 @@
                 </li>
               </ul>
               <div class="stats py-2 mt-auto bg-transparent">
-                <div v-if="defaultAvailability" class="stat flex flex-col">
+                <div v-if="defaultAvailability" class="stat flex flex-col px-0">
                   <div class="stat-value text-2lg">
                     {{ defaultAvailability.availableUnits }}
                     {{ $t('pieces') }}
@@ -204,6 +204,15 @@
                 </NuxtLink>
               </span>
             </template>
+          </div>
+
+          <div role="alert" class="alert alert-info bg-secondary mt-8">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="h-6 w-6 shrink-0 stroke-current">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p>
+              Hinweis: Die Angaben zu den Verleihenden sind vorübergehend nicht sichtbar. Wir arbeiten daran, sie schnellstmöglich wieder bereitzustellen. Vielen Dank für Dein Verständnis.
+            </p>
           </div>
 
           <div class="flex mt-7 mb-8 md:mt-28">
@@ -485,3 +494,11 @@ useHead({
   title: () => `${title} – ${$t('discoverResources')}`,
 });
 </script>
+
+<style scoped>
+/* Overrides the bottom positioning from berlin-raum, since centered 
+  object positioning is more sensible for images of objects. */
+.resource-image-grid img {
+  object-position: center;
+}
+</style>

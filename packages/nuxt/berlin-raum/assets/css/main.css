@@ -288,6 +288,14 @@ textarea:focus,
   @apply outline-none ring-2;
 }
 
+/* override orange badge from base layer with berlin branding */
+.badge.badge-primary,
+.badge.badge-primary:hover,
+.badge.badge-primary:focus {
+  background-color: var(--color-primary);
+  color: var(--color-primary-content);
+}
+
 /* hot fix */
 .leaflet-container a:not(.btn-primary) {
   color: var(--color-primary) !important;
