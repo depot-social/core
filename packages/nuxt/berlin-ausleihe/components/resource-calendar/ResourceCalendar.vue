@@ -58,11 +58,22 @@
         :resource-id="resource.documentId"
       />
     </div>
-    <div class="mt-10 w-full">
+
+    <hr class="w-full my-10 text-secondary" />
+
+    <div class="flex justify-between flex-wrap gap-6">
       <BerlinResourceCalendarSubmit
         :resource-id="resource.documentId"
         :selection="activeSelection"
       />
+
+      <NuxtLink
+        class="underline external-link flex h-max"
+        to="https://engagiertes.berlin/de/einreichen/melden/"
+        external
+      >
+        {{ $t('reportIllegalContent') }}
+      </NuxtLink>
     </div>
   </div>
 </template>

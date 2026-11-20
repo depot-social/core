@@ -1,6 +1,4 @@
 <template>
-  <hr class="mb-10 text-secondary" />
-
   <UButton
     v-if="userIsLoggedIn"
     type="submit"
