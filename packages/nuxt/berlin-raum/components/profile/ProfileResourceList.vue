@@ -118,9 +118,10 @@
       <UButton
         color="primary"
         variant="outline"
-        class="w-auto aspect-square items-center flex rounded-[30px] leading-tight"
+        class="w-auto aspect-square items-center justify-center flex flex-col gap-3 text-center rounded-[30px] leading-tight"
         :to="localePath('resources-add')"
       >
+        <UIcon name="i-lucide-plus" class="size-10" aria-hidden="true" />
         {{ $t('berlin_resources_addNewRoom') }}
       </UButton>
 
