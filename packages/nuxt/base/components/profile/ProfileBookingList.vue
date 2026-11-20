@@ -31,7 +31,7 @@
       @select="onSelect"
     >
       <template #resource-cell="{ row }">
-        <div class="flex items-center gap-3">
+        <div class="flex min-w-max items-center gap-3">
           <NuxtImg
             v-if="row.original.resource?.images?.[0]?.url"
             :src="row.original.resource.images[0].url"
@@ -116,10 +116,22 @@ const { formatDate } = useDateFormat();
 const filters: BookingFilter[] = ['all', 'past', 'upcoming'];
 const filter = ref<BookingFilter>('upcoming');
 
+const MOBILE_PAGE_SIZE = 3;
+const DESKTOP_PAGE_SIZE = 6;
+
+const isMd = useIsMdScreen();
 const table = useTemplateRef('table');
 const pagination = ref({
   pageIndex: 0,
-  pageSize: 6,
+  pageSize: MOBILE_PAGE_SIZE,
+});
+
+// Fewer rows per page on small screens to keep the list compact
+watch(isMd, (md) => {
+  pagination.value = {
+    pageIndex: 0,
+    pageSize: md ? DESKTOP_PAGE_SIZE : MOBILE_PAGE_SIZE,
+  };
 });
 
 // Start on the first page whenever the filter changes

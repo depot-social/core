@@ -90,16 +90,7 @@ import {
 } from '@internationalized/date';
 // import '@phosphor-icons/web/regular';
 import { differenceInCalendarDays, set } from 'date-fns';
-import {
-  computed,
-  defineProps,
-  onBeforeUnmount,
-  onMounted,
-  reactive,
-  ref,
-  shallowRef,
-  watch,
-} from 'vue';
+import { computed, defineProps, reactive, shallowRef, watch } from 'vue';
 import type {
   CalendarActiveSelection,
   OnChangeDateParams,
@@ -121,21 +112,7 @@ const timeZone = getLocalTimeZone();
 const today = getToday(timeZone);
 
 // Show two months from the tailwind `md` breakpoint on, one month below
-const isMd = ref(false);
-let mdMediaQuery: MediaQueryList | undefined;
-const onMdChange = (event: MediaQueryListEvent) => {
-  isMd.value = event.matches;
-};
-
-onMounted(() => {
-  mdMediaQuery = window.matchMedia('(min-width: 48rem)');
-  isMd.value = mdMediaQuery.matches;
-  mdMediaQuery.addEventListener('change', onMdChange);
-});
-
-onBeforeUnmount(() => {
-  mdMediaQuery?.removeEventListener('change', onMdChange);
-});
+const isMd = useIsMdScreen();
 
 const selectedRange = shallowRef<{
   start: DateValue | undefined;

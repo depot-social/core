@@ -145,7 +145,7 @@ const addParties = (
     ? `${resource.address.street}, ${resource.address.zip} ${resource.address.place}`
     : 'Adresse nicht verfügbar';
 
-  addText(doc, `${ownerName}, ${resourceAddress}${ownerOrg} (Anbieter_in)`, col1X, partyY + 40, {
+  addText(doc, `${ownerName}, ${resourceAddress}${ownerOrg} (Anbieter:in)`, col1X, partyY + 40, {
     fontSize: 10,
     fontStyle: 'bold',
     maxWidth: pageWidth,
@@ -274,8 +274,8 @@ const addNotes = (
   });
   yPos += 15;
   const anmerkungText = includePricing
-    ? 'Leihpreis plus Kaution sind bei Übergabe der Ressource in der genannten Höhe mitzubringen – am besten so gestückelt, dass die Anbieter_in die Kaution bei Rückgabe ohne zu wechseln zurückgeben kann. Den Verleihvertrag inkl. vorbereitetem Übergabeprotokoll druckt die Anbieter_in 2-fach aus, sodass der Vertrag bei Übergabe der Ressource gemeinsam von Anbieter_in und Nutzer_in unterschrieben werden kann. Bitte Nutzungsbedingungen (s. Links) beachten, insb. Abschnitt "Verschmutzung, Schäden, Unpünktlichkeit und sonstiger Mehraufwand".'
-    : 'Den Verleihvertrag inklusive vorbereitetem Übergabeprotokoll druckt die Anbieter_in 2-fach aus, sodass der Vertrag bei Übergabe der Ressource gemeinsam von Anbieter_in und Nutzer_in unterschrieben werden kann. Bitte Nutzungsbedingungen (s. Links) beachten, insbesondere den Abschnitt "Verschmutzung, Schäden, Unpünktlichkeit und sonstiger Mehraufwand".';
+    ? 'Leihpreis plus Kaution sind bei Übergabe der Ressource in der genannten Höhe mitzubringen – am besten so gestückelt, dass die Anbieter:in die Kaution bei Rückgabe ohne zu wechseln zurückgeben kann. Den Verleihvertrag inkl. vorbereitetem Übergabeprotokoll druckt die Anbieter:in 2-fach aus, sodass der Vertrag bei Übergabe der Ressource gemeinsam von Anbieter:in und Nutzer:in unterschrieben werden kann. Bitte Nutzungsbedingungen (s. Links) beachten, insb. Abschnitt "Verschmutzung, Schäden, Unpünktlichkeit und sonstiger Mehraufwand".'
+    : 'Den Verleihvertrag inklusive vorbereitetem Übergabeprotokoll druckt die Anbieter:in 2-fach aus, sodass der Vertrag bei Übergabe der Ressource gemeinsam von Anbieter:in und Nutzer:in unterschrieben werden kann. Bitte Nutzungsbedingungen (s. Links) beachten, insbesondere den Abschnitt "Verschmutzung, Schäden, Unpünktlichkeit und sonstiger Mehraufwand".';
   addText(doc, anmerkungText, margin, yPos, {
     fontSize: 10,
     maxWidth: pageWidth - 2 * margin,
@@ -297,13 +297,13 @@ const addNotes = (
 const addSignatures = (doc: jsPDF, yPos: number, pageWidth: number, margin: number): number => {
   const sigY = yPos;
   doc.line(margin, sigY + 15, margin + 200, sigY + 15); // Line for Nutzerin
-  addText(doc, '(Unterschrift Nutzer_in)', margin, sigY + 30, {
+  addText(doc, '(Unterschrift Nutzer:in)', margin, sigY + 30, {
     fontSize: 10,
   });
 
   const sig2X = pageWidth / 2 + margin / 2;
   doc.line(sig2X, sigY + 15, sig2X + 200, sigY + 15); // Line for Anbieterin
-  addText(doc, '(Unterschrift Anbieter_in)', sig2X, sigY + 30, {
+  addText(doc, '(Unterschrift Anbieter:in)', sig2X, sigY + 30, {
     fontSize: 10,
   });
 
@@ -343,7 +343,7 @@ const addHandoverProtocol = (
     });
     addText(
       doc,
-      'Empfangsbestätigung Ressource, Nutzer_in',
+      'Empfangsbestätigung Ressource, Nutzer:in',
       margin + tableCol1Width + 5,
       yPos + 18,
       { fontSize: 9 }
@@ -372,12 +372,12 @@ const addHandoverProtocol = (
   addText(doc, 'Die Ressourcen wiesen folgende Mängel auf:', margin + 5, yPos + 18, {
     fontSize: 9,
   });
-  addText(doc, 'Empfangsbestätigung Ressource, Nutzer_in', margin + tableCol1Width + 5, yPos + 18, {
+  addText(doc, 'Empfangsbestätigung Ressource, Nutzer:in', margin + tableCol1Width + 5, yPos + 18, {
     fontSize: 9,
   });
   addText(
     doc,
-    'Empfangsbestätigung Leihpreis u. Kaution, Anbieter_in',
+    'Empfangsbestätigung Leihpreis u. Kaution, Anbieter:in',
     margin + tableCol1Width + tableCol2Width + 5,
     yPos + 18,
     { fontSize: 9 }
@@ -433,7 +433,7 @@ const addReturnProtocol = (
     });
     addText(
       doc,
-      'Empfangsbestätigung Ressource, Anbieter_in',
+      'Empfangsbestätigung Ressource, Anbieter:in',
       margin + tableCol1Width + 5,
       yPos + 18,
       { fontSize: 9 }
@@ -464,14 +464,14 @@ const addReturnProtocol = (
   });
   addText(
     doc,
-    'Empfangsbestätigung Ressource, Anbieter_in',
+    'Empfangsbestätigung Ressource, Anbieter:in',
     margin + tableCol1Width + 5,
     yPos + 18,
     { fontSize: 9 }
   );
   addText(
     doc,
-    'Empfangsbestätigung Kaution, Nutzer_in',
+    'Empfangsbestätigung Kaution, Nutzer:in',
     margin + tableCol1Width + tableCol2Width + 5,
     yPos + 18,
     { fontSize: 9 }
@@ -521,7 +521,7 @@ export default ({ strapi }: { strapi: Core.Strapi }): RentalAgreementService => 
     // Introduction
     addText(
       doc,
-      `Die Nutzer_in leiht von der Anbieter_in zu den unter ${appName} für die u.g. Ressource bereitgestellten Nutzungsbedingungen (AGB) im Footer.`,
+      `Die Nutzer:in leiht von der Anbieter:in zu den unter ${appName} für die u.g. Ressource bereitgestellten Nutzungsbedingungen (AGB) im Footer.`,
       margin,
       yPos,
       { fontSize: 10, maxWidth: pageWidth - 2 * margin }
