@@ -281,6 +281,11 @@ strong {
   scroll-margin-top: 1.25rem;
 }
 
+p a,
+label a {
+  @apply font-bold text-black;
+}
+
 input:focus,
 select:focus,
 textarea:focus,
@@ -313,7 +318,7 @@ textarea:focus,
   background-color: currentColor;
   width: 1em;
   height: 0.8em;
-  margin: 0 0.5em -0.1em 0.2em;
+  margin-left: 0.2em;
   mask-size: contain;
   mask-repeat: no-repeat;
   mask-position: left;

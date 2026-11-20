@@ -161,6 +161,36 @@
       name="acceptTermsAndPrivacy"
     >
       <UCheckbox
+        v-if="isLayer('berlin-ausleihe')"
+        v-model="state.acceptTermsAndPrivacy"
+        required
+      >
+        <template #label>
+          <i18n-t
+            keypath="berlin_register_acceptTermsAndPrivacy"
+            scope="global"
+          >
+            <template #terms>
+              <NuxtLink
+                class="underline hover:no-underline"
+                :to="termsPagePath"
+                >{{ $t('berlin_register_termsLink') }}</NuxtLink
+              >
+            </template>
+            <template #privacy>
+              <NuxtLink
+                class="underline hover:no-underline external-link"
+                to="https://engagiertes.berlin/de/datenschutz/"
+                external
+                target="_blank"
+                >{{ $t('berlin_register_privacyLink') }}</NuxtLink
+              >
+            </template>
+          </i18n-t>
+        </template>
+      </UCheckbox>
+      <UCheckbox
+        v-else
         v-model="state.acceptTermsAndPrivacy"
         required
         :label="$t('register_acceptTermsAndPrivacy')"
@@ -180,7 +210,7 @@
 </template>
 
 <script setup lang="ts">
-import { normalizeWebsiteUrl } from '@depot/shared';
+import { normalizeWebsiteUrl, type SingleTypePage } from '@depot/shared';
 import * as v from 'valibot';
 import { defineEmits, defineProps, withDefaults } from 'vue';
 import type {
@@ -205,6 +235,23 @@ const emit = defineEmits<{
 }>();
 
 const isEditForm = computed(() => props.isEditForm);
+
+const { isLayer } = useActiveLayer();
+const { findOne } = useStrapi();
+
+// Strapi `pages` entry holding the terms of use for berlin-ausleihe
+const AUSLEIHE_TERMS_PAGE_DOCUMENT_ID = 'u9g5bbj9ad6c1zvt9tfnw1hd';
+
+const { data: termsPage } = await useAsyncData(
+  'berlin-ausleihe-terms-page',
+  () => findOne<SingleTypePage>('pages', AUSLEIHE_TERMS_PAGE_DOCUMENT_ID),
+  { immediate: isLayer('berlin-ausleihe') && !props.isEditForm }
+);
+
+const termsPagePath = computed(() => {
+  const slug = termsPage.value?.data?.slug;
+  return slug ? `/${slug}` : undefined;
+});
 const loading = computed(() => props.loading);
 const salutationItems = [
   { label: $t('profile_salutationMrs'), value: 'mrs' },
