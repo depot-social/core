@@ -68,7 +68,7 @@
       />
 
       <NuxtLink
-        class="underline external-link flex h-max"
+        class="underline external-link flex h-max leading-none"
         to="https://engagiertes.berlin/de/einreichen/melden/"
         external
       >
