@@ -1,5 +1,6 @@
 {
   "berlin_are": "sind",
+  "berlin_booking_form_acceptTerms": "Mit dem Absenden dieser unverbindlichen Buchungsanfrage stimme ich den {terms} zu.",
   "berlin_booking_form_almostDone": "Fast geschafft!",
   "berlin_booking_form_cancel": "Abbrechen",
   "berlin_booking_form_contactEmail": "E-Mail-Adresse",

@@ -24,21 +24,27 @@
       <div
         class="basis-full lg:basis-2/3 flex flex-col items-start gap-8 px-8 xl:px-24 py-12"
       >
-        <button class="link no-underline" @click="$router.back()">
-          <i class="ph ph-arrow-left" /> {{ $t('viewResource') }}
+        <button
+          class="text-2lg font-light cursor-pointer"
+          @click="$router.back()"
+        >
+          &larr; {{ $t('viewResource') }}
         </button>
         <h1 class="text-xl">{{ $t('yourBookingRequest') }}</h1>
         <p>
           <strong>{{ $t('almostDone') }}</strong> {{ $t('addMoreInformation') }}
         </p>
 
-        <BaseBookingForm :form-data="bookingFormData" @submit="onSubmit">
+        <BerlinBookingRequestForm
+          :form-data="bookingFormData"
+          @submit="onSubmit"
+        >
           <BerlinBookingFormSidebar
             :booking="bookingFormData"
             :resource="resource"
             class="lg:hidden"
           />
-        </BaseBookingForm>
+        </BerlinBookingRequestForm>
       </div>
 
       <BerlinBookingFormSidebar
