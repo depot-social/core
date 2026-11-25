@@ -1,6 +1,27 @@
 import { readBooleanEnv } from '@depot/shared';
 import { mutateBookingDocumentation } from './booking-documentation';
 
+/**
+ * Selectable icons for navigation items (Phosphor icon names without `ph-` prefix).
+ * Frontend renders them as `<i class="ph ph-<name>">`.
+ */
+const NAVIGATION_ICONS = [
+    'magnifying-glass',
+    'plus',
+    'squares-four',
+    'key',
+    'book-open',
+    'question',
+    'info',
+    'envelope-simple',
+    'calendar-dots',
+    'chat-circle',
+    'user',
+    'gear',
+    'star',
+    'archive-box',
+];
+
 export default ({ env }) => ({
     'users-permissions': {
         enabled: true,
@@ -60,6 +81,41 @@ export default ({ env }) => ({
     },
     seo: {
         enabled: true
+    },
+    navigation: {
+        enabled: true,
+        config: {
+            // Instance specific menus (e.g. left side "Raum für Engagement").
+            // The engagiertes.berlin main navigation is hard coded in the frontend.
+            additionalFields: [
+                {
+                    name: 'icon',
+                    type: 'select',
+                    label: 'Icon',
+                    description: 'Phosphor icon name, see https://phosphoricons.com',
+                    multi: false,
+                    options: NAVIGATION_ICONS,
+                    required: false,
+                    enabled: true,
+                },
+                {
+                    name: 'comingSoon',
+                    type: 'boolean',
+                    label: 'Noch nicht verfügbar',
+                    description: 'Shows the item disabled with a "not yet available" hint',
+                    required: false,
+                    enabled: true,
+                },
+            ],
+            contentTypes: ['api::page.page'],
+            contentTypesNameFields: {
+                'api::page.page': ['headline'],
+            },
+            pathDefaultFields: {
+                'api::page.page': ['slug'],
+            },
+            allowedLevels: 2,
+        },
     },
     email: {
         config: {
