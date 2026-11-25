@@ -135,5 +135,74 @@
     "berlin_with": "mit",
     "form_submit": "Abschicken",
     "validation_invalidDate": "Bitte ein gültiges Datum eingeben",
-    "validation_minLength5": "Mindestens 5 Zeichen"
+    "validation_minLength5": "Mindestens 5 Zeichen",
+    "berlin_menu_title": "Raum für Engagement",
+    "berlin_mainNav": {
+        "home": {
+            "label": "engagiertes.berlin",
+            "url": "https://engagiertes.berlin/de/"
+        },
+        "moreOffers": {
+            "title": "Weitere Angebote von engagiertes.berlin",
+            "items": {
+                "funding": {
+                    "label": "Fördermittel",
+                    "url": "https://engagiertes.berlin/de/foerdermittel/"
+                },
+                "lending": {
+                    "label": "Ausleihe",
+                    "url": "https://ausleihe.engagiertes.berlin/"
+                },
+                "competences": {
+                    "label": "Kompetenznachweis",
+                    "url": "https://engagiertes.berlin/de/kompetenznachweis/"
+                },
+                "trainings": {
+                    "label": "Weiterbildungen",
+                    "url": "https://engagiertes.berlin/de/weiterbildungen/"
+                },
+                "awards": {
+                    "label": "Preise",
+                    "url": "https://engagiertes.berlin/de/preise/"
+                },
+                "events": {
+                    "label": "Events",
+                    "url": "https://engagiertes.berlin/de/events/"
+                },
+                "digitalHelpers": {
+                    "label": "Digitale Helfer",
+                    "url": "https://engagiertes.berlin/de/digitalehelfer/"
+                }
+            }
+        },
+        "knowledge": {
+            "title": "Wissen & Beratung",
+            "items": {
+                "counseling": {
+                    "label": "Beratungsstellen",
+                    "url": "https://engagiertes.berlin/de/beratungstellen/"
+                },
+                "fundingPrograms": {
+                    "label": "Förderprogramme",
+                    "url": "https://engagiertes.berlin/de/foerderprogramme/"
+                },
+                "articles": {
+                    "label": "Wissensbeiträge",
+                    "url": "https://engagiertes.berlin/de/wissen/"
+                }
+            }
+        },
+        "social": {
+            "items": {
+                "newsletter": {
+                    "label": "Newsletter",
+                    "url": "https://engagiertes.berlin/de/newsletter-anmeldung/"
+                },
+                "instagram": {
+                    "label": "Instagram",
+                    "url": "https://www.instagram.com/engagiertes.berlin/"
+                }
+            }
+        }
+    }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-8 mb-12">
+  <div id="resources" class="flex flex-col gap-8 mb-12 scroll-mt-24">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <h3 class="text-xl">
         {{

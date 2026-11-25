@@ -19,7 +19,7 @@ const NAVIGATION_ICONS = [
     'user',
     'gear',
     'star',
-    'archive-box',
+    'archive',
 ];
 
 export default ({ env }) => ({

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4">
+  <div id="bookings" class="flex flex-col gap-4 scroll-mt-24">
     <div class="flex flex-wrap items-center justify-between gap-4">
       <h3 class="text-xl">{{ $t('myBookings') }}</h3>
       <div class="join">

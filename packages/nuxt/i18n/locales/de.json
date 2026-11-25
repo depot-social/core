@@ -278,5 +278,8 @@
   "bookingActionFailed": "Die Buchungsaktion konnte nicht ausgeführt werden. Bitte versuche es erneut.",
   "bookingReloadFailed": "Die Aktion wurde gespeichert. Bitte lade die Seite neu, um alle Buchungsdetails zu aktualisieren.",
   "rentalAgreement": "Verleihvertrag",
-  "reportIllegalContent": "Inhalt melden"
+  "reportIllegalContent": "Inhalt melden",
+  "navigation_open": "Menü öffnen",
+  "navigation_title": "Menü",
+  "navigation_comingSoon": "Noch nicht verfügbar"
 }

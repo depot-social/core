@@ -108,5 +108,6 @@
   "form_submit": "Abschicken",
   "validation_invalidDate": "Bitte ein gültiges Datum eingeben",
   "validation_minLength5": "Mindestens 5 Zeichen",
-  "bookingRequestFrom": "Anfrage von: "
+  "bookingRequestFrom": "Anfrage von: ",
+  "berlin_menu_title": "Ausleihe für Engagement"
 }
