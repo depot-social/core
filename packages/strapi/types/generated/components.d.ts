@@ -306,6 +306,7 @@ export interface SingleTypeBlocksSubpageHeader extends Struct.ComponentSchema {
     backgroundColor: Schema.Attribute.Relation<'oneToOne', 'api::color.color'>;
     headline: Schema.Attribute.Text;
     image: Schema.Attribute.Media<'images'>;
+    imageDescription: Schema.Attribute.String;
     label: Schema.Attribute.String;
     subline: Schema.Attribute.Text;
   };
@@ -319,8 +320,6 @@ export interface SingleTypeBlocksTextSection extends Struct.ComponentSchema {
     icon: 'layer';
   };
   attributes: {
-    alignment: Schema.Attribute.Enumeration<['center', 'left']> &
-      Schema.Attribute.DefaultTo<'center'>;
     callToAction: Schema.Attribute.Component<
       'single-type-blocks.call-to-action',
       false

@@ -1,11 +1,17 @@
-import type { SingleTypePage } from '@depot/shared';
+import type { StrapiSEO } from '@depot/shared';
 
-export const useSeo = (page: SingleTypePage) => {
+interface SeoSource {
+  seo?: StrapiSEO;
+  /** Fallback for the meta title when no `seo.metaTitle` is set */
+  headline?: string | null;
+}
+
+export const useSeo = (page: SeoSource) => {
   const seoMeta = computed(() => {
     if (!page.seo) return;
 
     return {
-      title: page.seo.metaTitle ?? page.headline,
+      title: page.seo.metaTitle ?? page.headline ?? undefined,
       description: page.seo.metaDescription,
       image: page.seo.metaImage
         ? useStrapiMedia(page.seo.metaImage.url)

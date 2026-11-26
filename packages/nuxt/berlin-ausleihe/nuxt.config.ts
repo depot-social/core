@@ -1,4 +1,4 @@
-import type { Resource, SingleTypePage } from '@depot/shared';
+import type { Resource, SingleTypePage, Subpage } from '@depot/shared';
 
 const resourceBasePath = '/ressourcen';
 
@@ -76,6 +76,15 @@ export default defineNuxtConfig({
 
       for (const page of pageData as SingleTypePage[]) {
         ctx.routes.add(`/${page.slug}`);
+      }
+
+      // Add subpages
+      const { data: subpageData } = await fetch(
+        `${process.env.PUBLIC_STRAPI_URL}/api/subpages`
+      ).then((res) => res.json());
+
+      for (const subpage of (subpageData ?? []) as Subpage[]) {
+        ctx.routes.add(`/${subpage.slug}`);
       }
 
       // Add resource pages

@@ -12,6 +12,9 @@
       "multiple": false,
       "allowedTypes": ["images"]
     },
+    "imageDescription": {
+      "type": "string"
+    },
     "label": {
       "type": "string"
     },

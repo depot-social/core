@@ -5,7 +5,11 @@
     <main>
       <slot />
     </main>
-    <BerlinFaq />
+    <BerlinFaq v-if="route.meta.layoutFaq !== false" />
     <BerlinFooter />
   </div>
 </template>
+
+<script setup lang="ts">
+const route = useRoute();
+</script>

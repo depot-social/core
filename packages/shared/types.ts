@@ -651,6 +651,63 @@ export interface SingleTypePage extends StrapiBaseEntity {
   seo?: StrapiSEO;
 }
 
+export interface Color extends StrapiBaseEntity {
+  name: string;
+  hex: string;
+}
+
+export interface SubpageHeader {
+  id: number;
+  image?: UploadedImage | null;
+  /** Shown below the image and used as alt text fallback */
+  imageDescription?: string | null;
+  label?: string | null;
+  headline?: string | null;
+  subline?: string | null;
+  backgroundColor?: Color | null;
+}
+
+export interface SubpageCallToAction {
+  id: number;
+  text: string;
+  url: string;
+  hint?: string | null;
+}
+
+export enum SubpageSectionComponent {
+  TEXT_SECTION = 'single-type-blocks.text-section',
+  FAQS = 'single-type-blocks.faqs',
+}
+
+export interface SubpageTextSection {
+  __component: SubpageSectionComponent.TEXT_SECTION;
+  id: number;
+  label?: string | null;
+  headline?: string | null;
+  content?: string | null;
+  callToAction?: SubpageCallToAction | null;
+}
+
+export interface SubpageFaqsSection {
+  __component: SubpageSectionComponent.FAQS;
+  id: number;
+  label?: string | null;
+  headline?: string | null;
+  faqs?: FAQ[];
+}
+
+export type SubpageSection = SubpageTextSection | SubpageFaqsSection;
+
+export interface Subpage extends StrapiBaseEntity {
+  title: string;
+  slug: string;
+  header?: SubpageHeader | null;
+  sections?: SubpageSection[];
+  publishedAt: string;
+  locale: string;
+  seo?: StrapiSEO;
+}
+
 export interface SingleTypeEmailTemplate extends StrapiBaseEntity {
   title: string;
   layout: string;

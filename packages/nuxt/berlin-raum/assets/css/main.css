@@ -324,3 +324,65 @@ textarea:focus,
   mask-position: left;
   mask-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"%3E%3Cpath d="M24 28H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10v2H4v20h20V16h2v10a2 2 0 0 1-2 2z"/%3E%3Cpath d="M18 2v2h6.6L16 12.6l1.4 1.4L26 5.4V12h2V2Z"/%3E%3C/svg%3E');
 }
+
+/* Subpages: typography measured from the design at ~1500px viewport */
+.subpage-caption {
+  @apply text-sm md:text-[15px] font-normal leading-snug opacity-60;
+}
+
+.subpage-label {
+  @apply text-sm md:text-[16px] font-semibold uppercase tracking-wide leading-tight;
+}
+
+.subpage-title {
+  @apply text-[42px] sm:text-[62px] md:text-[96px] xl:text-[120px] font-bold tracking-tight leading-[0.95] mt-6 md:mt-10;
+}
+
+.subpage-lead {
+  @apply text-lg md:text-2lg font-normal leading-relaxed mt-6 md:mt-10 max-w-3xl;
+}
+
+.subpage-headline {
+  @apply text-[36px] md:text-[56px] xl:text-[72px] font-bold tracking-tight leading-[1.05] mt-6 md:mt-8 mb-0;
+}
+
+/* Rich text on subpages (markdown from Strapi) */
+.subpage-richtext {
+  & p {
+    @apply text-base md:text-[20px] font-light leading-relaxed;
+  }
+
+  & p + p {
+    @apply mt-4 md:mt-5;
+  }
+
+  & a {
+    @apply font-light text-black underline underline-offset-2 decoration-1;
+  }
+
+  & h3,
+  & h4 {
+    @apply text-base md:text-[20px] font-semibold leading-snug mt-8 md:mt-10 mb-3;
+  }
+
+  & ul {
+    @apply mt-4 border-t border-black/20;
+  }
+
+  & ul > li {
+    @apply relative py-3 md:py-4 pl-11 border-b border-black/20 text-base md:text-[20px] font-light leading-snug;
+  }
+
+  & ul > li::before {
+    content: '→';
+    @apply absolute left-0 top-1/2 -translate-y-1/2 grid place-items-center size-7 md:size-8 rounded-full bg-white text-sm;
+  }
+
+  & ol {
+    @apply mt-4 list-decimal pl-6;
+  }
+
+  & ol > li {
+    @apply py-1 text-base md:text-[20px] font-light leading-relaxed;
+  }
+}

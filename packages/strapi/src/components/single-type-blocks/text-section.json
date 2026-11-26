@@ -16,11 +16,6 @@
     "content": {
       "type": "richtext"
     },
-    "alignment": {
-      "type": "enumeration",
-      "enum": ["center", "left"],
-      "default": "center"
-    },
     "callToAction": {
       "type": "component",
       "component": "single-type-blocks.call-to-action",
