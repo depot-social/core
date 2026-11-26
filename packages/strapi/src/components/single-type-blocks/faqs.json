@@ -2,8 +2,21 @@
   "collectionName": "components_single_type_blocks_faqs",
   "info": {
     "displayName": "faqs",
-    "icon": "question"
+    "icon": "question",
+    "description": "FAQ section with label, headline and reusable FAQ entries"
   },
   "options": {},
-  "attributes": {}
+  "attributes": {
+    "label": {
+      "type": "string"
+    },
+    "headline": {
+      "type": "string"
+    },
+    "faqs": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::faq.faq"
+    }
+  }
 }

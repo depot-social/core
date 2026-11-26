@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_single_type_blocks_call_to_actions",
+  "info": {
+    "displayName": "CallToAction",
+    "icon": "cursor",
+    "description": "Button with link (relative path, https:// or mailto:) and optional hint below"
+  },
+  "options": {},
+  "attributes": {
+    "text": {
+      "type": "string",
+      "required": true
+    },
+    "url": {
+      "type": "string",
+      "required": true
+    },
+    "hint": {
+      "type": "string"
+    }
+  }
+}

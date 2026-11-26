@@ -636,6 +636,35 @@ export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiColorColor extends Struct.CollectionTypeSchema {
+  collectionName: 'colors';
+  info: {
+    description: 'Predefined colors, e.g. for page header backgrounds';
+    displayName: 'Color';
+    pluralName: 'colors';
+    singularName: 'color';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    hex: Schema.Attribute.String & Schema.Attribute.Required;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::color.color'> &
+      Schema.Attribute.Private;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiConversationConversation
   extends Struct.CollectionTypeSchema {
   collectionName: 'conversations';
@@ -1037,6 +1066,75 @@ export interface ApiResourcesSearchPageResourcesSearchPage
   };
 }
 
+export interface ApiSubpageSubpage extends Struct.CollectionTypeSchema {
+  collectionName: 'subpages';
+  info: {
+    description: 'Subpage: header with image, text sections and FAQs';
+    displayName: 'Subpage';
+    pluralName: 'subpages';
+    singularName: 'subpage';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  pluginOptions: {
+    i18n: {
+      localized: true;
+    };
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    header: Schema.Attribute.Component<
+      'single-type-blocks.subpage-header',
+      false
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    locale: Schema.Attribute.String;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::subpage.subpage'
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    sections: Schema.Attribute.DynamicZone<
+      ['single-type-blocks.text-section', 'single-type-blocks.faqs']
+    > &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    seo: Schema.Attribute.Component<'shared.seo', false> &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    slug: Schema.Attribute.UID<'title'> &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    title: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.SetPluginOptions<{
+        i18n: {
+          localized: true;
+        };
+      }>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -1152,10 +1250,6 @@ export interface PluginEmailsEmailTemplate extends Struct.SingleTypeSchema {
     berlinBookingBody: Schema.Attribute.Text;
     berlinBookingTitle: Schema.Attribute.String;
     berlinBookingTitleCopy: Schema.Attribute.String;
-    bookingCancelledBody: Schema.Attribute.Text;
-    bookingCancelledTitle: Schema.Attribute.String;
-    bookingConfirmedBody: Schema.Attribute.Text;
-    bookingConfirmedTitle: Schema.Attribute.String;
     bookingRequestBody: Schema.Attribute.Text;
     bookingRequestTitle: Schema.Attribute.String;
     createdAt: Schema.Attribute.DateTime;
@@ -1626,6 +1720,7 @@ declare module '@strapi/strapi' {
       'api::availability.availability': ApiAvailabilityAvailability;
       'api::booking.booking': ApiBookingBooking;
       'api::category.category': ApiCategoryCategory;
+      'api::color.color': ApiColorColor;
       'api::conversation.conversation': ApiConversationConversation;
       'api::district.district': ApiDistrictDistrict;
       'api::faq.faq': ApiFaqFaq;
@@ -1635,6 +1730,7 @@ declare module '@strapi/strapi' {
       'api::purpose.purpose': ApiPurposePurpose;
       'api::resource.resource': ApiResourceResource;
       'api::resources-search-page.resources-search-page': ApiResourcesSearchPageResourcesSearchPage;
+      'api::subpage.subpage': ApiSubpageSubpage;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::emails.email-template': PluginEmailsEmailTemplate;

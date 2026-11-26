@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "colors",
+  "info": {
+    "singularName": "color",
+    "pluralName": "colors",
+    "displayName": "Color",
+    "description": "Predefined colors, e.g. for page header backgrounds"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "hex": {
+      "type": "string",
+      "required": true,
+      "regex": "^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$"
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "collectionName": "components_single_type_blocks_subpage_headers",
+  "info": {
+    "displayName": "SubpageHeader",
+    "icon": "picture",
+    "description": "Header for subpages: image, optional label, headline, plain text subline and background color"
+  },
+  "options": {},
+  "attributes": {
+    "image": {
+      "type": "media",
+      "multiple": false,
+      "allowedTypes": ["images"]
+    },
+    "label": {
+      "type": "string"
+    },
+    "headline": {
+      "type": "text"
+    },
+    "subline": {
+      "type": "text"
+    },
+    "backgroundColor": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::color.color"
+    }
+  }
+}

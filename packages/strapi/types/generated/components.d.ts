@@ -251,13 +251,32 @@ export interface SingleTypeBlocksAccordionBlock extends Struct.ComponentSchema {
   };
 }
 
+export interface SingleTypeBlocksCallToAction extends Struct.ComponentSchema {
+  collectionName: 'components_single_type_blocks_call_to_actions';
+  info: {
+    description: 'Button with link (relative path, https:// or mailto:) and optional hint below';
+    displayName: 'CallToAction';
+    icon: 'cursor';
+  };
+  attributes: {
+    hint: Schema.Attribute.String;
+    text: Schema.Attribute.String & Schema.Attribute.Required;
+    url: Schema.Attribute.String & Schema.Attribute.Required;
+  };
+}
+
 export interface SingleTypeBlocksFaqs extends Struct.ComponentSchema {
   collectionName: 'components_single_type_blocks_faqs';
   info: {
+    description: 'FAQ section with label, headline and reusable FAQ entries';
     displayName: 'faqs';
     icon: 'question';
   };
-  attributes: {};
+  attributes: {
+    faqs: Schema.Attribute.Relation<'oneToMany', 'api::faq.faq'>;
+    headline: Schema.Attribute.String;
+    label: Schema.Attribute.String;
+  };
 }
 
 export interface SingleTypeBlocksPageHeader extends Struct.ComponentSchema {
@@ -273,6 +292,42 @@ export interface SingleTypeBlocksPageHeader extends Struct.ComponentSchema {
     image: Schema.Attribute.Media<'images'>;
     imageLinkUrl: Schema.Attribute.String;
     subline: Schema.Attribute.RichText;
+  };
+}
+
+export interface SingleTypeBlocksSubpageHeader extends Struct.ComponentSchema {
+  collectionName: 'components_single_type_blocks_subpage_headers';
+  info: {
+    description: 'Header for subpages: image, optional label, headline, plain text subline and background color';
+    displayName: 'SubpageHeader';
+    icon: 'picture';
+  };
+  attributes: {
+    backgroundColor: Schema.Attribute.Relation<'oneToOne', 'api::color.color'>;
+    headline: Schema.Attribute.Text;
+    image: Schema.Attribute.Media<'images'>;
+    label: Schema.Attribute.String;
+    subline: Schema.Attribute.Text;
+  };
+}
+
+export interface SingleTypeBlocksTextSection extends Struct.ComponentSchema {
+  collectionName: 'components_single_type_blocks_text_sections';
+  info: {
+    description: 'Section with uppercase label, headline, rich text and optional call to action';
+    displayName: 'TextSection';
+    icon: 'layer';
+  };
+  attributes: {
+    alignment: Schema.Attribute.Enumeration<['center', 'left']> &
+      Schema.Attribute.DefaultTo<'center'>;
+    callToAction: Schema.Attribute.Component<
+      'single-type-blocks.call-to-action',
+      false
+    >;
+    content: Schema.Attribute.RichText;
+    headline: Schema.Attribute.Text;
+    label: Schema.Attribute.String;
   };
 }
 
@@ -292,8 +347,11 @@ declare module '@strapi/strapi' {
       'shared.seo': SharedSeo;
       'single-type-blocks.accordion': SingleTypeBlocksAccordion;
       'single-type-blocks.accordion-block': SingleTypeBlocksAccordionBlock;
+      'single-type-blocks.call-to-action': SingleTypeBlocksCallToAction;
       'single-type-blocks.faqs': SingleTypeBlocksFaqs;
       'single-type-blocks.page-header': SingleTypeBlocksPageHeader;
+      'single-type-blocks.subpage-header': SingleTypeBlocksSubpageHeader;
+      'single-type-blocks.text-section': SingleTypeBlocksTextSection;
     }
   }
 }
