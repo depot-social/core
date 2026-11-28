@@ -14,7 +14,7 @@ type StrapiNavigationItem = {
  * Loads a navigation from strapi-plugin-navigation and maps it to Nuxt UI menu items.
  * Icons are Phosphor names (e.g. `key`), relative paths are app routes,
  * absolute URLs open in a new tab.
- * @example const { data: items } = await useNavigation('main');
+ * @example const { data: items } = await useNavigation('navigation');
  */
 export const useNavigation = (slug: string) => {
   const client = useStrapiClient();

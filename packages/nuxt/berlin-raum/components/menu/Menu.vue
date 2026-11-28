@@ -92,7 +92,7 @@ const closeOnLink = (event: MouseEvent) => {
   if ((event.target as HTMLElement).closest('a')) open.value = false;
 };
 
-const { data: navigation } = useNavigation('main');
+const { data: navigation } = useNavigation('navigation');
 const { data: metaItems } = useNavigation('meta');
 const { home, groups, social } = useMainNavigation();
 
